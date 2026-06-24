@@ -168,7 +168,7 @@ const productsData = [
         badge: null,
         description: "Luxurious creamy matte lipstick with long-lasting bold color and comfortable wear.",
         shades: [
-            { name: "Coral Pink", color: "#E36266", image: "img/Coral Pink Creamy Matte Lipstick.jpg" }
+            { name: "Coral Pink", color: "#E36266", image: "img/Coral_Pink_Creamy_Matte_Lipstick.jpg" }
         ]
     },
     {
@@ -476,7 +476,7 @@ const productsData = [
         id: 26,
         name: "BrowPencil, Eyebrow Pencil",
         category: "eyes",
-        price: 250,
+        price: 200,
         oldPrice: null,
         rating: 4.6,
         reviews: 3200,
@@ -619,7 +619,7 @@ const productsData = [
         id: 37,
         name: "Wibo Probrow Pencil",
         category: "eyes",
-        price: 349,
+        price: 200,
         oldPrice: null,
         rating: 4.6,
         reviews: 2000,
@@ -632,7 +632,7 @@ const productsData = [
         id: 38,
         name: "Ushas branded waterproof lip liner pencil",
         category: "lips",
-        price: 250,
+        price: 200,
         oldPrice: null,
         rating: 4.7,
         reviews: 2300,
@@ -658,26 +658,13 @@ const productsData = [
         id: 40,
         name: "BrowPencil Twist-Up Eyebrow Pencil",
         category: "eyes",
-        price: 250,
+        price: 200,
         oldPrice: null,
         rating: 4.6,
         reviews: 1900,
         image: "img/black_twist_up_eyebrow_pencil.png",
         badge: "New",
         description: "Twist-up eyebrow pencil for defined, precise brows with a smooth, easy application.",
-        shades: []
-    },
-    {
-        id: 41,
-        name: "Rivaj UK Super Thick 2-in-1 Brow Pencil",
-        category: "eyes",
-        price: 450,
-        oldPrice: null,
-        rating: 4.7,
-        reviews: 2100,
-        image: "img/Ushas_branded_waterproof_lip_liner_pencil.jpg",
-        badge: "New",
-        description: "Dual-ended brow pencil for elegant, precise brows. Super thick formula for full, defined coverage.",
         shades: []
     },
     {
@@ -2717,8 +2704,9 @@ function openQuickView(productId) {
         ` : '';
 
         qvb.innerHTML = `
-            <div class="quick-view-image">
+            <div class="quick-view-image" onclick="openImageLightbox(document.getElementById('qv-main-img-${product.id}').src, '${product.name}')" title="Click to zoom" style="cursor:zoom-in;">
                 <img src="${activeImage}" alt="${product.name}" id="qv-main-img-${product.id}">
+                <span class="qv-zoom-hint"><i class="fas fa-search-plus"></i></span>
             </div>
             <div class="quick-view-details">
                 <h2 id="qv-title-${product.id}">${product.name}</h2>
@@ -2837,6 +2825,43 @@ function addToCartFromQuickView(productId) {
     saveCart(); updateCartUI();
     const shadePart = shade ? ` — ${shade}` : '';
     showToast('success', 'Added to Cart', `${product.name}${shadePart} added to cart!`, 1500);
+}
+
+// ==========================================
+// IMAGE LIGHTBOX (ZOOM ON CLICK)
+// ==========================================
+function openImageLightbox(src, alt) {
+    // Remove existing lightbox if any
+    const existing = document.getElementById('img-lightbox-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'img-lightbox-overlay';
+    overlay.innerHTML = `
+        <div id="img-lightbox-inner">
+            <button id="img-lightbox-close" onclick="closeImageLightbox()" aria-label="Close">&#10005;</button>
+            <img src="${src}" alt="${alt || ''}" id="img-lightbox-img" draggable="false">
+        </div>
+    `;
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeImageLightbox();
+    });
+    document.body.appendChild(overlay);
+
+    // Trigger animation
+    requestAnimationFrame(() => overlay.classList.add('active'));
+
+    // Keyboard close
+    overlay._keyHandler = function(e) { if (e.key === 'Escape') closeImageLightbox(); };
+    document.addEventListener('keydown', overlay._keyHandler);
+}
+
+function closeImageLightbox() {
+    const overlay = document.getElementById('img-lightbox-overlay');
+    if (!overlay) return;
+    document.removeEventListener('keydown', overlay._keyHandler);
+    overlay.classList.remove('active');
+    setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 280);
 }
 
 // ==========================================
@@ -5600,15 +5625,15 @@ if (document.readyState === 'loading') {
 console.log('✅ Announcement Bar + Live Chat Widget loaded!');
 
 // ==========================================
-// GRAND OPENING SALE COUNTDOWN TIMER — Fixed: 10 July 2026, 11:59 PM PKT
+// GRAND OPENING SALE COUNTDOWN TIMER — Fixed: 31 July 2026, 11:59 PM PKT
 // ==========================================
 (function() {
   'use strict';
 
-  // ── Fixed end date: 10 July 2026, 11:59 PM PKT (UTC+5) ──
-  // 11:59 PM PKT = 18:59 UTC on 10 July 2026
+  // ── Fixed end date: 31 July 2026, 11:59 PM PKT (UTC+5) ──
+  // 11:59 PM PKT = 18:59 UTC on 31 July 2026
   function getSaleEndTime() {
-    const endDate = new Date('2026-07-10T18:59:00Z'); // 10 July 2026, 11:59 PM PKT
+    const endDate = new Date('2026-07-31T18:59:00Z'); // 31 July 2026, 11:59 PM PKT
     const now = Date.now();
     if (endDate.getTime() > now) return endDate.getTime();
     return null; // expired
@@ -5645,9 +5670,9 @@ console.log('✅ Announcement Bar + Live Chat Widget loaded!');
       return;
     }
 
-    // Total campaign duration: 1 June 2026 → 10 July 2026
+    // Total campaign duration: 1 June 2026 → 31 July 2026
     const campaignStart = new Date('2026-06-01T19:00:00Z').getTime();
-    const totalMs = getSaleEndTime() ? (new Date('2026-07-10T18:59:00Z').getTime() - campaignStart) : 1;
+    const totalMs = getSaleEndTime() ? (new Date('2026-07-31T18:59:00Z').getTime() - campaignStart) : 1;
     const now  = Date.now();
     const diff = Math.max(0, endTime - now);
 
