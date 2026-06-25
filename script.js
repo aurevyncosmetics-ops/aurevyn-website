@@ -257,8 +257,8 @@ const productsData = [
         badge: "Sale",
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
-            { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB Matte_Lipstick.jpg" },
-            { name: "Dark Maroon", color: "#5C1A1A", image: "img/dark_purple_EB Matte_Lipstick.jpg" }
+            { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB_Matte_Lipstick.jpg" },
+            { name: "Dark Maroon", color: "#5C1A1A", image: "img/dark_purple_EB_Matte_Lipstick.jpg" }
         ]
     },
     {
