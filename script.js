@@ -257,8 +257,8 @@ const productsData = [
         badge: "Sale",
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
-            { name: "Dark Purple", color: "#4B1248", image: "img/dark_purple_EB_Matte_Lipstick.jpg" },
-            { name: "Dark Maroon", color: "#5C1A1A", image: "img/dark_maroon_EB_Matte_Lipstick.jpg" }
+            { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB Matte_Lipstick.jpg" },
+            { name: "Dark Maroon", color: "#5C1A1A", image: "img/dark_purple_EB Matte_Lipstick.jpg" }
         ]
     },
     {
@@ -2007,16 +2007,8 @@ function openCheckout() {
         overlayEl.onclick = function() { closeCheckout(); };
     }
 
-    // Lock body scroll (without cart-open class to avoid CSS conflict)
-    const scrollY = window.scrollY;
+    // Lock body scroll
     document.body.style.overflow = 'hidden';
-    if (window.innerWidth <= 768) {
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
-        document.body.dataset.scrollY = scrollY;
-    }
 
     goToStep(1);
     loadCheckoutSidebar();
@@ -2038,16 +2030,6 @@ function closeCheckout() {
 
     document.body.classList.remove('cart-open');
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    document.body.style.height = '';
-    document.body.style.top = '';
-    // Restore scroll position
-    const savedScrollY = document.body.dataset.scrollY;
-    if (savedScrollY) {
-        window.scrollTo({ top: parseInt(savedScrollY), left: 0, behavior: 'instant' });
-        delete document.body.dataset.scrollY;
-    }
     updateFloatingButtons();
 }
 
@@ -2600,12 +2582,7 @@ function toggleCart() {
         }
         cartSidebarEl.classList.add('active');
         document.body.classList.add('cart-open');
-        const cartScrollY = window.scrollY;
-        document.body.dataset.cartScrollY = cartScrollY;
         document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${cartScrollY}px`;
-        document.body.style.width = '100%';
 
         // Hide floating widgets so they don't show over cart
         if (chatWidget) chatWidget.style.visibility = 'hidden';
@@ -2624,16 +2601,6 @@ function toggleCart() {
         }
         document.body.classList.remove('cart-open');
         document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
-        document.body.style.top = '';
-        // Restore scroll position
-        const savedCartScrollY = document.body.dataset.cartScrollY;
-        if (savedCartScrollY) {
-            window.scrollTo({ top: parseInt(savedCartScrollY), left: 0, behavior: 'instant' });
-            delete document.body.dataset.cartScrollY;
-        }
 
         // Show floating widgets again
         if (chatWidget) chatWidget.style.visibility = '';
@@ -2788,12 +2755,7 @@ function openQuickView(productId) {
     }
     const qvm = document.getElementById('quick-view-modal');
     if (qvm) { qvm.classList.add('active'); qvm.scrollTop = 0; const c = qvm.querySelector('.quick-view-content'); if(c) c.scrollTop = 0; }
-    const qvScrollY = window.scrollY;
-    document.body.dataset.qvScrollY = qvScrollY;
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${qvScrollY}px`;
-    document.body.style.width = '100%';
     updateFloatingButtons();
     saveQuickViewState(productId);
 }
@@ -2830,15 +2792,6 @@ function closeQuickView() {
     const qvm = document.getElementById('quick-view-modal');
     if (qvm) qvm.classList.remove('active');
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    // Restore scroll position
-    const savedQvScrollY = document.body.dataset.qvScrollY;
-    if (savedQvScrollY) {
-        window.scrollTo({ top: parseInt(savedQvScrollY), left: 0, behavior: 'instant' });
-        delete document.body.dataset.qvScrollY;
-    }
     updateFloatingButtons();
     clearQuickViewState();
 }
@@ -3155,17 +3108,9 @@ function toggleMobileMenu() {
     const isOpening = !mm.classList.contains('active');
 
     if (isOpening) {
-        // Save current scroll position before locking
-        const scrollY = window.scrollY || window.pageYOffset;
-        document.body.dataset.menuScrollY = scrollY;
-        // Opening menu - lock background scroll (mobile-safe method)
         mm.classList.add('active');
         if (ov) ov.classList.add('active');
         document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        // Force z-index fix
         mm.style.zIndex = '1010';
         if (ov) ov.style.zIndex = '1005';
     } else {
@@ -3178,17 +3123,7 @@ function closeMobileMenu() {
     const ov = document.getElementById('overlay');
     if (mm) mm.classList.remove('active');
     if (ov) ov.classList.remove('active');
-    // Restore scroll position
-    const savedScrollY = document.body.dataset.menuScrollY;
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    document.body.style.height = '';
-    if (savedScrollY !== undefined) {
-        window.scrollTo({ top: parseInt(savedScrollY, 10), left: 0, behavior: 'instant' });
-        delete document.body.dataset.menuScrollY;
-    }
 }
 
 function toggleMobileFilters() {
@@ -3217,17 +3152,8 @@ function closeAll() {
     document.body.style.position = '';
     document.body.style.width = '';
     document.body.style.height = '';
-    clearQuickViewState();
     document.body.style.top = '';
-    // Restore scroll position from any saved state
-    const savedScroll = document.body.dataset.cartScrollY || document.body.dataset.qvScrollY || document.body.dataset.scrollY || document.body.dataset.menuScrollY;
-    if (savedScroll) {
-        window.scrollTo({ top: parseInt(savedScroll), left: 0, behavior: 'instant' });
-        delete document.body.dataset.cartScrollY;
-        delete document.body.dataset.qvScrollY;
-        delete document.body.dataset.scrollY;
-        delete document.body.dataset.menuScrollY;
-    }
+    clearQuickViewState();
 }
 
 function setupEventListeners() {
