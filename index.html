@@ -243,7 +243,7 @@
       <div class="container">
         <div class="header-wrapper">
           <div class="logo">
-            <a href="/" aria-label="Aurevyn – Buy Makeup & Cosmetics Online in Pakistan">
+            <a href="/" onclick="clearViewState();" aria-label="Aurevyn – Buy Makeup & Cosmetics Online in Pakistan">
               <h1>Aure<span>vyn</span></h1>
             </a>
           </div>
@@ -369,7 +369,7 @@
         <i class="fas fa-times"></i>
       </div>
       <ul>
-        <li><a href="#home" onclick="closeMobileMenu()">Home</a></li>
+        <li><a href="#home" onclick="closeMobileMenu();clearViewState();window.scrollTo({top:0,behavior:'smooth'});return true;">Home</a></li>
         <li><a href="#products" onclick="closeMobileMenu()">Shop</a></li>
         <li>
           <a href="#new-arrivals" onclick="closeMobileMenu()">New Arrivals</a>
@@ -1343,7 +1343,7 @@
             <h4 data-translate="quick_links">Quick Links</h4>
             <ul>
               <li><a href="#products" onclick="scrollToReviews(); return false;"><i class="fas fa-star"></i> Customer Reviews</a></li>
-              <li><a href="#home">Home</a></li>
+              <li><a href="#home" onclick="clearViewState();window.scrollTo({top:0,behavior:'smooth'});">Home</a></li>
               <li><a href="#products">Shop</a></li>
               <li><a href="#new-arrivals" data-translate="new_arrivals">New Arrivals</a></li>
               <li><a href="#best-sellers" data-translate="best_sellers">Best Sellers</a></li>
