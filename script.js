@@ -1,3 +1,8 @@
+// Disable browser's automatic scroll restoration — our code handles it
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 // ==========================================
 // NAVBAR ALWAYS FIXED - ALL DEVICES
 // ==========================================
@@ -149,6 +154,7 @@ const VIEW_STATE_KEY = 'aurevynViewState';
 const QUICK_VIEW_STATE_KEY = 'aurevynQuickViewProduct';
 
 function saveViewState(state) {
+    state.scrollY = window.scrollY || 0;
     try { sessionStorage.setItem(VIEW_STATE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 function getViewState() {
@@ -161,10 +167,32 @@ function clearViewState() {
     try { sessionStorage.removeItem(VIEW_STATE_KEY); } catch (e) {}
 }
 function saveQuickViewState(productId) {
-    try { sessionStorage.setItem(QUICK_VIEW_STATE_KEY, String(productId)); } catch (e) {}
+    // Save to sessionStorage AND URL so mobile refresh works
+    // NOTE: _qvOpenScrollY is the scroll BEFORE body was fixed, so use that (not window.scrollY which is 0 after fix)
+    try { 
+        sessionStorage.setItem(QUICK_VIEW_STATE_KEY, String(productId));
+        sessionStorage.setItem('aurevynQVScrollY', String(_qvOpenScrollY));
+    } catch (e) {}
+    // Update URL with correct pre-open scroll position
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('qv', productId);
+        url.searchParams.set('qvs', Math.round(_qvOpenScrollY));
+        window.history.replaceState({}, '', url.toString());
+    } catch(e) {}
 }
 function clearQuickViewState() {
-    try { sessionStorage.removeItem(QUICK_VIEW_STATE_KEY); } catch (e) {}
+    try { 
+        sessionStorage.removeItem(QUICK_VIEW_STATE_KEY);
+        sessionStorage.removeItem('aurevynQVScrollY');
+    } catch (e) {}
+    // Remove qv params from URL
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('qv');
+        url.searchParams.delete('qvs');
+        window.history.replaceState({}, '', url.toString());
+    } catch(e) {}
 }
 
 // Called once on every page load (including refresh) after products & DOM are ready.
@@ -182,16 +210,46 @@ function restoreViewAndQuickViewState() {
             if (mobileInput) mobileInput.value = viewState.search;
             globalSearch(viewState.search);
         }
+        // Restore scroll position after a short delay (so DOM can render)
+        if (viewState.scrollY) {
+            setTimeout(function() {
+                window.scrollTo({ top: viewState.scrollY, behavior: 'auto' });
+            }, 300);
+        }
     }
 
-    const qvProductIdRaw = (function () { try { return sessionStorage.getItem(QUICK_VIEW_STATE_KEY); } catch (e) { return null; } })();
+    // Read QV product id from URL first (works on mobile after refresh), fallback to sessionStorage
+    let qvProductIdRaw = null;
+    let savedScrollY = 0;
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlQV = urlParams.get('qv');
+        const urlScroll = urlParams.get('qvs');
+        if (urlQV) {
+            qvProductIdRaw = urlQV;
+            savedScrollY = parseInt(urlScroll, 10) || 0;
+        }
+    } catch(e) {}
+    // Fallback to sessionStorage
+    if (!qvProductIdRaw) {
+        try { qvProductIdRaw = sessionStorage.getItem(QUICK_VIEW_STATE_KEY); } catch(e) {}
+        try { savedScrollY = parseInt(sessionStorage.getItem('aurevynQVScrollY'), 10) || 0; } catch(e) {}
+    }
+
     if (qvProductIdRaw) {
         const qvProductId = parseInt(qvProductIdRaw, 10);
         if (!isNaN(qvProductId) && products.some(p => p.id === qvProductId)) {
+            // Restore the pre-open scroll so closeQuickView returns to correct position
+            _qvOpenScrollY = savedScrollY;
             openQuickView(qvProductId);
         } else {
             clearQuickViewState();
+            const qvm = document.getElementById('quick-view-modal');
+            if (qvm) qvm.classList.remove('active');
         }
+    } else {
+        const qvm = document.getElementById('quick-view-modal');
+        if (qvm) qvm.classList.remove('active');
     }
 }
 
@@ -763,7 +821,7 @@ function hidePreloader() {
     if (preloaderEl) preloaderEl.classList.add('hidden');
 }
 
-// Wait for first hero image before hiding preloader — max 4s safety timeout
+// Wait for first hero image before hiding preloader — max 1.5s safety timeout
 function waitForHeroAndHide() {
     let done = false;
     const finish = () => { if (!done) { done = true; hidePreloader(); } };
@@ -771,7 +829,7 @@ function waitForHeroAndHide() {
     img.onload = finish;
     img.onerror = finish;
     img.src = 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=1920';
-    setTimeout(finish, 4000);
+    setTimeout(finish, 1500);
 }
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -1021,6 +1079,18 @@ function initApp() {
     updateCategoryCounts(); // Auto-count products per category
     checkPendingOrderFromLink(); // Auto-reopen Confirm/Cancel card if there's a pending order (no link needed)
     restoreViewAndQuickViewState(); // Restore Sale/Category/Search page or open Quick View after a refresh
+
+    // Auto-save scroll position so refresh restores same spot
+    window.addEventListener('scroll', function() {
+        try {
+            const raw = sessionStorage.getItem(VIEW_STATE_KEY);
+            if (raw) {
+                const state = JSON.parse(raw);
+                state.scrollY = window.scrollY;
+                sessionStorage.setItem(VIEW_STATE_KEY, JSON.stringify(state));
+            }
+        } catch(e) {}
+    }, { passive: true });
 }
 
 if (document.readyState === 'loading') {
@@ -2072,7 +2142,7 @@ function goToStep(step) {
 // FORCE CLOSE ALL MODALS
 // ==========================================
 function forceCloseAllModals() {
-    ['cart-sidebar', 'quick-view-modal', 'checkout-modal', 'return-modal',
+    ['cart-sidebar', 'checkout-modal', 'return-modal',
         'policy-modal', 'gift-box-modal', 'customer-service-modal', 'overlay'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.remove('active');
@@ -2677,9 +2747,17 @@ function startSlider() {
 // ==========================================
 // QUICK VIEW
 // ==========================================
+// Stores the exact scroll position when a product was clicked
+let _qvOpenScrollY = 0;
+
 function openQuickView(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
+    // Save exact scroll position — but if called from restoreViewAndQuickViewState (refresh),
+    // _qvOpenScrollY is already set correctly, so only update if it's 0 (fresh click)
+    if (_qvOpenScrollY === 0) {
+        _qvOpenScrollY = window.scrollY || 0;
+    }
     const qvb = document.getElementById('quick-view-body');
     if (qvb) {
         const hasVariants = product.variants && product.variants.length > 0;
@@ -2755,6 +2833,10 @@ function openQuickView(productId) {
     }
     const qvm = document.getElementById('quick-view-modal');
     if (qvm) { qvm.classList.add('active'); qvm.scrollTop = 0; const c = qvm.querySelector('.quick-view-content'); if(c) c.scrollTop = 0; }
+    // Scroll-lock body WITHOUT losing scroll position (position:fixed trick)
+    document.body.style.top = `-${_qvOpenScrollY}px`;
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
     updateFloatingButtons();
     saveQuickViewState(productId);
@@ -2790,10 +2872,20 @@ function selectQVVariant(event, productId, variantIdx) {
 
 function closeQuickView() {
     const qvm = document.getElementById('quick-view-modal');
+
+    // Close modal
     if (qvm) qvm.classList.remove('active');
-    document.body.style.overflow = '';
-    updateFloatingButtons();
     clearQuickViewState();
+    updateFloatingButtons();
+
+    // Undo position:fixed scroll-lock and restore exact scroll position
+    const restoreY = _qvOpenScrollY;
+    _qvOpenScrollY = 0; // reset for next fresh click
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    window.scrollTo({ top: restoreY, behavior: 'instant' });
 }
 
 function selectQuickViewShade(event, productId, shadeName) {
