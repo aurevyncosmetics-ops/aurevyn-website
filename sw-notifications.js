@@ -5,13 +5,13 @@
 // Example: aurevyn.makeup/sw-notifications.js
 // ==========================================
 
-const CACHE_NAME = 'aurevyn-sw-v3'; // bump this number whenever you change which files get cached, so old caches get cleared
+const CACHE_NAME = 'aurevyn-sw-v4'; // bump this number whenever you change which files get cached, so old caches get cleared
 
 // Files that are safe to cache the moment the service worker installs.
 // Keep this list small — only files whose URL never changes (no ?v= query strings).
 const PRECACHE_URLS = [
     '/',
-    '/favicon.png',
+    '/favicon-32x32.png',
     '/apple-touch-icon.png'
 ];
 
@@ -31,8 +31,8 @@ function clearAllTimers() {
 function showNotification(title, body, tag) {
     self.registration.showNotification(title, {
         body: body,
-        icon: '/favicon.png',
-        badge: '/favicon.png',
+        icon: '/favicon-32x32.png',
+        badge: '/favicon-32x32.png',
         tag: tag,
         renotify: true,
         requireInteraction: tag === 'order-reminder-3', // Last one stays until dismissed
