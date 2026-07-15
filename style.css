@@ -1,17 +1,21 @@
 :root {
-  --cream: #f5f5dc;
-  --cream-light: #faf9f6;
-  --cream-dark: #e8e4d9;
-  --brown-light: #d4a574;
-  --brown: #c49a72;          /* Light brown — buttons */
-  --brown-dark: #8b5a2b;
-  --brown-darker: #5d4037;
-  --gold: #c9a227;
+  /* 2026/2027 palette — warm "mocha mousse" neutrals with a soft
+     dusty-rose accent, replacing the older, more yellow beige/gold mix */
+  --cream: #f8f3ea;
+  --cream-light: #fdfbf7;
+  --cream-dark: #ecdfcc;
+  --brown-light: #c9a184;
+  --brown: #a9795a;           /* Mocha mousse — buttons */
+  --brown-dark: #6e4a34;
+  --brown-darker: #43291b;
+  --gold: #bd9152;
+  --blush: #e3b7ac;           /* New accent — dusty rose for badges/highlights */
+  --blush-dark: #c98f82;
   --white: #ffffff;
-  --text-dark: #3e2723;
-  --text-light: #6d4c41;
-  --shadow: rgba(139, 90, 43, 0.1);
-  --shadow-dark: rgba(139, 90, 43, 0.2);
+  --text-dark: #2e2019;
+  --text-light: #6b5140;
+  --shadow: rgba(110, 74, 52, 0.1);
+  --shadow-dark: rgba(110, 74, 52, 0.2);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1030,12 +1034,14 @@ body[dir="rtl"] .tiktok-grid {
   width: 80%;
   max-width: 320px;
   height: 100vh;
+  height: 100dvh;
   background: var(--white);
   z-index: 1002;
-  padding: 80px 20px 30px;
+  padding: 80px 20px calc(30px + env(safe-area-inset-bottom, 0px));
   transition: all 0.3s ease;
   box-shadow: 5px 0 30px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu.active {
@@ -1044,7 +1050,7 @@ body[dir="rtl"] .tiktok-grid {
 
 .mobile-menu ul {
   list-style: none;
-  padding: 0;
+  padding: 0 0 20px 0;
 }
 
 .mobile-menu li {
@@ -1065,6 +1071,49 @@ body[dir="rtl"] .tiktok-grid {
 .mobile-menu a:hover {
   color: var(--brown);
   padding-left: 10px;
+}
+
+.mobile-has-dropdown > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#mobile-categories-chevron {
+  transition: transform 0.3s ease;
+  font-size: 13px;
+}
+
+#mobile-categories-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.mobile-submenu {
+  display: none;
+  list-style: none;
+  padding: 0 0 0 15px;
+  margin: 0;
+}
+
+.mobile-submenu.active {
+  display: block;
+}
+
+.mobile-submenu li {
+  border-bottom: none;
+}
+
+.mobile-submenu a {
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.mobile-submenu a i {
+  width: 18px;
+  text-align: center;
+  margin-right: 6px;
+  color: var(--brown);
 }
 
 .close-mobile {
@@ -1500,6 +1549,21 @@ body.search-active .shop-toolbar {
   background: #27ae60;
 }
 
+/* Discount % badge shown on the product image (top-right) */
+.discount-tag {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #e60012;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
 /* When a product has more than one badge (e.g. New + Sale), show them
    side-by-side in a single row instead of stacking them vertically. */
 .product-badges-stack {
@@ -1522,7 +1586,7 @@ body.search-active .shop-toolbar {
 .product-wishlist {
   position: absolute;
   top: 15px;
-  right: 15px;
+  left: 15px;
   width: 40px;
   height: 40px;
   background: var(--white);
@@ -1837,27 +1901,56 @@ body.search-active .shop-toolbar {
 /* Testimonials */
 .testimonials-section {
   padding: 80px 0;
-  background: var(--white);
+  background: linear-gradient(180deg, var(--cream-light) 0%, var(--cream) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 10% 10%, rgba(169, 121, 90, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 90%, rgba(189, 145, 82, 0.08) 0%, transparent 55%);
+  pointer-events: none;
 }
 
 .testimonials-slider {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
+  position: relative;
 }
 
 .testimonial-card {
-  background: var(--cream-light);
-  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--white);
+  padding: 40px 34px;
   border-radius: 20px;
   text-align: center;
   transition: var(--transition);
   border: 1px solid var(--cream-dark);
+  position: relative;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.testimonial-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 4px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(90deg, var(--brown-light), var(--gold));
 }
 
 .testimonial-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 20px 40px var(--shadow);
+  box-shadow: 0 20px 40px var(--shadow-dark);
 }
 
 .testimonial-card .stars {
@@ -1867,6 +1960,7 @@ body.search-active .shop-toolbar {
 }
 
 .testimonial-card p {
+  flex-grow: 1;
   font-size: 16px;
   color: var(--text-light);
   line-height: 1.8;
@@ -1879,25 +1973,98 @@ body.search-active .shop-toolbar {
   align-items: center;
   justify-content: center;
   gap: 15px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--cream-dark);
 }
 
-.customer img {
+.customer-avatar {
   width: 60px;
   height: 60px;
+  min-width: 60px;
   border-radius: 50%;
-  object-fit: cover;
   border: 3px solid var(--brown-light);
+  background: linear-gradient(135deg, var(--brown-light, #c9a184), var(--brown, #a9795a));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(110, 74, 52, 0.25);
 }
 
 .customer h5 {
   font-size: 16px;
   color: var(--brown-dark);
-  margin-bottom: 3px;
+  margin-bottom: 5px;
 }
 
 .customer span {
-  font-size: 13px;
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--brown-dark);
+  background: linear-gradient(120deg, var(--cream), var(--cream-dark));
+  border: 1px solid var(--brown-light);
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+/* ---------- About Us section header ---------- */
+.testimonials-section .section-header {
+  margin-bottom: 55px;
+}
+
+.testimonials-section .section-header .subtitle {
+  background: linear-gradient(120deg, var(--cream), var(--cream-dark));
+  border: 1px solid var(--brown-light);
+  border-radius: 20px;
+  padding: 6px 18px;
+  color: var(--brown-dark);
+  -webkit-text-fill-color: var(--brown-dark);
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+.testimonials-section .section-header .subtitle::before,
+.testimonials-section .section-header .subtitle::after {
+  display: none;
+}
+
+.testimonials-section .section-header h2 {
+  margin-top: 4px;
+  position: relative;
+  padding-bottom: 22px;
+}
+
+.testimonials-section .section-header h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--brown-light), var(--gold));
+}
+
+.testimonials-section .section-header .heading-accent {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.testimonials-section .section-header-desc {
+  max-width: 560px;
+  margin: 18px auto 0;
   color: var(--text-light);
+  font-size: 15.5px;
+  line-height: 1.7;
 }
 
 /* Social Feed Section */
@@ -1961,18 +2128,14 @@ body.search-active .shop-toolbar {
 }
 
 .tiktok-header .platform-icon {
-  background: linear-gradient(135deg, #000000, #25f4ee);
+  background: #000000;
   position: relative;
 }
 
-.tiktok-header .platform-icon::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #fe2c55, #25f4ee);
-  border-radius: 20px;
-  opacity: 0.8;
-  mix-blend-mode: screen;
+.tiktok-header .platform-icon i {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
 }
 
 .platform-info {
@@ -2046,6 +2209,60 @@ body.search-active .shop-toolbar {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 15px;
+}
+
+/* Wraps a live Elfsight feed widget + our own small "Explore More" button.
+   Set the Elfsight widget's own "Number of Posts" to 6 inside the Elfsight
+   editor so the feed itself only shows 6 items before this button. */
+.feed-with-explore {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.feed-with-explore > div[class*="elfsight-app-"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Hide Elfsight's own built-in "Load More" button if their widget shows one */
+.feed-with-explore > div[class*="elfsight-app-"] [class*="load-more"],
+.feed-with-explore > div[class*="elfsight-app-"] button[class*="more"] {
+  display: none !important;
+}
+
+.feed-with-explore .explore-more {
+  flex: 0 0 auto;
+  width: auto;
+  aspect-ratio: auto;
+  border-radius: 999px;
+  padding: 10px 18px;
+}
+
+.feed-with-explore .explore-more .explore-more-content {
+  flex-direction: row;
+  gap: 8px;
+}
+
+.feed-with-explore .explore-more .explore-more-content i {
+  font-size: 16px;
+  margin: 0;
+}
+
+.feed-with-explore .explore-more .explore-more-content span {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.feed-with-explore .explore-more .explore-more-content small {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .feed-with-explore {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 .insta-item {
@@ -2432,6 +2649,14 @@ body.search-active .shop-toolbar {
     linear-gradient(rgba(93, 64, 55, 0.9), rgba(93, 64, 55, 0.9)),
     url("https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920")
       center/cover fixed;
+}
+
+/* background-attachment:fixed breaks mobile navbar rendering (iOS Safari /
+   Android Chrome bug) - disable it on mobile, keep parallax on desktop */
+@media (max-width: 768px) {
+  .contact-section {
+    background-attachment: scroll !important;
+  }
 }
 
 .contact-wrapper {
@@ -3060,6 +3285,69 @@ body.search-active .shop-toolbar {
 }
 .toast.error {
   border-left-color: #e74c3c;
+}
+.toast.welcome {
+  border-left: none;
+  border-radius: 18px;
+  padding: 18px 26px 18px 18px;
+  background: linear-gradient(135deg, var(--white) 55%, var(--cream-light) 100%);
+  box-shadow: 0 16px 48px rgba(189, 145, 82, 0.28), 0 4px 12px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+  animation: toastSlide 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast.welcome::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--gold), var(--blush));
+}
+.toast.welcome::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: welcomeShimmer 1.8s ease-out 0.3s 1;
+  pointer-events: none;
+}
+.toast.welcome i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  font-size: 19px;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--gold), var(--blush-dark));
+  box-shadow: 0 6px 16px rgba(189, 145, 82, 0.4);
+  animation: welcomeIconPulse 1.6s ease-in-out infinite;
+}
+.toast.welcome .toast-content h4 {
+  font-size: 17px;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--brown-darker), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.toast.welcome .toast-content p {
+  color: var(--text-light);
+}
+@keyframes welcomeIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+@keyframes welcomeShimmer {
+  0% { left: -60%; }
+  100% { left: 130%; }
 }
 .toast i {
   font-size: 24px;
@@ -10901,6 +11189,24 @@ body:has(.reviews-modal.active) {
   background: #0a0a0a;
 }
 
+[data-theme="dark"] .aurevyn-carousel-section {
+  background: linear-gradient(160deg, #1a1208 0%, #140e06 60%, #100c05 100%);
+}
+
+[data-theme="dark"] .aurevyn-carousel-title {
+  color: #e8d5b0;
+}
+
+[data-theme="dark"] .aurevyn-carousel-desc {
+  color: #c9b691;
+}
+
+[data-theme="dark"] .aurevyn-carousel-glow {
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(139, 90, 43, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(139, 90, 43, 0.08) 0%, transparent 55%);
+}
+
 [data-theme="dark"] .section-header h2 {
   color: #ffffff;
 }
@@ -10959,20 +11265,30 @@ body:has(.reviews-modal.active) {
 
 /* ===== Testimonials ===== */
 [data-theme="dark"] .testimonials-section {
-  background: #000000;
+  background: linear-gradient(160deg, #1a1208 0%, #140e06 60%, #100c05 100%);
+}
+
+[data-theme="dark"] .testimonials-section::before {
+  background:
+    radial-gradient(ellipse at 10% 10%, rgba(139, 90, 43, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 90%, rgba(189, 145, 82, 0.10) 0%, transparent 55%);
 }
 
 [data-theme="dark"] .testimonial-card {
-  background: #0a0a0a;
-  border-color: #1a1a1a;
+  background: #1e1610;
+  border-color: #3d2b18;
 }
 
 [data-theme="dark"] .testimonial-card:hover {
-  box-shadow: 0 20px 40px rgba(139, 90, 43, 0.15);
+  box-shadow: 0 20px 40px rgba(139, 90, 43, 0.25);
 }
 
 [data-theme="dark"] .testimonial-card p {
-  color: #ffffff;
+  color: #f3e9d6;
+}
+
+[data-theme="dark"] .customer {
+  border-top-color: #3d2b18;
 }
 
 [data-theme="dark"] .customer h5 {
@@ -10980,7 +11296,24 @@ body:has(.reviews-modal.active) {
 }
 
 [data-theme="dark"] .customer span {
-  color: #ffffff;
+  color: #f0c987;
+  background: linear-gradient(120deg, #2a1f12, #3d2b18);
+  border-color: #a67b5b;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .testimonials-section .section-header .subtitle {
+  background: linear-gradient(120deg, #2a1f12, #3d2b18);
+  border-color: #a67b5b;
+  color: #f0c987;
+  -webkit-text-fill-color: #f0c987;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .testimonials-section .section-header-desc {
+  color: #d9c6a3;
 }
 
 /* ===== Social Feed ===== */
@@ -11017,6 +11350,12 @@ body:has(.reviews-modal.active) {
   background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
     url("https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920")
       center/cover fixed;
+}
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .contact-section {
+    background-attachment: scroll !important;
+  }
 }
 
 [data-theme="dark"] .contact-form-box {
@@ -14406,4 +14745,710 @@ body[dir="rtl"] .dark-mode-float.peek {
 }
 .quick-view-image:hover .qv-zoom-hint {
     opacity: 1;
+}
+/* ===== AUREVYN AUTO-SLIDING IMAGE CAROUSEL ===== */
+.aurevyn-carousel-section {
+    position: relative;
+    padding: 55px 0 45px;
+    background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+    overflow: hidden;
+}
+
+.aurevyn-carousel-glow {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 20%, rgba(231, 76, 60, 0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 80%, rgba(0, 0, 0, 0.04) 0%, transparent 55%);
+    pointer-events: none;
+}
+
+.aurevyn-carousel-header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 34px;
+}
+
+.aurevyn-carousel-subtitle {
+    display: inline-block;
+    position: relative;
+    color: #e74c3c;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    margin-bottom: 10px;
+}
+
+.aurevyn-carousel-subtitle::before,
+.aurevyn-carousel-subtitle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 26px;
+    height: 1px;
+    background: rgba(231, 76, 60, 0.4);
+}
+
+.aurevyn-carousel-subtitle::before {
+    right: 100%;
+    margin-right: 12px;
+}
+
+.aurevyn-carousel-subtitle::after {
+    left: 100%;
+    margin-left: 12px;
+}
+
+.aurevyn-carousel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    color: #000000;
+    margin: 0 0 8px;
+}
+
+.aurevyn-carousel-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    color: #666666;
+    margin: 0;
+}
+
+.aurevyn-carousel {
+    position: relative;
+    direction: ltr; /* lock so it always slides right-to-left, even if page is in RTL/Urdu mode */
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.aurevyn-carousel-track {
+    display: flex;
+    direction: ltr;
+    will-change: transform;
+    touch-action: pan-y; /* allow horizontal swipe gestures on touch devices */
+}
+
+.aurevyn-carousel-slide {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.aurevyn-carousel-card {
+    position: relative;
+    width: 100%;
+    height: 300px;   /* fixed height so every card is guaranteed identical, on every browser/device */
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000000;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aurevyn-carousel-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 38px rgba(231, 76, 60, 0.22);
+}
+
+.aurevyn-carousel-card img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.6s ease;
+}
+
+.aurevyn-carousel-card:hover img {
+    transform: scale(1.06);
+}
+
+/* subtle diagonal shine sweep on hover */
+.aurevyn-card-shine {
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    transition: left 0.75s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.aurevyn-carousel-card:hover .aurevyn-card-shine {
+    left: 125%;
+}
+
+/* small caption strip under each image */
+.aurevyn-card-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 10px 12px 9px;
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%);
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* control bar below the carousel: prev arrow — dots — next arrow, all in one row */
+.aurevyn-carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 22px;
+}
+
+.aurevyn-carousel-arrow {
+    position: static; /* sits inline in the control bar, never overlaps the images */
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.aurevyn-carousel-arrow:hover {
+    background: #e74c3c;
+    transform: scale(1.08);
+}
+
+.aurevyn-carousel-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.aurevyn-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dcdcdc;
+    cursor: pointer;
+    transition: background 0.3s ease, width 0.3s ease;
+}
+
+.aurevyn-dot.active {
+    background: #e74c3c;
+    width: 24px;
+    border-radius: 5px;
+}
+
+/* Mobile: one image at a time */
+@media (max-width: 768px) {
+    .aurevyn-carousel-section {
+        padding: 38px 0 32px;
+    }
+    .aurevyn-carousel-title {
+        font-size: 24px;
+    }
+    .aurevyn-carousel-desc {
+        font-size: 13px;
+        padding: 0 20px;
+    }
+    .aurevyn-carousel-slide {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding: 0 6px;
+    }
+    .aurevyn-carousel-card {
+        height: 340px;
+        border-radius: 14px;
+    }
+    .aurevyn-carousel-card:hover {
+        transform: none;
+    }
+    .aurevyn-carousel-controls {
+        gap: 14px;
+        margin-top: 18px;
+    }
+    .aurevyn-carousel-arrow {
+        width: 34px;
+        height: 34px;
+        font-size: 12px;
+    }
+}
+/* ===== END CAROUSEL CSS ===== */
+/* ==========================================================
+   AUREVYN — 2026 VISUAL REFRESH LAYER
+   Load this AFTER style.css. Purely additive: upgrades buttons,
+   cards, header, typography rhythm & micro-interactions without
+   touching the original stylesheet's structure or logic.
+   ========================================================== */
+
+:root {
+  /* Soft, colored "ambient" shadows instead of flat black —
+     reads as premium/2026, matches the warm brown/gold palette */
+  --shadow-sm-26: 0 2px 10px rgba(139, 90, 43, 0.08);
+  --shadow-md-26: 0 10px 30px rgba(139, 90, 43, 0.12), 0 2px 8px rgba(139, 90, 43, 0.08);
+  --shadow-lg-26: 0 24px 60px rgba(139, 90, 43, 0.18), 0 6px 16px rgba(139, 90, 43, 0.1);
+  --shadow-glow-26: 0 0 0 1px rgba(201, 162, 39, 0.15), 0 12px 32px rgba(201, 162, 39, 0.18);
+  --glass-bg-26: rgba(255, 255, 255, 0.72);
+  --ease-26: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- global feel ---------- */
+html { scroll-behavior: smooth; }
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--brown-dark, #8b5a2b);
+  color: #fff;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--cream-light, #faf9f6); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--brown-light, #d4a574), var(--brown-dark, #8b5a2b));
+  border-radius: 20px;
+  border: 2px solid var(--cream-light, #faf9f6);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold, #c9a227) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* ---------- header: glass on scroll ---------- */
+.main-header,
+#header,
+header.main-header,
+header#main-header {
+  transition: background-color 0.35s var(--ease-26), box-shadow 0.35s var(--ease-26), backdrop-filter 0.35s var(--ease-26) !important;
+}
+
+.main-header.scrolled,
+#header.scrolled {
+  background: var(--glass-bg-26) !important;
+  backdrop-filter: saturate(160%) blur(14px) !important;
+  -webkit-backdrop-filter: saturate(160%) blur(14px) !important;
+  box-shadow: var(--shadow-md-26) !important;
+}
+
+.nav-menu a {
+  position: relative;
+}
+
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold, #c9a227), var(--brown-dark, #8b5a2b));
+  transition: width 0.3s var(--ease-26);
+  border-radius: 2px;
+}
+
+.nav-menu a:hover::after { width: 100%; }
+
+/* ---------- section headers: editorial touch ---------- */
+.section-header h2 {
+  font-size: clamp(28px, 4vw, 42px) !important;
+  letter-spacing: 0.2px;
+  background: linear-gradient(100deg, var(--text-dark, #2e2019) 45%, var(--brown-dark, #6e4a34) 65%, var(--gold, #bd9152) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---------- buttons: gradient sheen + magnetic lift ---------- */
+.btn-primary,
+.btn-checkout,
+.btn-place-order,
+.btn-continue,
+.btn-continue-checkout,
+.btn-add-gift-box,
+.btn-flash-shop {
+  position: relative;
+  overflow: hidden;
+  background: var(--brown, #a9795a) !important;
+  border-color: transparent !important;
+  box-shadow: var(--shadow-md-26);
+  transition: transform 0.35s var(--ease-26), box-shadow 0.35s var(--ease-26), background-color 0.35s var(--ease-26) !important;
+}
+
+.btn-primary::before,
+.btn-checkout::before,
+.btn-place-order::before,
+.btn-continue::before,
+.btn-continue-checkout::before,
+.btn-add-gift-box::before,
+.btn-flash-shop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s var(--ease-26);
+}
+
+.btn-primary:hover::before,
+.btn-checkout:hover::before,
+.btn-place-order:hover::before,
+.btn-continue:hover::before,
+.btn-continue-checkout:hover::before,
+.btn-add-gift-box:hover::before,
+.btn-flash-shop:hover::before {
+  left: 130%;
+}
+
+.btn-primary:hover,
+.btn-checkout:hover,
+.btn-place-order:hover,
+.btn-continue:hover,
+.btn-continue-checkout:hover,
+.btn-add-gift-box:hover,
+.btn-flash-shop:hover {
+  background: var(--brown-dark, #6e4a34) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg-26) !important;
+}
+
+.btn-primary:active,
+.btn-checkout:active,
+.btn-place-order:active {
+  transform: translateY(-1px) scale(0.99) !important;
+}
+
+/* ---------- product cards: layered depth + smoother hover ---------- */
+.product-card {
+  box-shadow: var(--shadow-sm-26) !important;
+  transition: transform 0.4s var(--ease-26), box-shadow 0.4s var(--ease-26) !important;
+}
+
+.product-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: var(--shadow-lg-26) !important;
+}
+
+.product-card .product-image img {
+  transition: transform 0.6s var(--ease-26) !important;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.06) !important;
+}
+
+.product-badge {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------- category cards: whole-card lift, gentler zoom ---------- */
+.category-card {
+  box-shadow: var(--shadow-sm-26) !important;
+  transition: transform 0.45s var(--ease-26), box-shadow 0.45s var(--ease-26) !important;
+}
+
+.category-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: var(--shadow-lg-26) !important;
+}
+
+.category-card img {
+  transition: transform 0.7s var(--ease-26) !important;
+}
+
+.category-card:hover img {
+  transform: scale(1.08) !important;
+}
+
+/* ---------- testimonials: soft glass card ---------- */
+.testimonial-card {
+  background: var(--glass-bg-26) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  box-shadow: var(--shadow-md-26) !important;
+  transition: transform 0.35s var(--ease-26), box-shadow 0.35s var(--ease-26);
+}
+
+/* The glass-card background above is a semi-transparent white, which reads as
+   grey on the black dark-mode page. Give dark mode a dark brown card instead. */
+[data-theme="dark"] .testimonial-card {
+  background: linear-gradient(135deg, #241a10, #1a120a) !important;
+  backdrop-filter: none !important;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow-26) !important;
+}
+
+/* ---------- newsletter: pill input group ---------- */
+.newsletter-form {
+  border-radius: 40px !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-md-26) !important;
+}
+
+/* ---------- announcement bar: subtle shimmer ---------- */
+.announcement-bar {
+  background: linear-gradient(90deg, var(--brown-dark, #6e4a34), var(--blush-dark, #c98f82), var(--brown-dark, #6e4a34)) !important;
+  background-size: 200% 100%;
+  animation: aurevynShimmer26 8s linear infinite;
+}
+
+@keyframes aurevynShimmer26 {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ---------- footer: refined separator + link motion ---------- */
+.footer-grid {
+  position: relative;
+}
+
+.footer-col a {
+  position: relative;
+  transition: color 0.25s var(--ease-26), padding-left 0.25s var(--ease-26);
+}
+
+.footer-col a:hover {
+  padding-left: 4px;
+  color: var(--gold, #c9a227);
+}
+
+/* ---------- new dusty-rose accent for verified/wishlist highlights ---------- */
+.review-verified-badge {
+  background: linear-gradient(120deg, var(--blush, #e3b7ac), var(--blush-dark, #c98f82)) !important;
+  color: #4a2a22 !important;
+  box-shadow: 0 4px 12px rgba(201, 143, 130, 0.3);
+}
+
+.product-wishlist.active,
+.product-wishlist:hover {
+  color: var(--blush-dark, #c98f82) !important;
+}
+
+/* ---------- reduce chunky flat radii for a calmer 2026 rhythm ---------- */
+.testimonial-card,
+.category-card,
+.newsletter-form input {
+  border-radius: 18px;
+}
+
+/* ==========================================================
+   MULTI-PAGE SUPPORT — product card links + product detail page
+   ========================================================== */
+
+/* Product card image/name are now links — reset default link styling */
+.product-image-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.product-name-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.25s var(--ease-26, ease);
+}
+.product-name-link:hover {
+  color: var(--brown-dark, #6e4a34);
+}
+
+/* Breadcrumb on product.html */
+.pd-breadcrumb {
+  padding: 24px 0 0;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.pd-breadcrumb a {
+  color: var(--text-light);
+  text-decoration: none;
+}
+.pd-breadcrumb a:hover {
+  color: var(--brown-dark, #6e4a34);
+}
+.pd-breadcrumb span {
+  margin: 0 6px;
+  opacity: 0.6;
+}
+.pd-breadcrumb #pd-breadcrumb-name {
+  color: var(--brown-dark, #6e4a34);
+  font-weight: 600;
+}
+
+/* Product Detail Page — reuses the .quick-view-body grid layout,
+   but rendered inline on the page instead of inside a modal overlay */
+.product-detail-page {
+  padding: 20px 0 80px;
+}
+
+.pd-detail-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md-26, 0 10px 30px var(--shadow));
+  overflow: hidden;
+  margin-top: 20px;
+  min-height: 320px;
+}
+
+.pd-detail-card .quick-view-details h1 {
+  font-size: 28px;
+  color: var(--brown-dark);
+  margin-bottom: 15px;
+  font-family: 'Playfair Display', serif;
+}
+
+.pd-loading,
+.pd-not-found {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-light);
+  font-size: 16px;
+}
+.pd-loading i {
+  margin-right: 8px;
+  color: var(--brown, #a9795a);
+}
+
+@media (max-width: 768px) {
+  .pd-detail-card {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================
+   2027 REFRESH — native page transitions, tactile texture,
+   refined typography & spring micro-interactions
+   ========================================================== */
+
+/* Native cross-page transitions — browsers that support the View
+   Transitions API will smoothly cross-fade between index/shop/
+   product/contact instead of a hard page reload. Ignored safely
+   by older browsers, so nothing breaks anywhere. */
+@view-transition {
+  navigation: auto;
+}
+
+/* Balanced heading line-breaks — modern typography, avoids
+   awkward orphan words on section titles and hero copy */
+h1, h2, h3, .section-header h2 {
+  text-wrap: balance;
+}
+p, .description {
+  text-wrap: pretty;
+}
+
+/* Subtle tactile grain — a soft film-grain layer over flat colour
+   fields so the site doesn't read as a flat AI-gradient template.
+   Fixed + very low opacity so it never interferes with content. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { display: none; }
+}
+
+/* Spring-style easing for buttons, cards & modal entrances —
+   a touch of overshoot instead of flat ease, reads more alive */
+:root {
+  --ease-spring-27: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-primary:hover,
+.btn-checkout:hover,
+.btn-place-order:hover,
+.btn-continue:hover,
+.btn-continue-checkout:hover,
+.btn-add-gift-box:hover,
+.btn-flash-shop:hover,
+.category-card:hover,
+.product-card:hover {
+  transition-timing-function: var(--ease-spring-27) !important;
+}
+
+.quick-view-content,
+.pd-detail-card {
+  animation-timing-function: var(--ease-spring-27);
+}
+
+/* Animated shimmer on section eyebrow labels — small distinctive
+   signature touch rather than a static gold line */
+.subtitle,
+.section-header .subtitle,
+.contact-info-box .subtitle,
+.sale-section .subtitle {
+  position: relative;
+  background: linear-gradient(90deg, var(--brown-dark, #6e4a34) 0%, var(--gold, #bd9152) 50%, var(--brown-dark, #6e4a34) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: subtitleShimmer27 6s linear infinite;
+}
+
+@keyframes subtitleShimmer27 {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subtitle,
+  .section-header .subtitle,
+  .contact-info-box .subtitle,
+  .sale-section .subtitle { animation: none; }
+}
+
+/* Softer, more tactile focus/press feedback on interactive cards */
+.category-card:active,
+.product-card:active {
+  transform: scale(0.99);
 }
