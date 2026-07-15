@@ -68,7 +68,7 @@ if ('scrollRestoration' in history) {
 
 // ==========================================
 // AUREVYN - COMPLETE JAVASCRIPT
-// Updated: JazzCash + EasyPaisa + 6% Discount + Pakistan Cities
+// Updated: JazzCash + NayaPay + 6% Discount + Pakistan Cities
 // ==========================================
 
 // Global Variables
@@ -97,7 +97,7 @@ function getShippingFee(city) {
     // 'city' param kept for future city-wise shipping expansion.
     return SHIPPING_FEE_ALL;
 }
-const DIGITAL_DISCOUNT_PERCENT = 6; // 6% discount for JazzCash/EasyPaisa
+const DIGITAL_DISCOUNT_PERCENT = 6; // 6% discount for JazzCash/NayaPay
 
 // ==========================================
 // PAKISTAN CITIES LIST (Complete)
@@ -195,12 +195,57 @@ function clearQuickViewState() {
     } catch(e) {}
 }
 
+// ==========================================
+// GENERIC SCROLL POSITION PERSISTENCE
+// Keeps the scroll position for ANY page (home, shop, product, contact —
+// with or without an active Sale/Category/Search view) so a plain refresh
+// stays where the person was instead of jumping back to the top.
+// Keyed per page path so different pages don't clash with each other.
+// ==========================================
+const SCROLL_POS_PREFIX = 'aurevynScrollPos:';
+function genericScrollKey() {
+    return SCROLL_POS_PREFIX + window.location.pathname;
+}
+// Re-applies the target scroll position a few times over ~1.5s.
+// Needed because: (1) CSS "scroll-behavior: smooth" on <html> would turn a
+// plain behavior:'auto' scrollTo into an animated one, and (2) lazy-loaded
+// images/AOS animations keep changing the page height right after load,
+// which can silently push the scroll position back up. 'instant' skips the
+// CSS smooth-scroll entirely, and the repeated calls correct any drift.
+function robustScrollRestore(targetY) {
+    if (!targetY || targetY <= 0) return;
+    [0, 150, 350, 600, 1000, 1600].forEach(function(delay) {
+        setTimeout(function() {
+            window.scrollTo({ top: targetY, behavior: 'instant' });
+        }, delay);
+    });
+}
+
+function saveGenericScrollPosition() {
+    try { sessionStorage.setItem(genericScrollKey(), String(window.scrollY || 0)); } catch (e) {}
+}
+function restoreGenericScrollPosition() {
+    try {
+        const raw = sessionStorage.getItem(genericScrollKey());
+        const y = raw ? parseInt(raw, 10) : 0;
+        robustScrollRestore(y);
+    } catch (e) {}
+}
+
 // Called once on every page load (including refresh) after products & DOM are ready.
 function restoreViewAndQuickViewState() {
-    const viewState = getViewState();
+    // The Sale/Category/Search view state only makes sense on the shop page
+    // (it targets #all-products-grid). If that grid isn't on this page —
+    // e.g. the person navigated to index.html's New Arrivals / Best Sellers,
+    // or to product.html / contact.html — restoring it would incorrectly
+    // redirect back to shop.html with the old category still applied.
+    const onShopPage = !!document.getElementById('all-products-grid');
+    const viewState = onShopPage ? getViewState() : null;
     if (viewState) {
         if (viewState.type === 'sale') {
             showSaleProducts(true); // true = silent, skip the "Sale Products" toast on restore
+        } else if (viewState.type === 'wishlist') {
+            showWishlistProducts(true);
         } else if (viewState.type === 'category' && viewState.category) {
             filterCategory(viewState.category);
         } else if (viewState.type === 'search' && viewState.search) {
@@ -210,11 +255,9 @@ function restoreViewAndQuickViewState() {
             if (mobileInput) mobileInput.value = viewState.search;
             globalSearch(viewState.search);
         }
-        // Restore scroll position after a short delay (so DOM can render)
+        // Restore scroll position (retried a few times to survive layout shifts)
         if (viewState.scrollY) {
-            setTimeout(function() {
-                window.scrollTo({ top: viewState.scrollY, behavior: 'auto' });
-            }, 300);
+            robustScrollRestore(viewState.scrollY);
         }
     }
 
@@ -250,6 +293,12 @@ function restoreViewAndQuickViewState() {
     } else {
         const qvm = document.getElementById('quick-view-modal');
         if (qvm) qvm.classList.remove('active');
+        // No Sale/Category/Search view and no Quick View open —
+        // fall back to the plain per-page scroll position so a normal
+        // refresh (e.g. scrolled halfway down the homepage) stays put.
+        if (!viewState || !viewState.scrollY) {
+            restoreGenericScrollPosition();
+        }
     }
 }
 
@@ -267,7 +316,6 @@ const productsData = [
         rating: 4.8,
         reviews: 4800,
         image: "img/Ancher_colour_lipstick.png",
-        badge: "Sale",
         description: "A burst of color that loves your lips back. Infused with nourishing Shea Butter, Vitamin E and Jojoba Oil, it glides on smooth, hydrates as it wears, and delivers vibrant, true color that lasts all day without drying your lips.",
         shades: [
             { name: "Peach Nude", color: "#D08E75" }
@@ -277,12 +325,11 @@ const productsData = [
         id: 2,
         name: "Creamy Matte Lipstick",
         category: "lips",
-        price: 499,
-        oldPrice: null,
+        price: 449,
+        oldPrice: 600,
         rating: 4.9,
         reviews: 5100,
         image: "img/Creamy_matte_lipstick.png",
-        badge: null,
         description: "Velvety matte color with a creamy soul. Formulated with Vitamin E and Avocado Oil, it glides on effortlessly for a smooth, comfortable matte finish that stays bold for hours — no cracking, no fading, just rich color all day.",
         shades: [
             { name: "Coral Pink", color: "#E36266", image: "img/Coral_Pink_Creamy_Matte_Lipstick.jpg" }
@@ -297,7 +344,6 @@ const productsData = [
         rating: 4.7,
         reviews: 4700,
         image: "img/Revolution.png",
-        badges: ["New", "Sale"],
         description: "Rich pigment meets silky satin shine. Enriched with Argan Oil and Vitamin E, this lipstick conditions your lips while delivering a luminous, smooth finish with color that's as comfortable as it is captivating.",
         shades: [
             { name: "Light Brown", color: "#C19A6B" }
@@ -312,7 +358,6 @@ const productsData = [
         rating: 4.6,
         reviews: 4600,
         image: "img/matte_lipstick.png",
-        badge: "Sale",
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
             { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB_Matte_Lipstick.jpg" },
@@ -341,7 +386,6 @@ const productsData = [
         rating: 4.8,
         reviews: 4800,
         image: "img/Setting_spray.png",
-        badge: "Sale",
         description: "Lock in your look for up to 16 hours. This refreshing mist is infused with Aloe Vera, Rose Water and Vitamin E to hydrate skin while sealing your makeup against sweat, humidity and fading — for a flawless finish from morning to night.",
         shades: []
     },
@@ -354,7 +398,6 @@ const productsData = [
         rating: 4.8,
         reviews: 4200,
         image: "img/Huda_matte_me_brand_pink_blush_stick.png",
-        badge: "Sale",
         description: "Three ways to flush with color. Crafted with Shea Butter, Jojoba Oil and Vitamin E, this collection of Matte, Jelly & Long-Lasting blush sticks blends like a dream onto cheeks and lips for a buildable, natural flush.",
         variants: [
             {
@@ -390,7 +433,6 @@ const productsData = [
         rating: 4.9,
         reviews: 5800,
         image: "img/Mocallure.png",
-        badges: ["New", "Hot"],
         description: "48 shades, endless looks. Blended with finely milled Mica and infused with Vitamin E, this palette delivers richly pigmented mattes, shimmers & glitters that blend effortlessly and stay vibrant from day to night.",
         shades: []
     },
@@ -403,7 +445,6 @@ const productsData = [
         rating: 4.5,
         reviews: 4100,
         image: "img/Pamela_grant_perfect_face_compact_powder.png",
-        badge: "Sale",
         description: "Flawless, shine-free skin in one swipe. Made with Kaolin Clay and Talc for oil control, plus Vitamin E to keep skin nourished, this lightweight, buildable powder mattifies instantly while letting your natural skin shine through.",
         shades: [
             { name: "Natural Beige", color: "#DEB887" }
@@ -418,7 +459,6 @@ const productsData = [
         rating: 4.8,
         reviews: 6200,
         image: "img/Maybelline_fit_me_matte_poreless_pressed_powder.png",
-        badge: "Sale",
         description: "Your shine, sorted. Formulated with oil-absorbing micro-powders and a poreless-finish complex, Maybelline Fit Me Matte powder blurs imperfections and controls shine all day, for skin that looks naturally smooth — never cakey, never dull.",
         shades: [
             { name: "Classic Ivory", color: "#F5DEB3" }
@@ -433,7 +473,6 @@ const productsData = [
         rating: 4.6,
         reviews: 3400,
         image: "img/Miss_rose_capsule_lipstick.png",
-        badge: "New",
         description: "A pop of color in every capsule. Infused with Vitamin E and Shea Butter, this trendy capsule lipstick glides on with a moisturizing, glossy finish — twist, click and color your lips in seconds.",
         shades: [
             { name: "Ruby Red", color: "#C0392B" }
@@ -448,7 +487,6 @@ const productsData = [
         rating: 4.9,
         reviews: 5500,
         image: "img/Miss_rose_unique_double_wear_liquid_foundation.png",
-        badges: ["New"],
         description: "All-day coverage that never quits. Enriched with Hyaluronic Acid and Vitamin E, this lightweight liquid foundation blends seamlessly for a smooth, natural finish that stays fresh and flawless from morning till night.",
         shades: []
     },
@@ -461,7 +499,6 @@ const productsData = [
         rating: 4.7,
         reviews: 3800,
         image: "img/Satin_sheen_lip_stylo.png",
-        badge: null,
         description: "Glide on the glow. Made with Shea Butter and Vitamin E, this twist-up lip stylo delivers a satin-sheen finish with a comfortable, non-sticky feel — effortless color, anytime, anywhere.",
         shades: []
     },
@@ -474,7 +511,6 @@ const productsData = [
         rating: 4.8,
         reviews: 4400,
         image: "img/Ushas_snail_secretion_filtrate_setting_spray.png",
-        badge: "Sale",
         description: "Set your makeup, nourish your skin. Powered by Snail Secretion Filtrate and Vitamin E, this setting spray locks your look in place for hours while leaving skin hydrated, soft and naturally radiant.",
         shades: []
     },
@@ -487,7 +523,6 @@ const productsData = [
         rating: 4.7,
         reviews: 4700,
         image: "img/Mascara.png",
-        badge: null,
         description: "Lashes that steal the show. Formulated with Castor Oil and Beeswax, this volumizing mascara lengthens, curls and lifts every lash for a clump-free, dramatic look that lasts all day.",
         shades: []
     },
@@ -500,7 +535,6 @@ const productsData = [
         rating: 4.7,
         reviews: 4700,
         image: "img/Highlight_stick.png",
-        badge: null,
         description: "Catch the light, own the glow. Blended with Mica and Shea Butter, this creamy highlight stick melts into skin for a luminous, second-skin glow — swipe, blend and shine with the built-in brush.",
         shades: []
     },
@@ -513,7 +547,6 @@ const productsData = [
         rating: 4.9,
         reviews: 4900,
         image: "img/Hoyosun_eyeshadow_palette.png",
-        badge: null,
         description: "Four shades, one stunning look. Made with finely milled Mica and Vitamin E, this palette blends warm mattes with a dazzling gold glitter for eye looks that go from soft daytime to sultry night.",
         shades: []
     },
@@ -526,7 +559,6 @@ const productsData = [
         rating: 4.4,
         reviews: 4400,
         image: "img/B_Colour_liquid_concealer.png",
-        badge: null,
         description: "Hide it, hydrate it. Infused with Hyaluronic Acid and Vitamin E, this lightweight liquid concealer covers dark circles and blemishes with full coverage that feels weightless and looks completely natural.",
         shades: []
     },
@@ -534,12 +566,11 @@ const productsData = [
         id: 21,
         name: "Careline Gloss Boss Lip Treat",
         category: "lips",
-        price: 450,
-        oldPrice: null,
+        price: 480,
+        oldPrice: 650,
         rating: 4.9,
         reviews: 4900,
         image: "img/Careline_gloss_boss_lip_treat.png",
-        badge: null,
         description: "Lips that glow from the inside out. Treated with Olive Fruit Oil, Castor Seed Oil, Vitamin E and Hyaluronic Acid, this nourishing lip treat plumps, hydrates and adds a glossy shine that lasts.",
         shades: []
     },
@@ -552,7 +583,6 @@ const productsData = [
         rating: 4.5,
         reviews: 4500,
         image: "img/Colorful_beehive_shaped_lip_gloss.png",
-        badge: "Hot",
         description: "Sweet color, sweeter shine. Infused with Shea Butter and Vitamin E, this honeycomb-shaped lip gloss glides on smooth and moisturizing, wrapping your lips in a luscious, glossy pout in vibrant shades.",
         shades: [
             { name: "Honey Yellow", color: "#F5C518", image: "img/Yellow Beehive Lip Gloss.jpeg" },
@@ -570,7 +600,6 @@ const productsData = [
         rating: 4.7,
         reviews: 3800,
         image: "img/Eye_lashes.png",
-        badge: null,
         description: "Bold lashes, instant drama. Crafted from soft Synthetic Silk Fibers on a flexible, lightweight band, these reusable false lashes blend naturally for a full, fluttery look that lasts all day in comfort.",
         shades: []
     },
@@ -583,7 +612,6 @@ const productsData = [
         rating: 4.8,
         reviews: 5200,
         image: "img/Holika_velvet_blanket_tint.png",
-        badge: "Sale",
         description: "Lips wrapped in velvet color. Formulated with Jojoba Oil and Vitamin E, this Korean velvet tint blurs onto lips like a soft blanket, leaving a long-lasting, second-skin matte stain that never feels heavy.",
         shades: [
             { name: "Cherry Red", color: "#C0392B" }
@@ -598,7 +626,6 @@ const productsData = [
         rating: 4.6,
         reviews: 3200,
         image: "img/Eyebrow_Pencil_1.png",
-        badge: "New",
         description: "Brows on point, every time. Made with nourishing Vitamin E and natural waxes, this precision pencil glides smoothly to define, fill and shape — complete with a built-in spoolie for a natural, all-day finish.",
         shades: []
     },
@@ -611,7 +638,6 @@ const productsData = [
         rating: 4.7,
         reviews: 2900,
         image: "img/Jarusa_Órale_BB_Cream.png",
-        badge: "New",
         description: "Skin perfection in one swipe. Infused with Hyaluronic Acid and Vitamin E, this breathable BB cream evens out tone, hydrates skin and blurs imperfections for a natural, healthy glow all day.",
         shades: []
     },
@@ -624,7 +650,6 @@ const productsData = [
         rating: 4.5,
         reviews: 2100,
         image: "img/Soften_Hand_Cream.png",
-        badge: "New",
         description: "Hands that feel as good as they look. Enriched with Shea Butter and Glycerin, this fast-absorbing cream softens skin by up to 20% with just one use, leaving hands smooth, hydrated and never greasy.",
         shades: []
     },
@@ -637,7 +662,6 @@ const productsData = [
         rating: 4.8,
         reviews: 3700,
         image: "img/MCoBeauty_Overnight_Lip_Mask_in_Berry.jpg",
-        badge: "New",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and juicy Berry extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
     },
@@ -650,7 +674,6 @@ const productsData = [
         rating: 4.8,
         reviews: 3500,
         image: "img/MCoBeauty_Overnight_Lip_Mask_in_Vanilla.jpg",
-        badge: "New",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and sweet Vanilla extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
     },
@@ -663,7 +686,6 @@ const productsData = [
         rating: 4.7,
         reviews: 2600,
         image: "img/Loca_Highlighter.png",
-        badge: "New",
         description: "Glow that looks lit from within. Formulated with soothing Aloe Vera Gel and Hyaluronic Acid, this gel highlighter melts into skin for a dewy, radiant glow that feels weightless and never glittery-fake.",
         shades: []
     },
@@ -676,7 +698,6 @@ const productsData = [
         rating: 4.8,
         reviews: 4100,
         image: "img/Hard Candy Glamoflauge Full Coverage Foundation.png",
-        badge: "New",
         description: "Flawless coverage, zero shine. Formulated oil-free with Vitamin E, this full coverage foundation blends seamlessly and wears beautifully for hours, camouflaging imperfections while keeping skin comfortable and breathable.",
         shades: []
     },
@@ -689,7 +710,6 @@ const productsData = [
         rating: 4.6,
         reviews: 1900,
         image: "img/RPK_New_High-Def_pigment_Liquid_Liner.png",
-        badge: "New",
         description: "Bold lines, zero smudging. This high-definition pigment liquid eyeliner glides on with an ultra-fine precision tip, delivering intense, jet-black color that stays sharp and smudge-free all day.",
         shades: []
     },
@@ -702,7 +722,6 @@ const productsData = [
         rating: 4.7,
         reviews: 3300,
         image: "img/Hard Candy Glamoflauge Full Coverage Concealer.png",
-        badges: ["New", "Sale"],
         description: "Brighten, cover, perfect. Infused with Niacinamide, this full coverage concealer melts into skin to brighten dark circles and erase blemishes — buildable coverage that never looks cakey, all day long.",
         shades: []
     },
@@ -715,7 +734,6 @@ const productsData = [
         rating: 4.6,
         reviews: 2400,
         image: "img/LOCA_Lip_Balm_in_the-shade_05_The Serve.png",
-        badge: "New",
         description: "Soft lips, served daily. Infused with nourishing Jojoba Oil, this lip balm melts on smooth to deeply moisturize dry lips, leaving them soft, smooth and comfortable from the first swipe.",
         shades: []
     },
@@ -728,7 +746,6 @@ const productsData = [
         rating: 4.6,
         reviews: 2200,
         image: "img/Hard_Candy_Sheer_Envy_Perfecting_Primer.png",
-        badge: "New",
         description: "The perfect canvas starts here. Formulated to blur pores and smooth fine lines, this lightweight perfecting primer creates a silky, even base that helps your makeup glide on and stay flawless for hours.",
         shades: []
     },
@@ -741,7 +758,6 @@ const productsData = [
         rating: 4.6,
         reviews: 2000,
         image: "img/Wibo_Probrow_Pencil_a_dual_ended_makeup_tool_featuring_a_diagonally_cut_triangular_shaped_tip_for_precise_definition_and_a_built_in_spoolie_brush_for_grooming.png",
-        badge: "New",
         description: "Brow perfection, both ends covered. This dual-ended pencil features a diagonally cut triangular tip for razor-sharp definition, plus a built-in spoolie to blend and groom brows into place.",
         shades: []
     },
@@ -754,7 +770,6 @@ const productsData = [
         rating: 4.7,
         reviews: 2300,
         image: "img/Ushas_branded_waterproof_lip_liner_pencil.jpg",
-        badge: "New",
         description: "Lips lined, color defined. This waterproof lip liner pencil glides on with rich, long-wearing pigment in a deep berry shade, keeping your lip color sharp and smudge-free all day.",
         shades: []
     },
@@ -767,7 +782,6 @@ const productsData = [
         rating: 4.8,
         reviews: 1800,
         image: "img/Laurenza_Foundation_Concealer_Contour_and_Blush_Palette_an_all_in_one_cream_face_makeup.png",
-        badges: ["New", "Sale"],
         description: "Your whole face, one palette. This all-in-one cream formula combines foundation, concealer, contour and blush shades in one compact, letting you build a complete, blended look in minutes — no extra products needed.",
         shades: []
     },
@@ -780,7 +794,6 @@ const productsData = [
         rating: 4.6,
         reviews: 1900,
         image: "img/black_twist_up_eyebrow_pencil.png",
-        badge: "New",
         description: "Define brows, your way. This twist-up pencil glides on smooth and precise, filling in sparse areas and shaping natural-looking brows with an easy, mess-free, retractable application.",
         shades: []
     },
@@ -793,7 +806,6 @@ const productsData = [
         rating: 4.7,
         reviews: 1700,
         image: "img/Brown_This_Way_Eyebrow_Sculpting_Kit.jpg",
-        badges: ["New", "Sale"],
         description: "Sculpt brows like a pro. This two-tone wax and powder duo comes with a built-in brush to shape, fill and set brows for a natural, full-bodied look that lasts all day.",
         shades: []
     }
@@ -935,6 +947,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (searchIcon) searchIcon.classList.remove('active');
         }
     });
+});
+
+// Browser back/forward navigation restores the page from bfcache exactly
+// as it was left — including an open mobile search dropdown or leftover
+// typed text in the search box. Reset that stale UI on every page show,
+// UNLESS this page is actively restoring a saved search (shop.html only).
+window.addEventListener('pageshow', function() {
+    const onShopPage = !!document.getElementById('all-products-grid');
+    const viewState = onShopPage ? getViewState() : null;
+    const hasActiveSearch = !!(viewState && viewState.type === 'search' && viewState.search);
+
+    if (hasActiveSearch) return; // let restoreViewAndQuickViewState fill it back in
+
+    const searchBox = document.getElementById('mobile-search-box');
+    const searchIcon = document.querySelector('.search-icon-mobile');
+    if (searchBox) searchBox.classList.remove('active');
+    if (searchIcon) searchIcon.classList.remove('active');
+
+    const desktopInput = document.getElementById('global-search-desktop');
+    const mobileInput = document.getElementById('global-search-mobile');
+    if (desktopInput) desktopInput.value = '';
+    if (mobileInput) mobileInput.value = '';
+
+    updateClearSearchButtons();
 });
 
 
@@ -1079,6 +1115,8 @@ function initApp() {
     updateCategoryCounts(); // Auto-count products per category
     checkPendingOrderFromLink(); // Auto-reopen Confirm/Cancel card if there's a pending order (no link needed)
     restoreViewAndQuickViewState(); // Restore Sale/Category/Search page or open Quick View after a refresh
+    initShopPageFromURL();   // shop.html: apply ?category= / ?view=sale / ?search= from URL
+    initProductDetailPage(); // product.html: render the product from ?id= in URL
 
     // Auto-save scroll position so refresh restores same spot
     window.addEventListener('scroll', function() {
@@ -1090,7 +1128,15 @@ function initApp() {
                 sessionStorage.setItem(VIEW_STATE_KEY, JSON.stringify(state));
             }
         } catch(e) {}
+        // Also save a plain per-page scroll position (covers pages/views
+        // without an active Sale/Category/Search state, e.g. homepage).
+        saveGenericScrollPosition();
     }, { passive: true });
+
+    // Belt-and-braces: also save right before the page actually unloads
+    // (covers fast refreshes where the last scroll-throttled save might be missed).
+    window.addEventListener('pagehide', saveGenericScrollPosition);
+    window.addEventListener('beforeunload', saveGenericScrollPosition);
 }
 
 if (document.readyState === 'loading') {
@@ -1155,7 +1201,7 @@ function updateCheckoutHTML() {
         populateCityDropdown('checkout-city');
     }
 
-    // Update Step 2: Payment with JazzCash & EasyPaisa
+    // Update Step 2: Payment with JazzCash & NayaPay
     const step2 = document.getElementById('checkout-step-2');
     if (step2) {
         step2.innerHTML = `
@@ -1168,7 +1214,7 @@ function updateCheckoutHTML() {
                 </div>
                 <div class="discount-banner-text">
                     <strong>🎉 6% EXTRA DISCOUNT!</strong>
-                    <p>Pay with JazzCash or EasyPaisa and get <strong>6% discount</strong> payen!</p>
+                    <p>Pay with JazzCash or NayaPay and get <strong>6% discount</strong> payen!</p>
                 </div>
             </div>
 
@@ -1208,17 +1254,17 @@ function updateCheckoutHTML() {
                     <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                 </div>
 
-                <!-- EasyPaisa -->
+                <!-- NayaPay -->
                 <div class="payment-method-card" id="pm-easypaisa" onclick="selectPaymentMethod('easypaisa')">
                     <div class="payment-radio">
                         <input type="radio" name="payment" value="easypaisa" id="pay-easypaisa">
                         <span class="radio-custom"></span>
                     </div>
                     <div class="payment-icon easypaisa-icon">
-                        <span style="color:#00a651;font-family:Arial Black,sans-serif;font-weight:900;font-size:10px;line-height:1.1;text-align:center;">easy<br><span style="color:#006400;">paisa</span></span>
+                        <span style="color:#FF6B00;font-family:Arial Black,sans-serif;font-weight:900;font-size:10px;line-height:1.1;text-align:center;">Naya<br><span style="color:#FF6B00;">Pay</span></span>
                     </div>
                     <div class="payment-details">
-                        <h4>EasyPaisa</h4>
+                        <h4>NayaPay</h4>
                         <p>Mobile wallet payment</p>
                         <span class="payment-badge discount-badge"><i class="fas fa-tags"></i> 6% Discount!</span>
                     </div>
@@ -1313,8 +1359,8 @@ function injectPaymentStyles() {
             background: linear-gradient(135deg, #fff5f5, var(--white));
         }
         .payment-method-card.active-easypaisa {
-            border-color: #00a651;
-            background: linear-gradient(135deg, #f0fff4, var(--white));
+            border-color: #FF6B00;
+            background: linear-gradient(135deg, #fff3e0, var(--white));
         }
         .payment-icon {
             width: 52px; height: 52px;
@@ -1324,7 +1370,7 @@ function injectPaymentStyles() {
         }
         .cod-icon { background: linear-gradient(135deg, #c8e6c9, #a5d6a7); color: #2e7d32; }
         .jazzcash-icon { background: #fff0f0; border: 2px solid #ffcdd2; }
-        .easypaisa-icon { background: #f0fff4; border: 2px solid #c8e6c9; }
+        .easypaisa-icon { background: #fff3e0; border: 2px solid #ffcc80; }
         .payment-method-card.active .cod-icon {
             background: linear-gradient(135deg, var(--brown), var(--brown-dark));
             color: white;
@@ -1340,7 +1386,7 @@ function injectPaymentStyles() {
         .payment-method-card.active-jazzcash .payment-check,
         .payment-method-card.active-easypaisa .payment-check { opacity: 1; transform: scale(1); }
         .payment-method-card.active-jazzcash .payment-check { color: #e60012; }
-        .payment-method-card.active-easypaisa .payment-check { color: #00a651; }
+        .payment-method-card.active-easypaisa .payment-check { color: #FF6B00; }
 
         /* Digital Payment Form */
         .digital-payment-form {
@@ -1352,7 +1398,7 @@ function injectPaymentStyles() {
             animation: fadeIn 0.3s ease;
         }
         .digital-payment-form.jazzcash-form { border-color: #ffcdd2; background: #fff5f5; }
-        .digital-payment-form.easypaisa-form { border-color: #c8e6c9; background: #f0fff4; }
+        .digital-payment-form.easypaisa-form { border-color: #ffcc80; background: #fff3e0; }
         .dpf-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .dpf-header img { width: 80px; height: auto; object-fit: contain; }
         .dpf-header-text h4 { font-size: 16px; margin-bottom: 4px; }
@@ -1377,24 +1423,24 @@ function injectPaymentStyles() {
             font-size: 11px; font-weight: 700; flex-shrink: 0; color: white;
         }
         .jazzcash-num { background: #e60012; }
-        .easypaisa-num { background: #00a651; }
+        .easypaisa-num { background: #FF6B00; }
         .account-number-box {
             display: flex; align-items: center; justify-content: space-between;
             background: white; border: 2px dashed; border-radius: 10px;
             padding: 14px 18px; margin-bottom: 15px;
         }
         .account-number-box.jazzcash-box { border-color: #e60012; }
-        .account-number-box.easypaisa-box { border-color: #00a651; }
+        .account-number-box.easypaisa-box { border-color: #FF6B00; }
         .account-number-box .acc-label { font-size: 12px; color: var(--text-light); margin-bottom: 3px; }
         .account-number-box .acc-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
         .account-number-box.jazzcash-box .acc-number { color: #e60012; }
-        .account-number-box.easypaisa-box .acc-number { color: #00a651; }
+        .account-number-box.easypaisa-box .acc-number { color: #FF6B00; }
         .copy-btn {
             padding: 8px 14px; border: none; border-radius: 8px;
             font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
         }
         .jazzcash-box .copy-btn { background: #e60012; color: white; }
-        .easypaisa-box .copy-btn { background: #00a651; color: white; }
+        .easypaisa-box .copy-btn { background: #FF6B00; color: white; }
         .copy-btn:hover { opacity: 0.85; transform: scale(1.05); }
         .txn-input-group { display: flex; gap: 10px; }
         .txn-input-group input { flex: 1; }
@@ -1468,10 +1514,10 @@ function selectPaymentMethod(method) {
                 <div class="account-number-box jazzcash-box">
                     <div>
                         <div class="acc-label">JazzCash Account Number:</div>
-                        <div class="acc-number">0301-7133824</div>
-                        <div style="font-size:12px;color:#666;margin-top:2px;">Account Name: Aurevyn</div>
+                        <div class="acc-number">0322-6563703</div>
+                        <div style="font-size:12px;color:#666;margin-top:2px;">Account Title: Rana Ahmed Mehboob Subhani</div>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('0301-7133824')">
+                    <button class="copy-btn" onclick="copyToClipboard('0322-6563703')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
                 </div>
@@ -1479,7 +1525,7 @@ function selectPaymentMethod(method) {
                     <h5>How to Pay:</h5>
                     <div class="dpf-step"><span class="dpf-step-num jazzcash-num">1</span> <span>Open JazzCash app or dial *786#</span></div>
                     <div class="dpf-step"><span class="dpf-step-num jazzcash-num">2</span> <span>Select "Send Money"</span></div>
-                    <div class="dpf-step"><span class="dpf-step-num jazzcash-num">3</span> <span>Enter number <strong>0301-7133824</strong></span></div>
+                    <div class="dpf-step"><span class="dpf-step-num jazzcash-num">3</span> <span>Enter number <strong>0322-6563703</strong></span></div>
                     <div class="dpf-step"><span class="dpf-step-num jazzcash-num">4</span> <span>Enter amount <strong>PKR ${finalTotal.toLocaleString()}</strong></span></div>
                     <div class="dpf-step"><span class="dpf-step-num jazzcash-num">5</span> <span>Enter your Transaction ID below</span></div>
                 </div>
@@ -1493,6 +1539,12 @@ function selectPaymentMethod(method) {
                     </div>
                 </div>
                 <div class="dpf-note"><i class="fas fa-info-circle"></i> Please enter your Transaction ID after payment. Orders without a TID cannot be processed.</div>
+                <div class="dpf-note" style="background:#fff5f5;border-color:#ffcdd2;">
+                    <i class="fab fa-whatsapp" style="color:#25D366;"></i> Please send a screenshot of your payment on WhatsApp for faster confirmation.
+                </div>
+                <button type="button" onclick="sendPaymentScreenshotWhatsApp('JazzCash')" style="width:100%;margin-top:10px;padding:12px;background:#25D366;color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <i class="fab fa-whatsapp" style="font-size:18px;"></i> Send Payment Screenshot on WhatsApp
+                </button>
             </div>
         `;
     } else if (method === 'easypaisa') {
@@ -1500,11 +1552,11 @@ function selectPaymentMethod(method) {
         detailSection.innerHTML = `
             <div class="digital-payment-form easypaisa-form">
                 <div class="dpf-header">
-                    <div class="dpf-logo-box" style="background:#00a651;border-radius:10px;padding:8px 14px;display:flex;align-items:center;justify-content:center;min-width:90px;">
-                        <span style="color:white;font-family:Arial Black,sans-serif;font-weight:900;font-size:18px;letter-spacing:-1px;">easy<span style="color:#FFD700;">paisa</span></span>
+                    <div class="dpf-logo-box" style="background:#FF6B00;border-radius:10px;padding:8px 14px;display:flex;align-items:center;justify-content:center;min-width:90px;">
+                        <span style="color:white;font-family:Arial Black,sans-serif;font-weight:900;font-size:18px;letter-spacing:-1px;">Naya<span style="color:white;">Pay</span></span>
                     </div>
                     <div class="dpf-header-text">
-                        <h4 style="color:#00a651;">EasyPaisa Payment</h4>
+                        <h4 style="color:#FF6B00;">NayaPay Payment</h4>
                         <p>Send payment to the account number below</p>
                     </div>
                 </div>
@@ -1513,32 +1565,38 @@ function selectPaymentMethod(method) {
                 </div>
                 <div class="account-number-box easypaisa-box">
                     <div>
-                        <div class="acc-label">EasyPaisa Account Number:</div>
-                        <div class="acc-number">0301-7133824</div>
-                        <div style="font-size:12px;color:#666;margin-top:2px;">Account Name: Aurevyn</div>
+                        <div class="acc-label">NayaPay Account Number:</div>
+                        <div class="acc-number">0317-6336401</div>
+                        <div style="font-size:12px;color:#666;margin-top:2px;">Account Title: Hafiz Muhammad Usman</div>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('0301-7133824')">
+                    <button class="copy-btn" onclick="copyToClipboard('0317-6336401')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
                 </div>
                 <div class="dpf-instructions">
                     <h5>How to Pay:</h5>
-                    <div class="dpf-step"><span class="dpf-step-num easypaisa-num">1</span> <span>Open EasyPaisa app or dial *786#</span></div>
+                    <div class="dpf-step"><span class="dpf-step-num easypaisa-num">1</span> <span>Open NayaPay app</span></div>
                     <div class="dpf-step"><span class="dpf-step-num easypaisa-num">2</span> <span>Select "Send Money"</span></div>
-                    <div class="dpf-step"><span class="dpf-step-num easypaisa-num">3</span> <span>Enter number <strong>0301-7133824</strong></span></div>
+                    <div class="dpf-step"><span class="dpf-step-num easypaisa-num">3</span> <span>Enter number <strong>0317-6336401</strong></span></div>
                     <div class="dpf-step"><span class="dpf-step-num easypaisa-num">4</span> <span>Enter amount <strong>PKR ${finalTotal.toLocaleString()}</strong></span></div>
                     <div class="dpf-step"><span class="dpf-step-num easypaisa-num">5</span> <span>Enter your Transaction ID below</span></div>
                 </div>
                 <div class="form-group">
-                    <label style="color:#1b5e20;font-weight:600;">Transaction ID (TID) * <span style="font-size:11px;color:#666;">(from EasyPaisa receipt)</span></label>
+                    <label style="color:#e65100;font-weight:600;">Transaction ID (TID) * <span style="font-size:11px;color:#666;">(from NayaPay receipt)</span></label>
                     <div class="txn-input-group">
-                        <input type="text" id="txn-id" placeholder="e.g., EP12345678" required style="border-color:#00a651;">
-                        <button type="button" style="padding:0 18px;background:#00a651;color:white;border:none;border-radius:12px;cursor:pointer;white-space:nowrap;font-size:13px;" onclick="verifyTxnId()">
+                        <input type="text" id="txn-id" placeholder="e.g., NP12345678" required style="border-color:#FF6B00;">
+                        <button type="button" style="padding:0 18px;background:#FF6B00;color:white;border:none;border-radius:12px;cursor:pointer;white-space:nowrap;font-size:13px;" onclick="verifyTxnId()">
                             <i class="fas fa-check"></i> Verify
                         </button>
                     </div>
                 </div>
                 <div class="dpf-note"><i class="fas fa-info-circle"></i> Please enter your Transaction ID after payment. Orders without a TID cannot be processed.</div>
+                <div class="dpf-note" style="background:#fff5f5;border-color:#ffcdd2;">
+                    <i class="fab fa-whatsapp" style="color:#25D366;"></i> Please send a screenshot of your payment on WhatsApp for faster confirmation.
+                </div>
+                <button type="button" onclick="sendPaymentScreenshotWhatsApp('NayaPay')" style="width:100%;margin-top:10px;padding:12px;background:#25D366;color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <i class="fab fa-whatsapp" style="font-size:18px;"></i> Send Payment Screenshot on WhatsApp
+                </button>
             </div>
         `;
     }
@@ -1620,6 +1678,14 @@ function verifyTxnId() {
 }
 
 // ==========================================
+// SEND PAYMENT SCREENSHOT ON WHATSAPP (opens in new tab, page stays open)
+// ==========================================
+function sendPaymentScreenshotWhatsApp(methodName) {
+    const msg = encodeURIComponent(`Hi, I have made a payment via ${methodName} for my Aurevyn order. Sending the payment screenshot for confirmation.`);
+    window.open(`https://wa.me/923258666803?text=${msg}`, '_blank');
+}
+
+// ==========================================
 // LOAD CHECKOUT SIDEBAR
 // ==========================================
 function loadCheckoutSidebar() {
@@ -1651,7 +1717,7 @@ function placeOrder() {
     if (selectedPaymentMethod !== 'cod') {
         const txnInput = document.getElementById('txn-id');
         if (!txnInput || !txnInput.value.trim()) {
-            showToast('error', 'Transaction ID Required', 'Please enter your JazzCash/EasyPaisa Transaction ID');
+            showToast('error', 'Transaction ID Required', 'Please enter your JazzCash/NayaPay Transaction ID');
             return;
         }
         checkoutData.payment.txnId = txnInput.value.trim();
@@ -1663,46 +1729,46 @@ function placeOrder() {
     const methodLabels = {
         'cod': 'Cash on Delivery',
         'jazzcash': 'JazzCash',
-        'easypaisa': 'EasyPaisa'
+        'easypaisa': 'NayaPay'
     };
 
-    let message = `🛍️ *NEW ORDER - Aurevyn*%0A%0A`;
-    message += `*Order ID:* ${orderId}%0A%0A`;
-    message += `*👤 Customer Details:*%0A`;
-    message += `Name: ${checkoutData.shipping.name}%0A`;
-    message += `Phone: ${checkoutData.shipping.phone}%0A`;
-    message += `Email: ${checkoutData.shipping.email || 'N/A'}%0A`;
-    message += `Address: ${checkoutData.shipping.address}%0A`;
-    message += `City: ${checkoutData.shipping.city}%0A`;
-    message += `Postal: ${checkoutData.shipping.postal || 'N/A'}%0A%0A`;
+    let message = `🛍️ *NEW ORDER - Aurevyn*\n\n`;
+    message += `*Order ID:* ${orderId}\n\n`;
+    message += `*👤 Customer Details:*\n`;
+    message += `Name: ${checkoutData.shipping.name}\n`;
+    message += `Phone: ${checkoutData.shipping.phone}\n`;
+    message += `Email: ${checkoutData.shipping.email || 'N/A'}\n`;
+    message += `Address: ${checkoutData.shipping.address}\n`;
+    message += `City: ${checkoutData.shipping.city}\n`;
+    message += `Postal: ${checkoutData.shipping.postal || 'N/A'}\n\n`;
 
-    message += `*💳 Payment Method:* ${methodLabels[selectedPaymentMethod]}%0A`;
+    message += `*💳 Payment Method:* ${methodLabels[selectedPaymentMethod]}\n`;
     if (isDigital) {
-        message += `*Transaction ID:* ${checkoutData.payment.txnId}%0A`;
-        message += `*6% Discount Applied:* -PKR ${discountAmt.toLocaleString()}%0A`;
+        message += `*Transaction ID:* ${checkoutData.payment.txnId}\n`;
+        message += `*6% Discount Applied:* -PKR ${discountAmt.toLocaleString()}\n`;
     }
-    message += `%0A`;
+    message += `\n`;
 
-    message += `*📦 Order Items:*%0A`;
+    message += `*📦 Order Items:*\n`;
     cart.forEach(item => {
         const shadePart = item.shade ? ` (${item.shade})` : '';
-        message += `• ${item.name}${shadePart} x${item.quantity} - PKR ${(item.price * item.quantity).toLocaleString()}%0A`;
+        message += `• ${item.name}${shadePart} x${item.quantity} - PKR ${(item.price * item.quantity).toLocaleString()}\n`;
     });
 
-    message += `%0A*💰 Order Summary:*%0A`;
-    message += `Subtotal: PKR ${subtotal.toLocaleString()}%0A`;
-    message += `Shipping: ${shipping === 0 ? 'FREE' : shipping}%0A`;
-    if (isDigital) message += `6% Digital Discount: -PKR ${discountAmt.toLocaleString()}%0A`;
-    message += `*TOTAL: PKR ${finalTotal.toLocaleString()}*%0A%0A`;
-    message += `Date: ${new Date().toLocaleString()}%0A`;
+    message += `\n*💰 Order Summary:*\n`;
+    message += `Subtotal: PKR ${subtotal.toLocaleString()}\n`;
+    message += `Shipping: ${shipping === 0 ? 'FREE' : shipping}\n`;
+    if (isDigital) message += `6% Digital Discount: -PKR ${discountAmt.toLocaleString()}\n`;
+    message += `*TOTAL: PKR ${finalTotal.toLocaleString()}*\n\n`;
+    message += `Date: ${new Date().toLocaleString()}\n`;
     message += `Status: Pending Confirmation`;
 
     // Add confirmation reminder note to seller message
-    message += `%0A%0A🔴 *Order expires in 30 minutes if not confirmed.*`;
-    message += `%0A⚠️ *Go back to the website and confirm your order if you liked this product!*`;
+    message += `\n\n🔴 *Order expires in 30 minutes if not confirmed.*`;
+    message += `\n⚠️ *Go back to the website and confirm your order if you liked this product!*`;
 
     try {
-        window.open(`https://wa.me/923258666803?text=${message}`, '_blank');
+        window.open(`https://wa.me/923258666803?text=${encodeURIComponent(message)}`, '_blank');
     } catch(e) {
         console.warn('WhatsApp redirect blocked:', e);
     }
@@ -1993,7 +2059,7 @@ function populateReviewData() {
     if (reviewAddress) reviewAddress.textContent = checkoutData.shipping.address + ', ' + checkoutData.shipping.city;
 
     const reviewMethod = document.querySelector('#review-payment .review-method');
-    const methodLabels = { cod: 'Cash on Delivery', jazzcash: 'JazzCash (6% Discount Applied ✓)', easypaisa: 'EasyPaisa (6% Discount Applied ✓)' };
+    const methodLabels = { cod: 'Cash on Delivery', jazzcash: 'JazzCash (6% Discount Applied ✓)', easypaisa: 'NayaPay (6% Discount Applied ✓)' };
     if (reviewMethod) reviewMethod.textContent = methodLabels[selectedPaymentMethod] || selectedPaymentMethod;
 
     const itemsContainer = document.getElementById('review-items');
@@ -2299,7 +2365,10 @@ function createProductCard(product, index = 99) {
                 <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
             </div>
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" loading="${imgLoading}" id="card-img-${product.id}">
+                <a href="product.html?id=${product.id}" class="product-image-link" aria-label="View ${product.name}">
+                    <img src="${product.image}" alt="${product.name}" loading="${imgLoading}" id="card-img-${product.id}">
+                </a>
+                ${discount ? `<div class="discount-tag">${discount}% Off</div>` : ''}
                 <div class="product-actions">
                     <button class="action-btn" onclick="openQuickView(${product.id})" title="Quick View"><i class="fas fa-eye"></i></button>
                     <button class="action-btn" onclick="addToCartWithShade(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>
@@ -2307,7 +2376,7 @@ function createProductCard(product, index = 99) {
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
-                <h3 id="card-name-${product.id}">${product.name}</h3>
+                <h3 id="card-name-${product.id}"><a href="product.html?id=${product.id}" class="product-name-link">${product.name}</a></h3>
                 <div class="product-rating">
                     <div class="stars">${generateStars(product.rating)}</div>
                     <span class="rating-count">(${formatNumber(product.reviews)})</span>
@@ -2315,7 +2384,6 @@ function createProductCard(product, index = 99) {
                 <div class="product-price">
                     <span class="current-price">PKR ${product.price}</span>
                     ${product.oldPrice ? `<span class="old-price">PKR ${product.oldPrice}</span>` : ''}
-                    ${discount ? `<span class="discount">-${discount}%</span>` : ''}
                 </div>
                 ${variantThumbs}
                 ${shadeSwatch}
@@ -2477,7 +2545,7 @@ function showSaleProducts(silent) {
     const allProductsSection = document.getElementById('products');
     const saleSection = document.getElementById('sale-section');
     const saleContainer = document.getElementById('sale-products-grid');
-    if (!saleSection || !saleContainer) return;
+    if (!saleSection || !saleContainer) { window.location.href = 'shop.html?view=sale'; return; }
     if (allProductsSection) allProductsSection.style.display = 'none';
     saleSection.style.display = 'block';
     saleSection.classList.add('active');
@@ -2493,9 +2561,11 @@ function showSaleProducts(silent) {
 function showAllProducts() {
     const allProductsSection = document.getElementById('products');
     const saleSection = document.getElementById('sale-section');
+    if (!allProductsSection) { window.location.href = 'shop.html'; return; }
     if (saleSection) { saleSection.style.display = 'none'; saleSection.classList.remove('active'); }
-    if (allProductsSection) { allProductsSection.style.display = 'block'; allProductsSection.scrollIntoView({ behavior: 'smooth' }); }
+    allProductsSection.style.display = 'block'; allProductsSection.scrollIntoView({ behavior: 'smooth' });
     loadAllProducts();
+    setProductsSectionTitle(null);
     clearViewState();
 }
 
@@ -2704,13 +2774,23 @@ function toggleWishlistItem(productId) {
 }
 
 function toggleWishlist() {
-    if (wishlist.length === 0) { showToast('info', 'Empty Wishlist', 'Your wishlist is empty. Start adding products!'); return; }
-    const wishlistProducts = products.filter(p => wishlist.includes(p.id));
     const container = document.getElementById('all-products-grid');
-    if (container) {
-        container.innerHTML = wishlistProducts.map(p => createProductCard(p)).join('');
-        document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!container) { window.location.href = 'shop.html?view=wishlist'; return; }
+    showWishlistProducts();
+}
+
+function showWishlistProducts(silent) {
+    const container = document.getElementById('all-products-grid');
+    if (!container) { window.location.href = 'shop.html?view=wishlist'; return; }
+    const wishlistProducts = products.filter(p => wishlist.includes(p.id));
+    const titleEl = document.getElementById('products-section-title');
+    if (titleEl) { titleEl.removeAttribute('data-translate'); titleEl.textContent = 'My Wishlist'; }
+    container.innerHTML = wishlistProducts.length === 0
+        ? `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;"><i class="fas fa-heart" style="font-size:64px;color:#e74c3c;margin-bottom:20px;display:block;"></i><h3>Your wishlist is empty</h3><p style="color:var(--gray);margin:8px 0 20px;">Tap the heart icon on any product to save it here.</p><button class="btn-primary" onclick="showAllProducts()">View All Products</button></div>`
+        : wishlistProducts.map(p => createProductCard(p)).join('');
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+    if (!silent) { closeMobileMenu(); showToast('success', 'Wishlist', `${wishlistProducts.length} item(s) in your wishlist.`); }
+    saveViewState({ type: 'wishlist' });
 }
 
 function saveWishlist() { localStorage.setItem('aurevynWishlist', JSON.stringify(wishlist)); }
@@ -2976,10 +3056,50 @@ function closeImageLightbox() {
 // ==========================================
 // FILTERS & SEARCH
 // ==========================================
+// Sale products (oldPrice > price) live only in the dedicated Sale section,
+// so the regular Shop grid (category/rating/price/sort filters) excludes them.
+function isSaleProduct(p) {
+    return p.oldPrice !== null && p.oldPrice > p.price;
+}
+
+// Map internal category ids to their data-translate key + fallback label,
+// used to update the "All Products" section heading when a category is selected.
+const CATEGORY_DISPLAY = {
+    face:     { key: 'face_makeup', en: 'Face Makeup' },
+    eyes:     { key: 'eye_makeup',  en: 'Eye Makeup' },
+    lips:     { key: 'lip_products', en: 'Lip Products' },
+    skincare: { key: 'skincare',    en: 'Skincare' },
+    tools:    { key: null,          en: 'Tools & Brushes' }
+};
+
+function setProductsSectionTitle(category) {
+    const titleEl = document.getElementById('products-section-title');
+    if (!titleEl) return;
+    if (!category) {
+        // Back to default "All Products" heading, restore translation key
+        titleEl.setAttribute('data-translate', 'all_products');
+        titleEl.textContent = (translations[currentLanguage] && translations[currentLanguage].all_products) || 'All Products';
+        return;
+    }
+    const info = CATEGORY_DISPLAY[category];
+    if (!info) return;
+    if (info.key && translations[currentLanguage] && translations[currentLanguage][info.key]) {
+        titleEl.setAttribute('data-translate', info.key);
+        titleEl.textContent = translations[currentLanguage][info.key];
+    } else {
+        titleEl.removeAttribute('data-translate');
+        titleEl.textContent = info.en;
+    }
+}
+
 function filterCategory(category) {
-    const filtered = products.filter(p => p.category === category);
     const container = document.getElementById('all-products-grid');
-    if (container) { container.innerHTML = filtered.map(p => createProductCard(p)).join(''); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); updateShowingCount(filtered.length); }
+    if (!container) { window.location.href = 'shop.html?category=' + encodeURIComponent(category); return; }
+    const filtered = products.filter(p => p.category === category);
+    container.innerHTML = filtered.map(p => createProductCard(p)).join('');
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+    updateShowingCount(filtered.length);
+    setProductsSectionTitle(category);
     saveViewState({ type: 'category', category: category });
 }
 
@@ -3012,6 +3132,26 @@ function sortProducts(sortType) {
     else if (sortType === 'newest') sorted.reverse();
     const container = document.getElementById('all-products-grid');
     if (container) container.innerHTML = sorted.map(p => createProductCard(p)).join('');
+}
+
+// Called when the user presses Enter or taps the search button.
+// On shop.html this just filters in place (via globalSearch).
+// On every other page (home, product, contact) there is no products
+// grid to filter, so instead we jump to shop.html with the query
+// attached — that's what was silently failing before.
+function submitGlobalSearch(query) {
+    const q = (query || '').trim();
+    const container = document.getElementById('all-products-grid');
+
+    if (container) {
+        // Already on shop.html — filter right here
+        globalSearch(q);
+    } else {
+        // Not on shop.html — go there and let it run the search
+        window.location.href = q.length > 0
+            ? 'shop.html?search=' + encodeURIComponent(q)
+            : 'shop.html';
+    }
 }
 
 function globalSearch(query) {
@@ -3183,15 +3323,34 @@ function showToast(type, title, message, duration) {
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icons = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle' };
+    const icons = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle', welcome: 'heart' };
     toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i><div class="toast-content"><h4>${title}</h4><p>${message}</p></div>`;
     container.appendChild(toast);
     setTimeout(() => { toast.style.animation = 'toastSlide 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, duration || 1500);
 }
 
 // ==========================================
-// MOBILE MENU
+// WELCOME TOAST
+// Shows "Welcome to Aurevyn!" once per browser session (not on every page
+// navigation) — sessionStorage resets when the browser/tab is closed and
+// reopened, so it shows again on the next visit.
 // ==========================================
+function showWelcomeToast() {
+    try {
+        if (sessionStorage.getItem('aurevynWelcomeShown')) return; // already shown this session
+        sessionStorage.setItem('aurevynWelcomeShown', '1');
+
+        setTimeout(function() {
+            showToast('welcome', 'Welcome to Aurevyn! 💄', 'Discover premium beauty, delivered to your door.', 3500);
+        }, 1200); // small delay so it appears after the preloader/hero, not on top of it
+    } catch (e) {}
+}
+
+document.addEventListener('DOMContentLoaded', showWelcomeToast);
+
+
+let _mobileMenuOpenScrollY = 0;
+
 function toggleMobileMenu() {
     const mm = document.getElementById('mobile-menu');
     const ov = document.getElementById('overlay');
@@ -3202,7 +3361,15 @@ function toggleMobileMenu() {
     if (isOpening) {
         mm.classList.add('active');
         if (ov) ov.classList.add('active');
+
+        // Scroll-lock the body WITHOUT losing scroll position, so the
+        // home screen behind the menu doesn't shift/scroll on mobile.
+        _mobileMenuOpenScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.top = `-${_mobileMenuOpenScrollY}px`;
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
         document.body.style.overflow = 'hidden';
+
         mm.style.zIndex = '1010';
         if (ov) ov.style.zIndex = '1005';
     } else {
@@ -3215,7 +3382,22 @@ function closeMobileMenu() {
     const ov = document.getElementById('overlay');
     if (mm) mm.classList.remove('active');
     if (ov) ov.classList.remove('active');
+
+    // Undo the position:fixed scroll-lock and restore the exact scroll position.
+    const restoreY = _mobileMenuOpenScrollY;
+    _mobileMenuOpenScrollY = 0;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
     document.body.style.overflow = '';
+    window.scrollTo({ top: restoreY, behavior: 'instant' });
+
+    // Reset the Categories accordion so it doesn't stay expanded and
+    // push items like "Contact" out of place the next time the menu opens.
+    const catMenu = document.getElementById('mobile-categories-menu');
+    const catChevron = document.getElementById('mobile-categories-chevron');
+    if (catMenu) catMenu.classList.remove('active');
+    if (catChevron) catChevron.classList.remove('rotated');
 }
 
 function toggleMobileFilters() {
@@ -3240,11 +3422,20 @@ function closeAll() {
     const sb = document.getElementById('shop-sidebar'); 
     if (sb) sb.classList.remove('mobile-active');
     document.body.classList.remove('cart-open');
+
+    // Restore scroll position before clearing the position:fixed scroll-lock
+    // (mobile menu and quick view modal both use this trick), so the page
+    // doesn't jump to the top when closed via Escape/overlay.
+    const wasFixed = document.body.style.position === 'fixed';
+    const restoreY = wasFixed ? (_mobileMenuOpenScrollY || _qvOpenScrollY || 0) : 0;
+    _mobileMenuOpenScrollY = 0;
+    _qvOpenScrollY = 0;
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.width = '';
     document.body.style.height = '';
     document.body.style.top = '';
+    if (wasFixed && restoreY) window.scrollTo({ top: restoreY, behavior: 'instant' });
     clearQuickViewState();
 }
 
@@ -3265,7 +3456,12 @@ function addMobileFilterButton() {
 }
 
 function setupMobileMenu() {
-    document.querySelectorAll('.mobile-menu a').forEach(link => link.addEventListener('click', closeMobileMenu));
+    document.querySelectorAll('.mobile-menu a').forEach(link => {
+        // Skip the Categories accordion toggle - it should only expand/collapse
+        // the submenu, not close the whole mobile menu.
+        if (link.parentElement && link.parentElement.classList.contains('mobile-has-dropdown')) return;
+        link.addEventListener('click', closeMobileMenu);
+    });
 }
 
 // ==========================================
@@ -3278,8 +3474,8 @@ function handleContactSubmit(e) {
     const email = form.querySelector('input[type="email"]')?.value;
     const subject = form.querySelectorAll('input[type="text"]')[1]?.value || 'Contact';
     const message = form.querySelector('textarea')?.value;
-    let msg = `📩 *Contact - Aurevyn*%0AName: ${name}%0AEmail: ${email}%0ASubject: ${subject}%0AMessage: ${message}`;
-    window.open(`https://wa.me/923258666803?text=${msg}`, '_blank');
+    let msg = `📩 *Contact - Aurevyn*\nName: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`;
+    window.open(`https://wa.me/923258666803?text=${encodeURIComponent(msg)}`, '_blank');
     showToast('success', 'Sent!', 'Thank you for contacting us! We will get back to you soon.');
     form.reset();
 }
@@ -3362,8 +3558,8 @@ function handleReturnSubmit(e) {
     const description = document.getElementById('return-description')?.value;
     const videoInput = document.getElementById('return-video');
     if (!videoInput?.files?.length) { showToast('error', 'Video Required', 'Please upload your unboxing video'); return; }
-    let msg = `🔄 *RETURN REQUEST - Aurevyn*%0A%0AOrder ID: ${orderId}%0AName: ${name}%0APhone: ${phone}%0AProduct: ${product}%0APrice: PKR ${price}%0AReason: ${reason}%0ADescription: ${description}%0A%0A📹 VIDEO: Unboxing video attached%0ADate: ${new Date().toLocaleString()}`;
-    window.open(`https://wa.me/923258666803?text=${msg}`, '_blank');
+    let msg = `🔄 *RETURN REQUEST - Aurevyn*\n\nOrder ID: ${orderId}\nName: ${name}\nPhone: ${phone}\nProduct: ${product}\nPrice: PKR ${price}\nReason: ${reason}\nDescription: ${description}\n\n📹 VIDEO: Unboxing video attached\nDate: ${new Date().toLocaleString()}`;
+    window.open(`https://wa.me/923258666803?text=${encodeURIComponent(msg)}`, '_blank');
     showToast('success', 'Return Submitted', 'Please send the video via WhatsApp. Our team will review within 24-48 hours.');
     closeReturnModal();
     e.target.reset();
@@ -4626,6 +4822,7 @@ if (document.readyState === 'loading') {
 
 window.toggleMobileSearch = toggleMobileSearch;
 window.globalSearch = globalSearch;
+window.submitGlobalSearch = submitGlobalSearch;
 window.clearSearch = clearSearch;
 window.toggleSectionsForSearch = toggleSectionsForSearch;
 window.updateClearSearchButtons = updateClearSearchButtons;
@@ -4727,6 +4924,16 @@ window.populateCityDropdown = populateCityDropdown;
 // ==========================================
 // CATEGORIES DROPDOWN TOGGLE
 // ==========================================
+// Mobile menu "Categories" accordion (separate from desktop dropdown)
+function toggleMobileCategoriesMenu() {
+    const menu = document.getElementById('mobile-categories-menu');
+    const chevron = document.getElementById('mobile-categories-chevron');
+    if (!menu) return;
+    menu.classList.toggle('active');
+    if (chevron) chevron.classList.toggle('rotated');
+}
+window.toggleMobileCategoriesMenu = toggleMobileCategoriesMenu;
+
 function toggleCategoriesDropdown(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -5458,6 +5665,7 @@ window.createProductCard = function(product) {
       </div>
       <div class="product-image">
         <img src="${product.image}" alt="${product.name}" loading="lazy">
+        ${discount ? `<div class="discount-tag">${discount}% Off</div>` : ''}
         <div class="product-actions">
           <button class="action-btn" onclick="openQuickView(${product.id})" title="Quick View"><i class="fas fa-eye"></i></button>
           <button class="action-btn" onclick="addToCart(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>
@@ -5474,7 +5682,6 @@ window.createProductCard = function(product) {
         <div class="product-price">
           <span class="current-price">PKR ${product.price}</span>
           ${product.oldPrice ? `<span class="old-price">PKR ${product.oldPrice}</span>` : ''}
-          ${discount ? `<span class="discount">-${discount}%</span>` : ''}
         </div>
         <button class="add-to-cart" onclick="addToCart(${product.id})">
           <i class="fas fa-shopping-bag"></i> Add to Cart
@@ -5510,17 +5717,23 @@ console.log('✅ Reviews System loaded - Trust building feature ready!');
 // ==========================================
 // DARK MODE SYSTEM
 // ==========================================
-// NOTE: Dark mode choice is intentionally NOT remembered between visits.
-// Every time the page loads (even a refresh), it starts in light mode.
-// Dark mode only turns on for the current visit if the customer taps
-// the toggle button themselves.
+// Dark mode choice IS remembered between visits using localStorage.
+// Whatever the customer last chose (dark or light) stays applied on
+// refresh and across pages, until they toggle it again.
 
+const DARK_MODE_KEY = 'aurevynDarkMode';
 let isDarkMode = false;
 
 function initDarkMode() {
-  // Always start in light mode - previous session's choice is ignored
-  isDarkMode = false;
-  enableLightMode(false);
+  let saved = null;
+  try { saved = localStorage.getItem(DARK_MODE_KEY); } catch (e) {}
+  isDarkMode = saved === 'true';
+
+  if (isDarkMode) {
+    enableDarkMode(false);
+  } else {
+    enableLightMode(false);
+  }
 }
 
 function toggleDarkMode() {
@@ -5534,7 +5747,8 @@ function toggleDarkMode() {
     showToast('success', 'Light Mode Enabled', 'Switched to light theme', 1500);
   }
 
-  // Not saved to localStorage on purpose - resets to light mode next visit
+  // Save choice so it stays applied after refresh / on other pages
+  try { localStorage.setItem(DARK_MODE_KEY, String(isDarkMode)); } catch (e) {}
 }
 
 function enableDarkMode(animate = true) {
@@ -5591,9 +5805,9 @@ function enableLightMode(animate = true) {
   }
 }
 
-// NOTE: We intentionally do NOT listen for system/OS theme changes anymore.
-// The site always starts in light mode and only switches to dark mode
-// when the customer manually taps the dark mode toggle button.
+// NOTE: We intentionally do NOT listen for system/OS theme changes.
+// The site starts in whichever mode (light/dark) the customer last chose,
+// and only switches when they manually tap the dark mode toggle button.
 
 // Initialize dark mode on page load
 if (document.readyState === 'loading') {
@@ -5823,3 +6037,332 @@ console.log('✅ Announcement Bar + Live Chat Widget loaded!');
     initEidSale();
   }
 })();
+// ===== AUREVYN AUTO-SLIDING IMAGE CAROUSEL =====
+(function() {
+    const track = document.getElementById('aurevynCarouselTrack');
+    if (!track) return;
+
+    const dotsWrap = document.getElementById('aurevynCarouselDots');
+    const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.aurevyn-dot')) : [];
+    const prevBtn = document.getElementById('aurevynPrevBtn');
+    const nextBtn = document.getElementById('aurevynNextBtn');
+
+    const realSlideCount = 4; // original images (before duplication)
+    const totalSlides = realSlideCount * 2; // real + duplicated copy
+    let currentIndex = 0;
+    let slideWidth = 0;
+    let autoTimer = null;
+
+    function getSlideWidth() {
+        const firstSlide = track.querySelector('.aurevyn-carousel-slide');
+        return firstSlide ? firstSlide.getBoundingClientRect().width : 0;
+    }
+
+    function updateDots(realIndex) {
+        dots.forEach(function(dot, i) {
+            dot.classList.toggle('active', i === realIndex);
+        });
+    }
+
+    function goToSlide(index, withTransition) {
+        slideWidth = getSlideWidth();
+        track.style.transition = withTransition ? 'transform 0.6s ease-in-out' : 'none';
+        track.style.transform = 'translateX(-' + (index * slideWidth) + 'px)';
+        updateDots(((index % realSlideCount) + realSlideCount) % realSlideCount);
+    }
+
+    function nextSlide() {
+        currentIndex++;
+        goToSlide(currentIndex, true);
+
+        // once we've scrolled past the real slides into the duplicated set,
+        // silently snap back to the start without animating (looks seamless
+        // because the duplicated images are identical to the real ones)
+        if (currentIndex >= realSlideCount) {
+            setTimeout(function() {
+                currentIndex = 0;
+                goToSlide(currentIndex, false);
+            }, 600); // matches transition duration above
+        }
+    }
+
+    function prevSlide() {
+        if (currentIndex <= 0) {
+            // jump to the duplicated tail instantly, then step back from there
+            // so the backward animation still looks smooth
+            currentIndex = realSlideCount;
+            goToSlide(currentIndex, false);
+            // force reflow so the "no transition" jump is applied before animating
+            void track.offsetHeight;
+        }
+        currentIndex--;
+        goToSlide(currentIndex, true);
+    }
+
+    function startAutoSlide() {
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = setInterval(nextSlide, 5000);
+    }
+
+    // manual navigation via arrow buttons — restarts the auto-slide timer after
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            nextSlide();
+            startAutoSlide();
+        });
+    }
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            prevSlide();
+            startAutoSlide();
+        });
+    }
+
+    // let users jump to a slide by tapping a dot; auto-slide resumes after
+    dots.forEach(function(dot, i) {
+        dot.addEventListener('click', function() {
+            currentIndex = i;
+            goToSlide(currentIndex, true);
+            startAutoSlide();
+        });
+    });
+
+    // swipe support for touch devices (mobile) — swipe left = next, swipe right = prev
+    let touchStartX = 0;
+    let touchEndX = 0;
+    track.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    track.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) { // minimum swipe distance
+            if (diff > 0) {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
+            startAutoSlide();
+        }
+    }, { passive: true });
+
+    // Recalculate on resize (mobile <-> desktop) so slides stay aligned
+    window.addEventListener('resize', function() {
+        goToSlide(currentIndex, false);
+    });
+
+    // initial position
+    goToSlide(0, false);
+
+    // auto-advance every 5 seconds
+    startAutoSlide();
+})();
+// ===== END CAROUSEL JS =====
+// ==========================================
+// MULTI-PAGE SUPPORT — Shop filters from URL
+// (shop.html?category=lips / ?view=sale / ?search=xyz)
+// ==========================================
+function initShopPageFromURL() {
+    const grid = document.getElementById('all-products-grid');
+    if (!grid) return; // not on shop.html
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category');
+    const view = params.get('view');
+    const search = params.get('search');
+
+    if (view === 'sale') {
+        showSaleProducts();
+    } else if (view === 'wishlist') {
+        showWishlistProducts();
+    } else if (category) {
+        filterCategory(category);
+        // Reflect the active category in the sidebar checkboxes, if present
+        const cb = document.querySelector(`.filter-list input[type="checkbox"][value="${CSS.escape(category)}"]`);
+        if (cb) cb.checked = true;
+    } else if (search) {
+        const desktopInput = document.getElementById('global-search-desktop');
+        const mobileInput = document.getElementById('global-search-mobile');
+        if (desktopInput) desktopInput.value = search;
+        if (mobileInput) mobileInput.value = search;
+        if (typeof globalSearch === 'function') globalSearch(search);
+    }
+}
+
+// ==========================================
+// MULTI-PAGE SUPPORT — Product Detail Page
+// (product.html?id=123)
+// ==========================================
+function initProductDetailPage() {
+    const container = document.getElementById('product-detail-body');
+    if (!container) return; // not on product.html
+    const params = new URLSearchParams(window.location.search);
+    const idRaw = params.get('id');
+    const productId = parseInt(idRaw, 10);
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        container.innerHTML = `<div class="pd-not-found">
+            <i class="fas fa-face-frown" style="font-size:48px;color:var(--brown-light);margin-bottom:16px;display:block;"></i>
+            <p>Sorry, we couldn't find that product.</p>
+            <a href="shop.html" class="btn-primary" style="margin-top:16px;display:inline-flex;"><i class="fas fa-arrow-left"></i> Browse All Products</a>
+        </div>`;
+        return;
+    }
+
+    const hasVariants = product.variants && product.variants.length > 0;
+    const activeVariant = hasVariants ? product.variants[0] : null;
+    const activeShades = activeVariant ? activeVariant.shades : product.shades;
+    const pdHasShades = activeShades && activeShades.length > 0;
+    const pdDefaultShade = pdHasShades ? activeShades[0].name : null;
+    const firstShadeImage = pdHasShades && activeShades[0].image ? activeShades[0].image : null;
+    const activeImage = firstShadeImage || (activeVariant ? activeVariant.image : product.image);
+
+    const hasColorVariants = hasVariants && product.variants[0].color;
+    const variantGallery = hasVariants ? `
+        <div class="qv-variant-gallery ${hasColorVariants ? 'qv-color-variant-gallery' : ''}">
+            ${hasColorVariants ? `<div class="variant-color-label" style="width:100%;margin-bottom:6px;">Shade: <span class="selected-variant-name" id="pd-variant-name-${product.id}">${product.variants[0].label}</span></div>` : ''}
+            <div class="variant-swatches-row">
+            ${product.variants.map((v, idx) => hasColorVariants ? `
+                <button class="variant-color-swatch qv-color-swatch ${idx === 0 ? 'active' : ''}"
+                    onclick="selectPDVariant(event, ${product.id}, ${idx})"
+                    title="${v.label}"
+                    style="background: ${v.color}; width:34px; height:34px;"
+                    aria-label="${v.label}">
+                </button>
+            ` : `
+                <button class="qv-variant-thumb ${idx === 0 ? 'active' : ''}"
+                    onclick="selectPDVariant(event, ${product.id}, ${idx})"
+                    title="${v.label}">
+                    <img src="${v.image}" alt="${v.label}">
+                    <span>${v.name}</span>
+                </button>
+            `).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const pdShadeHtml = pdHasShades ? `
+        <div class="shade-selector qv-shade-selector" id="pd-shades-${product.id}">
+            <div class="shade-label">
+                <span>Select Shade: </span>
+                <span class="selected-shade-name" id="pd-shade-name-${product.id}">${pdDefaultShade}</span>
+            </div>
+            <div class="shade-swatches" id="pd-shade-swatches-${product.id}">
+                ${activeShades.map((shade, idx) => `
+                    <button class="shade-swatch ${idx === 0 ? 'active' : ''}" style="background:${shade.color};" title="${shade.name}"
+                        onclick="selectPDShade(event, ${product.id}, '${shade.name}')" aria-label="${shade.name}"></button>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    container.innerHTML = `
+        <div class="quick-view-image" onclick="openImageLightbox(document.getElementById('pd-main-img-${product.id}').src, '${product.name}')" title="Click to zoom" style="cursor:zoom-in;">
+            <img src="${activeImage}" alt="${product.name}" id="pd-main-img-${product.id}">
+            <span class="qv-zoom-hint"><i class="fas fa-search-plus"></i></span>
+        </div>
+        <div class="quick-view-details">
+            <h1 id="pd-title-${product.id}">${product.name}</h1>
+            <div class="stars">${generateStars(product.rating)}</div>
+            <div class="price">PKR ${product.price}${product.oldPrice ? ` <span style="text-decoration:line-through;color:#999;font-size:18px;">PKR ${product.oldPrice}</span>` : ''}</div>
+            <p class="description">${product.description}</p>
+            ${variantGallery}
+            ${pdShadeHtml}
+            <button class="btn-primary" onclick="addToCartFromProductPage(${product.id})" style="width:100%;">
+                <i class="fas fa-shopping-bag"></i> Add to Cart
+            </button>
+        </div>`;
+
+    container.setAttribute('data-product-id', productId);
+    container.setAttribute('data-qv-variant', '0');
+    container.setAttribute('data-qv-shade', pdDefaultShade || '');
+
+    const crumb = document.getElementById('pd-breadcrumb-name');
+    if (crumb) crumb.textContent = product.name;
+
+    document.title = product.name + ' | Aurevyn';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && product.description) metaDesc.setAttribute('content', product.description.slice(0, 155));
+
+    loadRelatedProducts(product);
+}
+
+function selectPDVariant(event, productId, variantIdx) {
+    event.stopPropagation();
+    const product = products.find(p => p.id === productId);
+    if (!product || !product.variants) return;
+    const variant = product.variants[variantIdx];
+    if (!variant) return;
+
+    const mainImg = document.getElementById(`pd-main-img-${productId}`);
+    if (mainImg) {
+        mainImg.style.opacity = '0';
+        setTimeout(() => { mainImg.src = variant.image; mainImg.style.opacity = '1'; }, 150);
+    }
+
+    const pdb = document.getElementById('product-detail-body');
+    if (pdb) {
+        pdb.querySelectorAll('.qv-variant-thumb, .qv-color-swatch').forEach((btn, i) => {
+            btn.classList.toggle('active', i === variantIdx);
+        });
+        const nameEl = pdb.querySelector(`#pd-variant-name-${productId}`);
+        if (nameEl) nameEl.textContent = variant.label;
+        pdb.setAttribute('data-qv-variant', variantIdx);
+        pdb.setAttribute('data-qv-shade', variant.name);
+    }
+}
+
+function selectPDShade(event, productId, shadeName) {
+    event.stopPropagation();
+    const nameEl = document.getElementById(`pd-shade-name-${productId}`);
+    if (nameEl) nameEl.textContent = shadeName;
+    const container = document.getElementById(`pd-shades-${productId}`);
+    if (container) {
+        container.querySelectorAll('.shade-swatch').forEach(sw => {
+            sw.classList.toggle('active', sw.getAttribute('title') === shadeName);
+        });
+    }
+    const pdb = document.getElementById('product-detail-body');
+    if (pdb) pdb.setAttribute('data-qv-shade', shadeName);
+
+    const product = products.find(p => p.id === productId);
+    if (product && product.shades) {
+        const shade = product.shades.find(s => s.name === shadeName);
+        if (shade && shade.image) {
+            const pdImg = document.getElementById(`pd-main-img-${productId}`);
+            if (pdImg) {
+                pdImg.style.opacity = '0';
+                pdImg.style.transition = 'opacity 0.2s ease';
+                setTimeout(() => {
+                    pdImg.src = shade.image;
+                    pdImg.style.opacity = '1';
+                }, 180);
+            }
+        }
+    }
+}
+
+function addToCartFromProductPage(productId) {
+    const pdb = document.getElementById('product-detail-body');
+    const selectedShade = pdb ? pdb.getAttribute('data-qv-shade') : null;
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const hasShades = product.shades && product.shades.length > 0;
+    const shade = hasShades ? (selectedShade || (product.shades[0] && product.shades[0].name)) : null;
+    const cartKey = shade ? `${productId}_${shade}` : `${productId}`;
+    const existing = cart.find(i => i.cartKey === cartKey);
+    if (existing) existing.quantity++;
+    else cart.push({ id: product.id, cartKey, name: product.name, shade, price: product.price, image: product.image, quantity: 1 });
+    saveCart(); updateCartUI();
+    const shadePart = shade ? ` — ${shade}` : '';
+    showToast('success', 'Added to Cart', `${product.name}${shadePart} added to cart!`, 1500);
+}
+
+function loadRelatedProducts(product) {
+    const container = document.getElementById('related-products-grid');
+    if (!container) return;
+    const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+    container.innerHTML = related.length
+        ? related.map((p, i) => createProductCard(p, i)).join('')
+        : `<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px 0;">No related products right now — <a href="shop.html">browse all products</a>.</p>`;
+}
