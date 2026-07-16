@@ -91,6 +91,61 @@ const FREE_SHIPPING_THRESHOLD = 5000;
 const FORMSPREE_REVIEWS_URL = 'https://formspree.io/f/xwvdkevp';
 const FORMSPREE_ORDERS_URL  = 'https://formspree.io/f/xnjkqajd';
 
+// ==========================================
+// META PIXEL EVENT TRACKING
+// Pixel base code + ID har HTML file ke <head> mein hai (YOUR_PIXEL_ID replace karein).
+// Yeh function sirf events fire karta hai — agar fbq load nahi hua (ID set nahi ki)
+// to yeh chup chaap kuch nahi karega, error nahi dega.
+// ==========================================
+function trackPixelEvent(eventName, params) {
+    if (typeof fbq === 'function') {
+        try { fbq('track', eventName, params || {}); } catch (e) { console.warn('Pixel event failed:', eventName, e); }
+    }
+}
+
+// ==========================================
+// STOCK SYSTEM
+// Har product ka 'stock' number productsData mein hai (default 20).
+// Stock update karne ke liye us product ke andar 'stock: <number>' change karein.
+// stock = 0        -> "Out of Stock" (Add to Cart disable ho jayega)
+// stock 1 se 5 tak -> "Only X left!" low-stock warning dikhegi
+// stock > 5        -> koi badge nahi (normal in-stock)
+// ==========================================
+const LOW_STOCK_THRESHOLD = 5;
+
+function getStockInfo(product) {
+    const stock = (product && typeof product.stock === 'number') ? product.stock : 20;
+    if (stock <= 0) return { status: 'out', stock };
+    if (stock <= LOW_STOCK_THRESHOLD) return { status: 'low', stock };
+    return { status: 'in', stock };
+}
+
+function isProductOutOfStock(product) {
+    return getStockInfo(product).status === 'out';
+}
+
+// Small badge shown on product cards / quick view / product page
+function renderStockBadge(product) {
+    const info = getStockInfo(product);
+    if (info.status === 'out') {
+        return `<div class="stock-badge out-of-stock"><i class="fas fa-times-circle"></i> Out of Stock</div>`;
+    }
+    if (info.status === 'low') {
+        return `<div class="stock-badge low-stock"><i class="fas fa-exclamation-triangle"></i> Only ${info.stock} left!</div>`;
+    }
+    return '';
+}
+
+// Returns the right Add to Cart button attributes/label depending on stock
+function stockAwareButtonHTML(product, onclickAttr, extraClass) {
+    const out = isProductOutOfStock(product);
+    const cls = `add-to-cart ${extraClass || ''} ${out ? 'out-of-stock-btn' : ''}`.trim();
+    if (out) {
+        return `<button class="${cls}" disabled><i class="fas fa-ban"></i> Out of Stock</button>`;
+    }
+    return `<button class="${cls}" onclick="${onclickAttr}"><i class="fas fa-shopping-bag"></i> Add to Cart</button>`;
+}
+
 
 function getShippingFee(city) {
     // Flat rate for all Pakistan cities.
@@ -315,6 +370,7 @@ const productsData = [
         oldPrice: 450,
         rating: 4.8,
         reviews: 4800,
+        stock: 20,
         image: "img/Ancher_colour_lipstick.png",
         description: "A burst of color that loves your lips back. Infused with nourishing Shea Butter, Vitamin E and Jojoba Oil, it glides on smooth, hydrates as it wears, and delivers vibrant, true color that lasts all day without drying your lips.",
         shades: [
@@ -329,6 +385,7 @@ const productsData = [
         oldPrice: 600,
         rating: 4.9,
         reviews: 5100,
+        stock: 20,
         image: "img/Creamy_matte_lipstick.png",
         description: "Velvety matte color with a creamy soul. Formulated with Vitamin E and Avocado Oil, it glides on effortlessly for a smooth, comfortable matte finish that stays bold for hours — no cracking, no fading, just rich color all day.",
         shades: [
@@ -343,6 +400,7 @@ const productsData = [
         oldPrice: 600,
         rating: 4.7,
         reviews: 4700,
+        stock: 20,
         image: "img/Revolution.png",
         description: "Rich pigment meets silky satin shine. Enriched with Argan Oil and Vitamin E, this lipstick conditions your lips while delivering a luminous, smooth finish with color that's as comfortable as it is captivating.",
         shades: [
@@ -357,6 +415,7 @@ const productsData = [
         oldPrice: 800,
         rating: 4.6,
         reviews: 4600,
+        stock: 20,
         image: "img/matte_lipstick.png",
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
@@ -372,6 +431,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.5,
         reviews: 4500,
+        stock: 20,
         image: "img/Makeup_remover.png",
         badge: null,
         description: "Effortlessly dissolve every trace of makeup — even stubborn waterproof formulas. Powered by Aloe Vera and Micellar Water, this gentle Face & Eyes remover lifts away makeup, dirt and oil in seconds, leaving skin feeling clean, soft and never stripped.",
@@ -385,6 +445,7 @@ const productsData = [
         oldPrice: 1050,
         rating: 4.8,
         reviews: 4800,
+        stock: 20,
         image: "img/Setting_spray.png",
         description: "Lock in your look for up to 16 hours. This refreshing mist is infused with Aloe Vera, Rose Water and Vitamin E to hydrate skin while sealing your makeup against sweat, humidity and fading — for a flawless finish from morning to night.",
         shades: []
@@ -397,6 +458,7 @@ const productsData = [
         oldPrice: 550,
         rating: 4.8,
         reviews: 4200,
+        stock: 20,
         image: "img/Huda_matte_me_brand_pink_blush_stick.png",
         description: "Three ways to flush with color. Crafted with Shea Butter, Jojoba Oil and Vitamin E, this collection of Matte, Jelly & Long-Lasting blush sticks blends like a dream onto cheeks and lips for a buildable, natural flush.",
         variants: [
@@ -432,6 +494,7 @@ const productsData = [
         oldPrice: 2500,
         rating: 4.9,
         reviews: 5800,
+        stock: 20,
         image: "img/Mocallure.png",
         description: "48 shades, endless looks. Blended with finely milled Mica and infused with Vitamin E, this palette delivers richly pigmented mattes, shimmers & glitters that blend effortlessly and stay vibrant from day to night.",
         shades: []
@@ -444,6 +507,7 @@ const productsData = [
         oldPrice: 749,
         rating: 4.5,
         reviews: 4100,
+        stock: 20,
         image: "img/Pamela_grant_perfect_face_compact_powder.png",
         description: "Flawless, shine-free skin in one swipe. Made with Kaolin Clay and Talc for oil control, plus Vitamin E to keep skin nourished, this lightweight, buildable powder mattifies instantly while letting your natural skin shine through.",
         shades: [
@@ -458,6 +522,7 @@ const productsData = [
         oldPrice: 749,
         rating: 4.8,
         reviews: 6200,
+        stock: 20,
         image: "img/Maybelline_fit_me_matte_poreless_pressed_powder.png",
         description: "Your shine, sorted. Formulated with oil-absorbing micro-powders and a poreless-finish complex, Maybelline Fit Me Matte powder blurs imperfections and controls shine all day, for skin that looks naturally smooth — never cakey, never dull.",
         shades: [
@@ -472,6 +537,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 3400,
+        stock: 20,
         image: "img/Miss_rose_capsule_lipstick.png",
         description: "A pop of color in every capsule. Infused with Vitamin E and Shea Butter, this trendy capsule lipstick glides on with a moisturizing, glossy finish — twist, click and color your lips in seconds.",
         shades: [
@@ -486,6 +552,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.9,
         reviews: 5500,
+        stock: 20,
         image: "img/Miss_rose_unique_double_wear_liquid_foundation.png",
         description: "All-day coverage that never quits. Enriched with Hyaluronic Acid and Vitamin E, this lightweight liquid foundation blends seamlessly for a smooth, natural finish that stays fresh and flawless from morning till night.",
         shades: []
@@ -498,6 +565,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 3800,
+        stock: 20,
         image: "img/Satin_sheen_lip_stylo.png",
         description: "Glide on the glow. Made with Shea Butter and Vitamin E, this twist-up lip stylo delivers a satin-sheen finish with a comfortable, non-sticky feel — effortless color, anytime, anywhere.",
         shades: []
@@ -510,6 +578,7 @@ const productsData = [
         oldPrice: 1099,
         rating: 4.8,
         reviews: 4400,
+        stock: 20,
         image: "img/Ushas_snail_secretion_filtrate_setting_spray.png",
         description: "Set your makeup, nourish your skin. Powered by Snail Secretion Filtrate and Vitamin E, this setting spray locks your look in place for hours while leaving skin hydrated, soft and naturally radiant.",
         shades: []
@@ -522,6 +591,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 4700,
+        stock: 20,
         image: "img/Mascara.png",
         description: "Lashes that steal the show. Formulated with Castor Oil and Beeswax, this volumizing mascara lengthens, curls and lifts every lash for a clump-free, dramatic look that lasts all day.",
         shades: []
@@ -534,6 +604,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 4700,
+        stock: 20,
         image: "img/Highlight_stick.png",
         description: "Catch the light, own the glow. Blended with Mica and Shea Butter, this creamy highlight stick melts into skin for a luminous, second-skin glow — swipe, blend and shine with the built-in brush.",
         shades: []
@@ -546,6 +617,7 @@ const productsData = [
         oldPrice: 700,
         rating: 4.9,
         reviews: 4900,
+        stock: 20,
         image: "img/Hoyosun_eyeshadow_palette.png",
         description: "Four shades, one stunning look. Made with finely milled Mica and Vitamin E, this palette blends warm mattes with a dazzling gold glitter for eye looks that go from soft daytime to sultry night.",
         shades: []
@@ -558,6 +630,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.4,
         reviews: 4400,
+        stock: 20,
         image: "img/B_Colour_liquid_concealer.png",
         description: "Hide it, hydrate it. Infused with Hyaluronic Acid and Vitamin E, this lightweight liquid concealer covers dark circles and blemishes with full coverage that feels weightless and looks completely natural.",
         shades: []
@@ -570,6 +643,7 @@ const productsData = [
         oldPrice: 650,
         rating: 4.9,
         reviews: 4900,
+        stock: 20,
         image: "img/Careline_gloss_boss_lip_treat.png",
         description: "Lips that glow from the inside out. Treated with Olive Fruit Oil, Castor Seed Oil, Vitamin E and Hyaluronic Acid, this nourishing lip treat plumps, hydrates and adds a glossy shine that lasts.",
         shades: []
@@ -582,6 +656,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.5,
         reviews: 4500,
+        stock: 20,
         image: "img/Colorful_beehive_shaped_lip_gloss.png",
         description: "Sweet color, sweeter shine. Infused with Shea Butter and Vitamin E, this honeycomb-shaped lip gloss glides on smooth and moisturizing, wrapping your lips in a luscious, glossy pout in vibrant shades.",
         shades: [
@@ -599,6 +674,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 3800,
+        stock: 20,
         image: "img/Eye_lashes.png",
         description: "Bold lashes, instant drama. Crafted from soft Synthetic Silk Fibers on a flexible, lightweight band, these reusable false lashes blend naturally for a full, fluttery look that lasts all day in comfort.",
         shades: []
@@ -611,6 +687,7 @@ const productsData = [
         oldPrice: 520,
         rating: 4.8,
         reviews: 5200,
+        stock: 20,
         image: "img/Holika_velvet_blanket_tint.png",
         description: "Lips wrapped in velvet color. Formulated with Jojoba Oil and Vitamin E, this Korean velvet tint blurs onto lips like a soft blanket, leaving a long-lasting, second-skin matte stain that never feels heavy.",
         shades: [
@@ -625,6 +702,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 3200,
+        stock: 20,
         image: "img/Eyebrow_Pencil_1.png",
         description: "Brows on point, every time. Made with nourishing Vitamin E and natural waxes, this precision pencil glides smoothly to define, fill and shape — complete with a built-in spoolie for a natural, all-day finish.",
         shades: []
@@ -637,6 +715,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 2900,
+        stock: 20,
         image: "img/Jarusa_Órale_BB_Cream.png",
         description: "Skin perfection in one swipe. Infused with Hyaluronic Acid and Vitamin E, this breathable BB cream evens out tone, hydrates skin and blurs imperfections for a natural, healthy glow all day.",
         shades: []
@@ -649,6 +728,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.5,
         reviews: 2100,
+        stock: 20,
         image: "img/Soften_Hand_Cream.png",
         description: "Hands that feel as good as they look. Enriched with Shea Butter and Glycerin, this fast-absorbing cream softens skin by up to 20% with just one use, leaving hands smooth, hydrated and never greasy.",
         shades: []
@@ -661,6 +741,7 @@ const productsData = [
         oldPrice: 500,
         rating: 4.8,
         reviews: 3700,
+        stock: 20,
         image: "img/MCoBeauty_Overnight_Lip_Mask_in_Berry.jpg",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and juicy Berry extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
@@ -673,6 +754,7 @@ const productsData = [
         oldPrice: 500,
         rating: 4.8,
         reviews: 3500,
+        stock: 20,
         image: "img/MCoBeauty_Overnight_Lip_Mask_in_Vanilla.jpg",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and sweet Vanilla extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
@@ -685,6 +767,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 2600,
+        stock: 20,
         image: "img/Loca_Highlighter.png",
         description: "Glow that looks lit from within. Formulated with soothing Aloe Vera Gel and Hyaluronic Acid, this gel highlighter melts into skin for a dewy, radiant glow that feels weightless and never glittery-fake.",
         shades: []
@@ -697,6 +780,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.8,
         reviews: 4100,
+        stock: 20,
         image: "img/Hard Candy Glamoflauge Full Coverage Foundation.png",
         description: "Flawless coverage, zero shine. Formulated oil-free with Vitamin E, this full coverage foundation blends seamlessly and wears beautifully for hours, camouflaging imperfections while keeping skin comfortable and breathable.",
         shades: []
@@ -709,6 +793,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 1900,
+        stock: 20,
         image: "img/RPK_New_High-Def_pigment_Liquid_Liner.png",
         description: "Bold lines, zero smudging. This high-definition pigment liquid eyeliner glides on with an ultra-fine precision tip, delivering intense, jet-black color that stays sharp and smudge-free all day.",
         shades: []
@@ -721,6 +806,7 @@ const productsData = [
         oldPrice: 550,
         rating: 4.7,
         reviews: 3300,
+        stock: 20,
         image: "img/Hard Candy Glamoflauge Full Coverage Concealer.png",
         description: "Brighten, cover, perfect. Infused with Niacinamide, this full coverage concealer melts into skin to brighten dark circles and erase blemishes — buildable coverage that never looks cakey, all day long.",
         shades: []
@@ -733,6 +819,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 2400,
+        stock: 20,
         image: "img/LOCA_Lip_Balm_in_the-shade_05_The Serve.png",
         description: "Soft lips, served daily. Infused with nourishing Jojoba Oil, this lip balm melts on smooth to deeply moisturize dry lips, leaving them soft, smooth and comfortable from the first swipe.",
         shades: []
@@ -745,6 +832,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 2200,
+        stock: 20,
         image: "img/Hard_Candy_Sheer_Envy_Perfecting_Primer.png",
         description: "The perfect canvas starts here. Formulated to blur pores and smooth fine lines, this lightweight perfecting primer creates a silky, even base that helps your makeup glide on and stay flawless for hours.",
         shades: []
@@ -757,6 +845,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 2000,
+        stock: 20,
         image: "img/Wibo_Probrow_Pencil_a_dual_ended_makeup_tool_featuring_a_diagonally_cut_triangular_shaped_tip_for_precise_definition_and_a_built_in_spoolie_brush_for_grooming.png",
         description: "Brow perfection, both ends covered. This dual-ended pencil features a diagonally cut triangular tip for razor-sharp definition, plus a built-in spoolie to blend and groom brows into place.",
         shades: []
@@ -769,6 +858,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.7,
         reviews: 2300,
+        stock: 20,
         image: "img/Ushas_branded_waterproof_lip_liner_pencil.jpg",
         description: "Lips lined, color defined. This waterproof lip liner pencil glides on with rich, long-wearing pigment in a deep berry shade, keeping your lip color sharp and smudge-free all day.",
         shades: []
@@ -781,6 +871,7 @@ const productsData = [
         oldPrice: 1049,
         rating: 4.8,
         reviews: 1800,
+        stock: 20,
         image: "img/Laurenza_Foundation_Concealer_Contour_and_Blush_Palette_an_all_in_one_cream_face_makeup.png",
         description: "Your whole face, one palette. This all-in-one cream formula combines foundation, concealer, contour and blush shades in one compact, letting you build a complete, blended look in minutes — no extra products needed.",
         shades: []
@@ -793,6 +884,7 @@ const productsData = [
         oldPrice: null,
         rating: 4.6,
         reviews: 1900,
+        stock: 20,
         image: "img/black_twist_up_eyebrow_pencil.png",
         description: "Define brows, your way. This twist-up pencil glides on smooth and precise, filling in sparse areas and shaping natural-looking brows with an easy, mess-free, retractable application.",
         shades: []
@@ -805,6 +897,7 @@ const productsData = [
         oldPrice: 600,
         rating: 4.7,
         reviews: 1700,
+        stock: 20,
         image: "img/Brown_This_Way_Eyebrow_Sculpting_Kit.jpg",
         description: "Sculpt brows like a pro. This two-tone wax and powder duo comes with a built-in brush to shape, fill and set brows for a natural, full-bodied look that lasts all day.",
         shades: []
@@ -1114,6 +1207,8 @@ function initApp() {
     updateCheckoutHTML(); // Inject new checkout HTML
     updateCategoryCounts(); // Auto-count products per category
     checkPendingOrderFromLink(); // Auto-reopen Confirm/Cancel card if there's a pending order (no link needed)
+    checkOpenCartFromLink(); // Auto-open cart sidebar if opened via an abandoned-cart reminder notification
+    injectShadeQuizEntryPoints(); // Floating "Shade Finder" button (+ homepage banner)
     restoreViewAndQuickViewState(); // Restore Sale/Category/Search page or open Quick View after a refresh
     initShopPageFromURL();   // shop.html: apply ?category= / ?view=sale / ?search= from URL
     initProductDetailPage(); // product.html: render the product from ?id= in URL
@@ -1818,6 +1913,15 @@ function placeOrder() {
         cancelled: false
     }));
 
+    trackPixelEvent('Purchase', {
+        content_ids: cart.map(i => String(i.id)),
+        contents: cart.map(i => ({ id: String(i.id), quantity: i.quantity })),
+        num_items: cart.reduce((sum, i) => sum + i.quantity, 0),
+        value: finalTotal,
+        currency: 'PKR',
+        order_id: orderId
+    });
+
     cart = [];
     saveCart();
     updateCartUI();
@@ -1952,6 +2056,27 @@ function checkPendingOrderFromLink() {
 
     if (cameFromCancelNotification) {
         cancelOrderWhatsApp();
+    }
+}
+
+// Auto-open cart sidebar if the page was opened via an abandoned-cart
+// reminder notification (only happens when the SW had to open a brand new
+// tab, i.e. no existing tab was open to focus).
+function checkOpenCartFromLink() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('opencart')) return;
+
+    params.delete('opencart');
+    const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+    window.history.replaceState({}, '', cleanUrl);
+
+    if (cart && cart.length > 0) {
+        setTimeout(function() {
+            const cartSidebarEl = document.getElementById('cart-sidebar');
+            if (cartSidebarEl && !cartSidebarEl.classList.contains('active')) {
+                toggleCart();
+            }
+        }, 600);
     }
 }
 
@@ -2110,6 +2235,14 @@ function openCheckout() {
         showToast('error', 'Empty Cart', 'Please add items to your cart first.');
         return;
     }
+
+    trackPixelEvent('InitiateCheckout', {
+        content_ids: cart.map(i => String(i.id)),
+        contents: cart.map(i => ({ id: String(i.id), quantity: i.quantity })),
+        num_items: cart.reduce((sum, i) => sum + i.quantity, 0),
+        value: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+        currency: 'PKR'
+    });
 
     // Close cart sidebar first
     const cartSidebarEl = document.getElementById('cart-sidebar');
@@ -2358,8 +2491,10 @@ function createProductCard(product, index = 99) {
         </div>
     ` : '';
 
+    const outOfStock = isProductOutOfStock(product);
+
     return `
-        <div class="product-card" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}" data-rating="${product.rating}" data-selected-shade="${defaultShade || ''}" data-selected-variant="0">
+        <div class="product-card ${outOfStock ? 'is-out-of-stock' : ''}" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}" data-rating="${product.rating}" data-selected-shade="${defaultShade || ''}" data-selected-variant="0">
             ${renderProductBadges(product)}
             <div class="product-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlistItem(${product.id})">
                 <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
@@ -2371,7 +2506,9 @@ function createProductCard(product, index = 99) {
                 ${discount ? `<div class="discount-tag">${discount}% Off</div>` : ''}
                 <div class="product-actions">
                     <button class="action-btn" onclick="openQuickView(${product.id})" title="Quick View"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn" onclick="addToCartWithShade(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>
+                    ${outOfStock
+                        ? `<button class="action-btn action-btn-disabled" disabled title="Out of Stock"><i class="fas fa-ban"></i></button>`
+                        : `<button class="action-btn" onclick="addToCartWithShade(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>`}
                 </div>
             </div>
             <div class="product-info">
@@ -2385,11 +2522,10 @@ function createProductCard(product, index = 99) {
                     <span class="current-price">PKR ${product.price}</span>
                     ${product.oldPrice ? `<span class="old-price">PKR ${product.oldPrice}</span>` : ''}
                 </div>
+                ${renderStockBadge(product)}
                 ${variantThumbs}
                 ${shadeSwatch}
-                <button class="add-to-cart" onclick="addToCartWithShade(${product.id})">
-                    <i class="fas fa-shopping-bag"></i> Add to Cart
-                </button>
+                ${stockAwareButtonHTML(product, `addToCartWithShade(${product.id})`)}
             </div>
         </div>
     `;
@@ -2461,6 +2597,10 @@ function addToCartWithShade(productId) {
     const giftBoxData = { id: 999, name: 'Luxury Gift Box', price: 6000, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0ro6wBxs0K7Dg1FzWHgbAlznuAhIHTaCqg&s' };
     const product = products.find(p => p.id === productId) || (productId === 999 ? giftBoxData : null);
     if (!product) return;
+    if (isProductOutOfStock(product)) {
+        showToast('error', 'Out of Stock', `${product.name} is currently out of stock.`);
+        return;
+    }
 
     // Get selected shade/variant from card
     const card = document.querySelector(`.product-card[data-id="${productId}"]`);
@@ -2514,6 +2654,14 @@ function addToCartWithShade(productId) {
 
     const shadePart = label ? ` — ${label}` : '';
     showToast('success', 'Added to Cart', `${product.name}${shadePart} added to cart!`, 1500);
+
+    trackPixelEvent('AddToCart', {
+        content_ids: [String(product.id)],
+        content_name: product.name,
+        content_type: 'product',
+        value: product.price,
+        currency: 'PKR'
+    });
 
     // Ask notification permission ONCE — only after customer shows intent (added to cart)
     if ('Notification' in window && Notification.permission === 'default') {
@@ -2577,6 +2725,10 @@ function addToCart(productId) {
     const giftBoxData = { id: 999, name: 'Luxury Gift Box', price: 6000, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0ro6wBxs0K7Dg1FzWHgbAlznuAhIHTaCqg&s' };
     const product = products.find(p => p.id === productId) || (productId === 999 ? giftBoxData : null);
     if (!product) return;
+    if (isProductOutOfStock(product)) {
+        showToast('error', 'Out of Stock', `${product.name} is currently out of stock.`);
+        return;
+    }
     const existing = cart.find(i => i.id === productId && !i.shade);
     if (existing) existing.quantity++;
     else cart.push({ id: product.id, cartKey: String(product.id), name: product.name, price: product.price, image: product.image, quantity: 1 });
@@ -2598,6 +2750,14 @@ function addToCart(productId) {
     }
 
     showToast('success', 'Added to Cart', `${product.name} has been added to your cart!`, 1500);
+
+    trackPixelEvent('AddToCart', {
+        content_ids: [String(product.id)],
+        content_name: product.name,
+        content_type: 'product',
+        value: product.price,
+        currency: 'PKR'
+    });
 
     // Ask notification permission ONCE — only after customer shows intent (added to cart)
     // This is much better UX than asking on page load.
@@ -2646,7 +2806,15 @@ function updateQuantity(productId, change) {
     saveCart(); updateCartUI();
 }
 
-function saveCart() { localStorage.setItem('aurevynCart', JSON.stringify(cart)); }
+function saveCart() {
+    localStorage.setItem('aurevynCart', JSON.stringify(cart));
+    // Abandoned cart reminder: (re)schedule whenever cart has items, cancel when empty
+    if (cart.length > 0) {
+        scheduleAbandonedCartReminders();
+    } else {
+        cancelAbandonedCartReminders();
+    }
+}
 
 function updateCartUI() {
     const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
@@ -2890,6 +3058,11 @@ function openQuickView(productId) {
             </div>
         ` : '';
 
+        const qvOutOfStock = isProductOutOfStock(product);
+        const qvAddToCartBtn = qvOutOfStock
+            ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>`
+            : `<button class="btn-primary" onclick="addToCartFromQuickView(${product.id});closeQuickView();" style="width:100%;"><i class="fas fa-shopping-bag"></i> Add to Cart</button>`;
+
         qvb.innerHTML = `
             <div class="quick-view-image" onclick="openImageLightbox(document.getElementById('qv-main-img-${product.id}').src, '${product.name}')" title="Click to zoom" style="cursor:zoom-in;">
                 <img src="${activeImage}" alt="${product.name}" id="qv-main-img-${product.id}">
@@ -2899,12 +3072,11 @@ function openQuickView(productId) {
                 <h2 id="qv-title-${product.id}">${product.name}</h2>
                 <div class="stars">${generateStars(product.rating)}</div>
                 <div class="price">PKR ${product.price}${product.oldPrice ? ` <span style="text-decoration:line-through;color:#999;font-size:18px;">PKR ${product.oldPrice}</span>` : ''}</div>
+                ${renderStockBadge(product)}
                 <p class="description">${product.description}</p>
                 ${variantGallery}
                 ${qvShadeHtml}
-                <button class="btn-primary" onclick="addToCartFromQuickView(${product.id});closeQuickView();" style="width:100%;">
-                    <i class="fas fa-shopping-bag"></i> Add to Cart
-                </button>
+                ${qvAddToCartBtn}
             </div>`;
 
         qvb.setAttribute('data-product-id', productId);
@@ -3005,6 +3177,10 @@ function addToCartFromQuickView(productId) {
     const selectedShade = qvb ? qvb.getAttribute('data-qv-shade') : null;
     const product = products.find(p => p.id === productId);
     if (!product) return;
+    if (isProductOutOfStock(product)) {
+        showToast('error', 'Out of Stock', `${product.name} is currently out of stock.`);
+        return;
+    }
     const hasShades = product.shades && product.shades.length > 0;
     const shade = hasShades ? (selectedShade || (product.shades[0] && product.shades[0].name)) : null;
     const cartKey = shade ? `${productId}_${shade}` : `${productId}`;
@@ -3014,6 +3190,14 @@ function addToCartFromQuickView(productId) {
     saveCart(); updateCartUI();
     const shadePart = shade ? ` — ${shade}` : '';
     showToast('success', 'Added to Cart', `${product.name}${shadePart} added to cart!`, 1500);
+
+    trackPixelEvent('AddToCart', {
+        content_ids: [String(product.id)],
+        content_name: product.name,
+        content_type: 'product',
+        value: product.price,
+        currency: 'PKR'
+    });
 }
 
 // ==========================================
@@ -3645,7 +3829,8 @@ function confirmOrderWhatsApp() {
         `Order ID: ${orderId}\n` +
         `Status: Confirmed ✔️\n` +
         `Confirmed at: ${new Date().toLocaleString('en-PK')}\n\n` +
-        `I confirm my order. Please process it. 🙏`
+        `I confirm my order. Please process it. 🙏\n\n` +
+        `📹 Reminder: I will record an unboxing video before opening the parcel.`
     );
     window.open(`https://wa.me/923258666803?text=${msg}`, '_blank');
 
@@ -3996,9 +4181,87 @@ async function cancelPushNotifications() {
     }
 }
 
+// ==========================================
+// ABANDONED CART REMINDER
+// Agar customer cart mein item chorh kar chala jaye (tab/browser open rakh
+// kar), usay push notification yaad dilata hai — cart abhi bhi wait kar raha hai.
+// Jaisay hi cart khali ho ya order place ho jaye, reminders khud cancel ho jatay hain.
+// NOTE: yeh sirf tab tak kaam karega jab tak browser chal raha ho (koi bhi
+// static website ke liye normal limitation — real background push ke liye
+// server-side push service chahiye hota hai).
+// ==========================================
+const CART_REMINDER_DELAYS_MIN = [60, 240]; // pehla reminder 1 ghantay baad, dusra 4 ghantay baad
+
+async function scheduleAbandonedCartReminders() {
+    if (!cart || cart.length === 0) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const reg = await registerPushServiceWorker();
+    if (!reg) return;
+
+    const itemCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+    const cartTotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const firstItemName = cart[0].name;
+    const cartSummary = cart.map(i => `${i.name}${i.shade ? ' (' + i.shade + ')' : ''} x${i.quantity}`).join(', ');
+    const whatsappMsg = encodeURIComponent(`Hi Aurevyn! Mujhe cart complete karne mein help chahiye:\n${cartSummary}\nTotal: PKR ${cartTotal}`);
+    const whatsappUrl = `https://wa.me/923258666803?text=${whatsappMsg}`;
+    const cartPageUrl = location.origin + '/?opencart=1';
+
+    const now = Date.now();
+    const notifications = [
+        {
+            id: 'cart_reminder_1',
+            time: now + CART_REMINDER_DELAYS_MIN[0] * 60 * 1000,
+            title: '🛍️ Aap kuch bhool gaye hain!',
+            body: itemCount === 1
+                ? `${firstItemName} abhi bhi aapke cart mein hai. Order complete karne mein sirf 1 minute lagta hai!`
+                : `Aapke cart mein ${itemCount} items hain (PKR ${cartTotal}). Order complete karein!`,
+            tag: 'cart-reminder-1',
+            actions: [
+                { action: 'view_cart', title: '🛍️ View Cart' },
+                { action: 'whatsapp', title: '💬 WhatsApp' }
+            ],
+            data: { url: cartPageUrl, whatsappUrl: whatsappUrl }
+        },
+        {
+            id: 'cart_reminder_2',
+            time: now + CART_REMINDER_DELAYS_MIN[1] * 60 * 1000,
+            title: '⏰ Aapka cart wait kar raha hai',
+            body: `PKR ${cartTotal} ka order abhi bhi pending hai — stock khatam hone se pehle order kar lein!`,
+            tag: 'cart-reminder-2',
+            actions: [
+                { action: 'view_cart', title: '🛍️ View Cart' },
+                { action: 'whatsapp', title: '💬 WhatsApp' }
+            ],
+            data: { url: cartPageUrl, whatsappUrl: whatsappUrl }
+        }
+    ];
+
+    localStorage.setItem('aurevynAbandonedCartNotifications', JSON.stringify(notifications));
+
+    if (reg.active) {
+        reg.active.postMessage({ type: 'SCHEDULE_CART_NOTIFICATIONS', notifications });
+    } else {
+        navigator.serviceWorker.ready.then(r => {
+            r.active.postMessage({ type: 'SCHEDULE_CART_NOTIFICATIONS', notifications });
+        });
+    }
+}
+
+async function cancelAbandonedCartReminders() {
+    localStorage.removeItem('aurevynAbandonedCartNotifications');
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg && reg.active) {
+        reg.active.postMessage({ type: 'CANCEL_CART_NOTIFICATIONS' });
+    }
+}
+
 window.schedulePushNotifications = schedulePushNotifications;
 window.cancelPushNotifications = cancelPushNotifications;
 window.requestNotificationPermission = requestNotificationPermission;
+window.scheduleAbandonedCartReminders = scheduleAbandonedCartReminders;
+window.cancelAbandonedCartReminders = cancelAbandonedCartReminders;
 
 // Listen for Service Worker messages (e.g. notification tap → open modal)
 if ('serviceWorker' in navigator) {
@@ -4032,12 +4295,276 @@ if ('serviceWorker' in navigator) {
                 cancelOrderWhatsApp();
             }
         }
+
+        // Customer tapped an abandoned-cart reminder notification — open the cart sidebar
+        if (event.data && event.data.type === 'OPEN_CART') {
+            const cartSidebarEl = document.getElementById('cart-sidebar');
+            if (cartSidebarEl && !cartSidebarEl.classList.contains('active')) {
+                toggleCart();
+            }
+        }
     });
 
     // SW silently register on page load — permission is NOT asked here.
     // Permission is asked only when customer adds to cart (better UX, higher accept rate).
     registerPushServiceWorker().catch(() => {});
 }
+
+// ==========================================
+// SKIN TYPE / SHADE FINDER QUIZ
+// 4-question interactive quiz that recommends real products from the catalog.
+// Fully self-contained (builds its own modal + floating button/banner in JS),
+// so no HTML changes were needed on any page.
+// ==========================================
+
+const SHADE_QUIZ_QUESTIONS = [
+    {
+        id: 'skinType',
+        question: 'What is your skin type?',
+        options: [
+            { value: 'oily', label: 'Oily', icon: 'fa-tint' },
+            { value: 'dry', label: 'Dry', icon: 'fa-sun' },
+            { value: 'combination', label: 'Combination', icon: 'fa-adjust' },
+            { value: 'normal', label: 'Normal', icon: 'fa-leaf' }
+        ]
+    },
+    {
+        id: 'coverage',
+        question: 'What coverage do you prefer?',
+        options: [
+            { value: 'natural', label: 'Natural / No-Makeup Look', icon: 'fa-feather-alt' },
+            { value: 'medium', label: 'Medium Coverage', icon: 'fa-adjust' },
+            { value: 'full', label: 'Full Coverage / Glam', icon: 'fa-star' }
+        ]
+    },
+    {
+        id: 'focus',
+        question: 'What would you like to focus on today?',
+        options: [
+            { value: 'face', label: 'Face / Base Makeup', icon: 'fa-smile' },
+            { value: 'lips', label: 'Lips', icon: 'fa-kiss-wink-heart' },
+            { value: 'eyes', label: 'Eyes', icon: 'fa-eye' },
+            { value: 'all', label: 'A Bit of Everything', icon: 'fa-gem' }
+        ]
+    },
+    {
+        id: 'finish',
+        question: 'Which finish do you like?',
+        options: [
+            { value: 'matte', label: 'Matte', icon: 'fa-circle' },
+            { value: 'dewy', label: 'Dewy & Radiant', icon: 'fa-sun' },
+            { value: 'bold', label: 'Bold & Shimmery', icon: 'fa-magic' }
+        ]
+    }
+];
+
+let shadeQuizAnswers = {};
+let shadeQuizStep = 0;
+
+// Lightweight keyword tagging from the product name — lets the quiz reason
+// about products without needing to add new fields to every product.
+function getProductKeywordTags(product) {
+    const n = (product.name || '').toLowerCase();
+    const tags = [];
+    if (n.includes('matte')) tags.push('matte');
+    if (n.includes('snail') || n.includes('cream') || n.includes('balm') || n.includes('mask')) tags.push('dewy', 'dry');
+    if (n.includes('highlight') || n.includes('gloss') || n.includes('satin') || n.includes('glow')) tags.push('dewy');
+    if (n.includes('shimmer') || n.includes('glitter') || n.includes('palette') || n.includes('red') || n.includes('purple') || n.includes('false eyelashes')) tags.push('bold');
+    if (n.includes('full coverage') || n.includes('foundation') || n.includes('concealer') || n.includes('contour')) tags.push('full');
+    if (n.includes('bb cream') || n.includes('tint') || n.includes('setting spray') || n.includes('primer') || n.includes('lip balm')) tags.push('natural');
+    if (n.includes('powder') || n.includes('compact') || n.includes('palette')) tags.push('medium', 'oily');
+    if (n.includes('setting spray') || n.includes('pressed powder') || n.includes('primer')) tags.push('oily');
+    if (n.includes('snail') || n.includes('bb cream') || n.includes('hand cream') || n.includes('mask') || n.includes('lip balm') || n.includes('highlight')) tags.push('dry');
+    return tags;
+}
+
+function scoreProductForQuiz(product, answers) {
+    let score = 0;
+    const tags = getProductKeywordTags(product);
+
+    // Focus area is the strongest signal
+    if (answers.focus === 'all') score += 2;
+    else if (answers.focus === product.category) score += 6;
+    else if (answers.focus === 'face' && product.category === 'skincare') score += 3;
+
+    if (tags.includes(answers.skinType)) score += 3;
+    if (tags.includes(answers.coverage)) score += 3;
+    if (tags.includes(answers.finish)) score += 3;
+
+    // Small tie-breaker so better-rated products edge out similarly-scored ones
+    score += (product.rating || 0) * 0.3;
+    return score;
+}
+
+function getQuizRecommendations(answers) {
+    const inStock = products.filter(p => !isProductOutOfStock(p));
+    const pool = inStock.length ? inStock : products; // fallback if everything is out of stock
+    const scored = pool.map(p => ({ product: p, score: scoreProductForQuiz(p, answers) }));
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 4).map(s => s.product);
+}
+
+function quizAnswerReasonText(product, answers) {
+    const tags = getProductKeywordTags(product);
+    const reasons = [];
+    if (answers.focus === product.category) reasons.push(`${product.category} pick`);
+    if (tags.includes(answers.skinType)) reasons.push(`great for ${answers.skinType} skin`);
+    if (tags.includes(answers.finish)) reasons.push(`${answers.finish} finish`);
+    if (!reasons.length) reasons.push('Specially picked for you');
+    return reasons.slice(0, 2).join(' • ');
+}
+
+function ensureShadeQuizModal() {
+    if (document.getElementById('shade-quiz-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'shade-quiz-modal';
+    modal.className = 'shade-quiz-modal';
+    modal.innerHTML = `
+        <div class="shade-quiz-overlay" onclick="closeShadeQuiz()"></div>
+        <div class="shade-quiz-box">
+            <button class="shade-quiz-close" onclick="closeShadeQuiz()" aria-label="Close"><i class="fas fa-times"></i></button>
+            <div class="shade-quiz-progress"><div class="shade-quiz-progress-bar" id="shade-quiz-progress-bar"></div></div>
+            <div id="shade-quiz-content"></div>
+        </div>`;
+    document.body.appendChild(modal);
+}
+
+function openShadeQuiz() {
+    ensureShadeQuizModal();
+    shadeQuizAnswers = {};
+    shadeQuizStep = 0;
+    renderShadeQuizStep();
+    document.getElementById('shade-quiz-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    trackPixelEvent('Lead', { content_name: 'Shade Finder Quiz Started' });
+}
+
+function closeShadeQuiz() {
+    const modal = document.getElementById('shade-quiz-modal');
+    if (modal) modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function updateShadeQuizProgress() {
+    const bar = document.getElementById('shade-quiz-progress-bar');
+    if (!bar) return;
+    const total = SHADE_QUIZ_QUESTIONS.length + 1; // +1 for results screen
+    const pct = Math.min(100, ((shadeQuizStep) / SHADE_QUIZ_QUESTIONS.length) * 100);
+    bar.style.width = pct + '%';
+}
+
+function renderShadeQuizStep() {
+    const content = document.getElementById('shade-quiz-content');
+    if (!content) return;
+    updateShadeQuizProgress();
+
+    if (shadeQuizStep >= SHADE_QUIZ_QUESTIONS.length) {
+        renderShadeQuizResults();
+        return;
+    }
+
+    const q = SHADE_QUIZ_QUESTIONS[shadeQuizStep];
+    content.innerHTML = `
+        <span class="shade-quiz-step-label">Question ${shadeQuizStep + 1} of ${SHADE_QUIZ_QUESTIONS.length}</span>
+        <h3>${q.question}</h3>
+        <div class="shade-quiz-options">
+            ${q.options.map(opt => `
+                <button class="shade-quiz-option" onclick="selectShadeQuizAnswer('${q.id}', '${opt.value}')">
+                    <i class="fas ${opt.icon}"></i>
+                    <span>${opt.label}</span>
+                </button>
+            `).join('')}
+        </div>
+        ${shadeQuizStep > 0 ? `<button class="shade-quiz-back" onclick="goBackShadeQuiz()"><i class="fas fa-arrow-left"></i> Back</button>` : ''}
+    `;
+}
+
+function selectShadeQuizAnswer(questionId, value) {
+    shadeQuizAnswers[questionId] = value;
+    shadeQuizStep++;
+    renderShadeQuizStep();
+}
+
+function goBackShadeQuiz() {
+    if (shadeQuizStep <= 0) return;
+    shadeQuizStep--;
+    renderShadeQuizStep();
+}
+
+function renderShadeQuizResults() {
+    const content = document.getElementById('shade-quiz-content');
+    if (!content) return;
+
+    const recommendations = getQuizRecommendations(shadeQuizAnswers);
+
+    trackPixelEvent('Lead', { content_name: 'Shade Finder Quiz Completed' });
+    trackPixelEvent('ViewContent', {
+        content_ids: recommendations.map(p => String(p.id)),
+        content_type: 'product_group',
+        content_name: 'Shade Finder Quiz Results'
+    });
+
+    content.innerHTML = `
+        <span class="shade-quiz-step-label"><i class="fas fa-check-circle"></i> Your Matches Are Ready!</span>
+        <h3>Your Perfect Matches</h3>
+        <div class="shade-quiz-results">
+            ${recommendations.map(product => `
+                <div class="shade-quiz-result-card">
+                    <img src="${product.image}" alt="${product.name}">
+                    <div class="shade-quiz-result-info">
+                        <h4>${product.name}</h4>
+                        <span class="shade-quiz-result-reason">${quizAnswerReasonText(product, shadeQuizAnswers)}</span>
+                        <div class="shade-quiz-result-price">PKR ${product.price}${product.oldPrice ? ` <span class="old-price">PKR ${product.oldPrice}</span>` : ''}</div>
+                    </div>
+                    <button class="shade-quiz-result-add" onclick="addToCartWithShade(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>
+                </div>
+            `).join('')}
+        </div>
+        <div class="shade-quiz-results-actions">
+            <button class="shade-quiz-retake" onclick="openShadeQuiz()"><i class="fas fa-redo"></i> Retake Quiz</button>
+            <button class="shade-quiz-shop-all" onclick="closeShadeQuiz(); window.location.href='shop.html';">Shop All <i class="fas fa-arrow-right"></i></button>
+        </div>
+    `;
+}
+
+// Floating "Shade Finder" trigger button (all pages) + homepage promo banner.
+// Both are injected purely in JS so no page's HTML needed to be touched.
+function injectShadeQuizEntryPoints() {
+    if (!document.getElementById('shade-quiz-fab')) {
+        const fab = document.createElement('button');
+        fab.id = 'shade-quiz-fab';
+        fab.className = 'shade-quiz-fab';
+        fab.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i><span>Shade Finder</span>';
+        fab.setAttribute('aria-label', 'Take the Shade Finder Quiz');
+        fab.onclick = openShadeQuiz;
+        document.body.appendChild(fab);
+    }
+
+    const isHome = location.pathname === '/' || location.pathname.endsWith('/index.html') || location.pathname === '/index.html' || document.getElementById('home');
+    const heroSection = document.getElementById('home') || document.querySelector('.hero-slider');
+    if (isHome && heroSection && !document.getElementById('shade-quiz-banner')) {
+        const banner = document.createElement('div');
+        banner.id = 'shade-quiz-banner';
+        banner.className = 'shade-quiz-banner';
+        banner.innerHTML = `
+            <div class="shade-quiz-banner-inner">
+                <div class="shade-quiz-banner-text">
+                    <span class="shade-quiz-banner-eyebrow"><i class="fas fa-sparkles"></i> New</span>
+                    <h3>Not sure which product to pick?</h3>
+                    <p>Take our 60-second quiz and discover the perfect products for your skin.</p>
+                </div>
+                <button class="shade-quiz-banner-btn" onclick="openShadeQuiz()">
+                    Take the Quiz <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>`;
+        heroSection.insertAdjacentElement('afterend', banner);
+    }
+}
+
+window.openShadeQuiz = openShadeQuiz;
+window.closeShadeQuiz = closeShadeQuiz;
+window.selectShadeQuizAnswer = selectShadeQuizAnswer;
+window.goBackShadeQuiz = goBackShadeQuiz;
 
 // ==========================================
 // GLOBAL EXPORTS
@@ -5656,9 +6183,10 @@ window.createProductCard = function(product) {
   const inWishlist = wishlist.includes(product.id);
   const avgRating = getAverageRating(product.id);
   const totalReviews = getTotalReviews(product.id);
+  const outOfStock = isProductOutOfStock(product);
 
   return `
-    <div class="product-card" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}" data-rating="${product.rating}">
+    <div class="product-card ${outOfStock ? 'is-out-of-stock' : ''}" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}" data-rating="${product.rating}">
       ${renderProductBadges(product)}
       <div class="product-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlistItem(${product.id})">
         <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
@@ -5668,7 +6196,9 @@ window.createProductCard = function(product) {
         ${discount ? `<div class="discount-tag">${discount}% Off</div>` : ''}
         <div class="product-actions">
           <button class="action-btn" onclick="openQuickView(${product.id})" title="Quick View"><i class="fas fa-eye"></i></button>
-          <button class="action-btn" onclick="addToCart(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>
+          ${outOfStock
+            ? `<button class="action-btn action-btn-disabled" disabled title="Out of Stock"><i class="fas fa-ban"></i></button>`
+            : `<button class="action-btn" onclick="addToCart(${product.id})" title="Add to Cart"><i class="fas fa-shopping-bag"></i></button>`}
         </div>
       </div>
       <div class="product-info">
@@ -5683,9 +6213,8 @@ window.createProductCard = function(product) {
           <span class="current-price">PKR ${product.price}</span>
           ${product.oldPrice ? `<span class="old-price">PKR ${product.oldPrice}</span>` : ''}
         </div>
-        <button class="add-to-cart" onclick="addToCart(${product.id})">
-          <i class="fas fa-shopping-bag"></i> Add to Cart
-        </button>
+        ${renderStockBadge(product)}
+        ${stockAwareButtonHTML(product, `addToCart(${product.id})`)}
       </div>
     </div>
   `;
@@ -6256,6 +6785,11 @@ function initProductDetailPage() {
         </div>
     ` : '';
 
+    const pdOutOfStock = isProductOutOfStock(product);
+    const pdAddToCartBtn = pdOutOfStock
+        ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>`
+        : `<button class="btn-primary" onclick="addToCartFromProductPage(${product.id})" style="width:100%;"><i class="fas fa-shopping-bag"></i> Add to Cart</button>`;
+
     container.innerHTML = `
         <div class="quick-view-image" onclick="openImageLightbox(document.getElementById('pd-main-img-${product.id}').src, '${product.name}')" title="Click to zoom" style="cursor:zoom-in;">
             <img src="${activeImage}" alt="${product.name}" id="pd-main-img-${product.id}">
@@ -6265,12 +6799,11 @@ function initProductDetailPage() {
             <h1 id="pd-title-${product.id}">${product.name}</h1>
             <div class="stars">${generateStars(product.rating)}</div>
             <div class="price">PKR ${product.price}${product.oldPrice ? ` <span style="text-decoration:line-through;color:#999;font-size:18px;">PKR ${product.oldPrice}</span>` : ''}</div>
+            ${renderStockBadge(product)}
             <p class="description">${product.description}</p>
             ${variantGallery}
             ${pdShadeHtml}
-            <button class="btn-primary" onclick="addToCartFromProductPage(${product.id})" style="width:100%;">
-                <i class="fas fa-shopping-bag"></i> Add to Cart
-            </button>
+            ${pdAddToCartBtn}
         </div>`;
 
     container.setAttribute('data-product-id', productId);
@@ -6283,6 +6816,15 @@ function initProductDetailPage() {
     document.title = product.name + ' | Aurevyn';
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc && product.description) metaDesc.setAttribute('content', product.description.slice(0, 155));
+
+    // Meta Pixel: ViewContent
+    trackPixelEvent('ViewContent', {
+        content_ids: [String(product.id)],
+        content_name: product.name,
+        content_type: 'product',
+        value: product.price,
+        currency: 'PKR'
+    });
 
     loadRelatedProducts(product);
 }
@@ -6347,6 +6889,10 @@ function addToCartFromProductPage(productId) {
     const selectedShade = pdb ? pdb.getAttribute('data-qv-shade') : null;
     const product = products.find(p => p.id === productId);
     if (!product) return;
+    if (isProductOutOfStock(product)) {
+        showToast('error', 'Out of Stock', `${product.name} is currently out of stock.`);
+        return;
+    }
     const hasShades = product.shades && product.shades.length > 0;
     const shade = hasShades ? (selectedShade || (product.shades[0] && product.shades[0].name)) : null;
     const cartKey = shade ? `${productId}_${shade}` : `${productId}`;
@@ -6356,6 +6902,14 @@ function addToCartFromProductPage(productId) {
     saveCart(); updateCartUI();
     const shadePart = shade ? ` — ${shade}` : '';
     showToast('success', 'Added to Cart', `${product.name}${shadePart} added to cart!`, 1500);
+
+    trackPixelEvent('AddToCart', {
+        content_ids: [String(product.id)],
+        content_name: product.name,
+        content_type: 'product',
+        value: product.price,
+        currency: 'PKR'
+    });
 }
 
 function loadRelatedProducts(product) {
