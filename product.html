@@ -16,6 +16,30 @@
     <!-- product.html is a template page; individual products are indexed via their ?id= URL -->
     <meta name="author" content="Aurevyn" />
     <meta name="theme-color" content="#A67B5B" />
+
+
+    <!-- ========================================== -->
+    <!-- META PIXEL CODE - Facebook/Instagram Ads Tracking -->
+    <!-- IMPORTANT: 'YOUR_PIXEL_ID' ki jagah apna asal Meta Pixel ID daalein -->
+    <!-- Pixel ID milta hai: Meta Events Manager > Data Sources > Pixel -->
+    <!-- Yeh ID is file ke DONO jagah (script + noscript img) mein change karna hai -->
+    <!-- ========================================== -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', 'YOUR_PIXEL_ID');
+      fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
     <title>Product Details | Aurevyn – Makeup & Cosmetics Pakistan</title>
 
     <!-- Open Graph -->
@@ -513,44 +537,23 @@
             <h4 data-translate="customer_service">Customer Service</h4>
             <ul>
               <li>
-                <a
-                  href="#"
-                  onclick="
-                    openReturnModal();
-                    return false;
-                  "
+                <a href="return-exchange.html"
                   ><i class="fas fa-undo"></i> Return & Exchange</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  onclick="
-                    openCustomerService();
-                    return false;
-                  "
+                <a href="customer-support.html"
                   ><i class="fas fa-headset"></i> Customer Support</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  onclick="
-                    showReturnPolicy();
-                    return false;
-                  "
-                  >Return Policy</a
-                >
+                <a href="return-policy.html">Return Policy</a>
               </li>
               <li>
-                <a
-                  href="#"
-                  onclick="
-                    showSizeGuide();
-                    return false;
-                  "
-                  >Size Guide</a
-                >
+                <a href="size-guide.html">Size Guide</a>
+              </li>
+              <li>
+                <a href="faq.html"><i class="fas fa-circle-question"></i> FAQs</a>
               </li>
             </ul>
           </div>
@@ -1364,6 +1367,15 @@
                   <strong id="review-total">0</strong>
                 </div>
               </div>
+
+              <div class="unboxing-reminder-box">
+                <i class="fas fa-video"></i>
+                <p>
+                  <strong>Reminder:</strong> Please record a full unboxing video
+                  <strong>before opening your parcel</strong>. This is required
+                  for any return, exchange, or damage claim.
+                </p>
+              </div>
             </div>
 
             <div class="checkout-buttons">
@@ -1525,6 +1537,15 @@
         </p>
         <div class="order-number">
           Order #<span id="success-order-id">AV-2026-001</span>
+        </div>
+
+        <div class="unboxing-reminder-box">
+          <i class="fas fa-video"></i>
+          <p>
+            <strong>📹 Don't forget:</strong> Record an unboxing video
+            <strong>before opening the parcel</strong> when it arrives.
+            Required for any return/exchange request.
+          </p>
         </div>
 
         <!-- 30-Minute Countdown Timer -->
