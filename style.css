@@ -1583,6 +1583,102 @@ body.search-active .shop-toolbar {
   white-space: nowrap;
 }
 
+/* ==========================================
+   STOCK SYSTEM STYLES
+   ========================================== */
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin: 6px 0;
+}
+.stock-badge.low-stock {
+  background: rgba(230, 126, 34, 0.12);
+  color: #e67e22;
+}
+.stock-badge.out-of-stock {
+  background: rgba(231, 76, 60, 0.12);
+  color: #e74c3c;
+}
+.product-card.is-out-of-stock .product-image img {
+  opacity: 0.55;
+  filter: grayscale(35%);
+}
+.add-to-cart.out-of-stock-btn,
+.btn-primary.out-of-stock-btn,
+.action-btn.action-btn-disabled {
+  background: #c9c9c9 !important;
+  color: #6b6b6b !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+.add-to-cart.out-of-stock-btn:hover,
+.btn-primary.out-of-stock-btn:hover,
+.action-btn.action-btn-disabled:hover {
+  transform: none !important;
+  background: #c9c9c9 !important;
+}
+
+/* ==========================================
+   FAQ PAGE STYLES
+   ========================================== */
+.faq-category h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.faq-accordion {
+  margin-top: 10px;
+}
+.faq-item {
+  border-bottom: 1px solid var(--border-color, #e8e0d8);
+}
+.faq-item:last-child {
+  border-bottom: none;
+}
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 16px 4px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark, #2b2b2b);
+  cursor: pointer;
+}
+.faq-toggle-icon {
+  transition: transform 0.25s ease;
+  color: var(--brown, #A67B5B);
+  flex-shrink: 0;
+}
+.faq-item.active .faq-toggle-icon {
+  transform: rotate(180deg);
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.faq-answer p {
+  padding: 0 4px 16px;
+  margin: 0;
+  color: var(--text-light, #666);
+  line-height: 1.7;
+}
+.faq-item.active .faq-answer {
+  max-height: 400px;
+}
+
 .product-wishlist {
   position: absolute;
   top: 15px;
@@ -5344,6 +5440,148 @@ body {
   padding: 10px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
+}
+
+/* ==========================================
+   COMPACT UNBOXING VIDEO REMINDER
+   (used in checkout review step + order success screen)
+   ========================================== */
+.unboxing-reminder-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 2px solid #ff9800;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 18px 0;
+  text-align: left;
+}
+.unboxing-reminder-box i.fa-video {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.unboxing-reminder-box p {
+  margin: 0;
+  font-size: 13px;
+  color: #bf360c;
+  line-height: 1.6;
+}
+.unboxing-reminder-box strong {
+  color: #e65100;
+}
+[data-theme="dark"] .unboxing-reminder-box {
+  background: linear-gradient(135deg, #2e2013 0%, #241a10 100%);
+  border-color: #f57c00;
+}
+[data-theme="dark"] .unboxing-reminder-box p,
+[data-theme="dark"] .unboxing-reminder-box strong {
+  color: #ffcc80;
+}
+
+/* ==========================================
+   STANDALONE INFO PAGES
+   (Return & Exchange / Customer Support / Return Policy / Size Guide)
+   ========================================== */
+.info-page-hero {
+  padding: 140px 0 40px;
+  text-align: center;
+  background: linear-gradient(rgba(93, 64, 55, 0.92), rgba(93, 64, 55, 0.92)),
+    url("https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920")
+      center/cover fixed;
+}
+@media (max-width: 768px) {
+  .info-page-hero { background-attachment: scroll !important; padding: 120px 0 30px; }
+}
+.info-page-hero .subtitle {
+  color: var(--gold);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  display: block;
+}
+.info-page-hero h1 {
+  color: var(--white);
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+.info-page-hero p {
+  color: rgba(255,255,255,0.85);
+  font-size: 15px;
+}
+.info-page-hero .pd-breadcrumb {
+  color: rgba(255,255,255,0.75);
+  padding: 0 0 18px;
+}
+.info-page-hero .pd-breadcrumb a { color: rgba(255,255,255,0.85); }
+.info-page-hero .pd-breadcrumb #pd-breadcrumb-name { color: var(--gold); }
+
+.info-page-section {
+  padding: 50px 0 100px;
+  background: var(--cream-light);
+}
+.info-page-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md-26, 0 10px 30px var(--shadow));
+  padding: 45px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) {
+  .info-page-card { padding: 28px 20px; border-radius: 16px; }
+}
+
+/* Standalone page versions of the return/support cards need static
+   (non-fixed) presentation instead of the modal overlay behaviour */
+.info-page-card .return-header,
+.info-page-card .customer-service-header {
+  padding: 0 0 20px;
+}
+.info-page-card .return-form-section {
+  padding: 0;
+}
+.info-page-card .customer-service-options {
+  padding: 0 0 20px;
+}
+
+/* Size Guide specific */
+.size-guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0 30px;
+  font-size: 14px;
+}
+.size-guide-table th,
+.size-guide-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.size-guide-table th {
+  background: var(--cream);
+  color: var(--brown-dark);
+  font-weight: 600;
+}
+.size-guide-table td {
+  color: var(--text-light);
+}
+[data-theme="dark"] .size-guide-table th {
+  background: #241a10;
+  color: var(--cream);
+}
+[data-theme="dark"] .size-guide-table td {
+  color: #d4c5b8;
+  border-color: #3a2a1a;
 }
 
 /* Gift Box Modal */
@@ -15451,4 +15689,330 @@ body::before {
 .category-card:active,
 .product-card:active {
   transform: scale(0.99);
+}
+/* ==========================================
+   SHADE / SKIN TYPE FINDER QUIZ
+   ========================================== */
+.shade-quiz-fab {
+  position: fixed;
+  bottom: 30px;
+  left: 24px;
+  z-index: 999998;
+  background: linear-gradient(135deg, var(--brown), var(--blush-dark));
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 13px 20px 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(110, 74, 52, 0.3);
+  transition: var(--transition);
+}
+.shade-quiz-fab i { font-size: 16px; }
+.shade-quiz-fab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(110, 74, 52, 0.4);
+}
+@media (max-width: 768px) {
+  .shade-quiz-fab span { display: none; }
+  .shade-quiz-fab {
+    padding: 14px;
+    border-radius: 50%;
+    bottom: 90px;
+    left: 16px;
+  }
+}
+
+/* Homepage promo banner */
+.shade-quiz-banner {
+  padding: 28px 20px;
+  background: linear-gradient(120deg, var(--cream), var(--cream-dark));
+}
+.shade-quiz-banner-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 26px 30px;
+  box-shadow: var(--shadow-md-26, 0 10px 30px rgba(139, 90, 43, 0.12));
+}
+.shade-quiz-banner-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--blush-dark);
+  margin-bottom: 6px;
+}
+.shade-quiz-banner-text h3 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: var(--text-dark);
+}
+.shade-quiz-banner-text p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 14px;
+}
+.shade-quiz-banner-btn {
+  background: var(--brown);
+  color: var(--white);
+  border: none;
+  padding: 14px 26px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.shade-quiz-banner-btn:hover {
+  background: var(--brown-dark);
+  transform: translateY(-2px);
+}
+
+/* Modal */
+.shade-quiz-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000010;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.shade-quiz-modal.active { display: flex; }
+.shade-quiz-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(46, 32, 25, 0.55);
+  backdrop-filter: blur(3px);
+}
+.shade-quiz-box {
+  position: relative;
+  background: var(--white);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px 26px 26px;
+  box-shadow: var(--shadow-lg-26, 0 24px 60px rgba(139, 90, 43, 0.18));
+  animation: shadeQuizPop 0.3s ease;
+}
+@keyframes shadeQuizPop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.shade-quiz-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cream);
+  color: var(--text-dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.shade-quiz-close:hover { background: var(--cream-dark); }
+.shade-quiz-progress {
+  height: 5px;
+  background: var(--cream-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+.shade-quiz-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--brown), var(--blush-dark));
+  border-radius: 10px;
+  transition: width 0.35s ease;
+}
+.shade-quiz-step-label {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--blush-dark);
+  margin-bottom: 8px;
+}
+#shade-quiz-content h3 {
+  margin: 0 0 20px;
+  font-size: 21px;
+  color: var(--text-dark);
+}
+.shade-quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.shade-quiz-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 12px;
+  border: 2px solid var(--cream-dark);
+  border-radius: 16px;
+  background: var(--cream-light);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  transition: var(--transition);
+  text-align: center;
+}
+.shade-quiz-option i { font-size: 22px; color: var(--brown); }
+.shade-quiz-option:hover {
+  border-color: var(--brown);
+  background: var(--white);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(110, 74, 52, 0.15);
+}
+.shade-quiz-back {
+  margin-top: 18px;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+.shade-quiz-back:hover { color: var(--brown); }
+
+/* Results */
+.shade-quiz-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.shade-quiz-result-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--cream-dark);
+  border-radius: 16px;
+  background: var(--cream-light);
+}
+.shade-quiz-result-card img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+  background: var(--white);
+}
+.shade-quiz-result-info { flex: 1; min-width: 0; }
+.shade-quiz-result-info h4 {
+  margin: 0 0 3px;
+  font-size: 14px;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shade-quiz-result-reason {
+  display: block;
+  font-size: 11px;
+  color: var(--blush-dark);
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+.shade-quiz-result-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brown-dark);
+}
+.shade-quiz-result-price .old-price {
+  font-size: 12px;
+  font-weight: 400;
+  color: #999;
+  text-decoration: line-through;
+  margin-left: 4px;
+}
+.shade-quiz-result-add {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--brown);
+  color: var(--white);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.shade-quiz-result-add:hover { background: var(--brown-dark); transform: scale(1.08); }
+
+.shade-quiz-results-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.shade-quiz-retake,
+.shade-quiz-shop-all {
+  flex: 1;
+  min-width: 140px;
+  padding: 13px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+.shade-quiz-retake {
+  background: var(--cream);
+  border: 2px solid var(--cream-dark);
+  color: var(--text-dark);
+}
+.shade-quiz-retake:hover { border-color: var(--brown); }
+.shade-quiz-shop-all {
+  background: var(--brown);
+  border: none;
+  color: var(--white);
+}
+.shade-quiz-shop-all:hover { background: var(--brown-dark); }
+
+@media (max-width: 480px) {
+  .shade-quiz-options { grid-template-columns: 1fr 1fr; }
+  .shade-quiz-box { padding: 24px 18px 20px; }
 }
