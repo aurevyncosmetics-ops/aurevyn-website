@@ -5,7 +5,7 @@
 // Example: aurevyn.makeup/sw-notifications.js
 // ==========================================
 
-const CACHE_NAME = 'aurevyn-sw-v4'; // bump this number whenever you change which files get cached, so old caches get cleared
+const CACHE_NAME = 'aurevyn-sw-v5'; // bump this number whenever you change which files get cached, so old caches get cleared
 
 // Files that are safe to cache the moment the service worker installs.
 // Keep this list small — only files whose URL never changes (no ?v= query strings).
@@ -19,7 +19,9 @@ const PRECACHE_URLS = [
 // because this is live order/review data and must never be shown stale or offline.
 const NEVER_CACHE_HOSTS = ['firestore.googleapis.com', 'firebaseio.com', 'googleapis.com'];
 
-let scheduledTimers = [];
+let scheduledTimers = [];       // Order confirm/cancel reminders (existing feature)
+let scheduledCartTimers = [];   // Abandoned cart reminders (new feature) — kept separate
+                                 // so scheduling/cancelling one never touches the other.
 
 // Clear all scheduled timers
 function clearAllTimers() {
@@ -27,20 +29,34 @@ function clearAllTimers() {
     scheduledTimers = [];
 }
 
-// Show a notification
-function showNotification(title, body, tag) {
-    self.registration.showNotification(title, {
-        body: body,
-        icon: '/favicon-32x32.png',
+function clearAllCartTimers() {
+    scheduledCartTimers.forEach(t => clearTimeout(t));
+    scheduledCartTimers = [];
+}
+
+// Show a notification. Accepts either the old (title, body, tag) call style
+// (used by existing order-reminder code) or a single notif object with
+// optional actions/data/requireInteraction (used by abandoned-cart reminders).
+function showNotification(titleOrNotif, body, tag) {
+    let notif;
+    if (typeof titleOrNotif === 'object' && titleOrNotif !== null) {
+        notif = titleOrNotif;
+    } else {
+        notif = { title: titleOrNotif, body: body, tag: tag };
+    }
+
+    self.registration.showNotification(notif.title, {
+        body: notif.body,
+        icon: notif.icon || '/favicon-32x32.png',
         badge: '/favicon-32x32.png',
-        tag: tag,
+        tag: notif.tag,
         renotify: true,
-        requireInteraction: tag === 'order-reminder-3', // Last one stays until dismissed
-        actions: [
+        requireInteraction: notif.requireInteraction !== undefined ? notif.requireInteraction : (notif.tag === 'order-reminder-3'),
+        actions: notif.actions || [
             { action: 'confirm', title: '✅ Confirm Order' },
             { action: 'dismiss', title: '⏰ Cancel Order' }
         ],
-        data: { url: self.location.origin + '/?remind=1' }
+        data: notif.data || { url: self.location.origin + '/?remind=1' }
     });
 }
 
@@ -58,7 +74,7 @@ self.addEventListener('message', function(event) {
             if (delay <= 0) return; // Already passed
 
             const timerId = setTimeout(function() {
-                showNotification(notif.title, notif.body, notif.tag);
+                showNotification(notif);
             }, delay);
 
             scheduledTimers.push(timerId);
@@ -72,6 +88,35 @@ self.addEventListener('message', function(event) {
             notifs.forEach(function(n) { n.close(); });
         });
     }
+
+    // Abandoned cart reminders — completely separate timer set/tag namespace
+    // so they never cancel or get cancelled by the order-confirm reminders above.
+    if (type === 'SCHEDULE_CART_NOTIFICATIONS') {
+        clearAllCartTimers();
+
+        if (!notifications || !notifications.length) return;
+
+        notifications.forEach(function(notif) {
+            const delay = notif.time - Date.now();
+            if (delay <= 0) return;
+
+            const timerId = setTimeout(function() {
+                showNotification(notif);
+            }, delay);
+
+            scheduledCartTimers.push(timerId);
+        });
+    }
+
+    if (type === 'CANCEL_CART_NOTIFICATIONS') {
+        clearAllCartTimers();
+        self.registration.getNotifications({ tag: 'cart-reminder-1' }).then(function(notifs) {
+            notifs.forEach(function(n) { n.close(); });
+        });
+        self.registration.getNotifications({ tag: 'cart-reminder-2' }).then(function(notifs) {
+            notifs.forEach(function(n) { n.close(); });
+        });
+    }
 });
 
 // Notification click event - customer tapped the notification
@@ -79,16 +124,43 @@ self.addEventListener('notificationclick', function(event) {
     event.notification.close();
 
     const action = event.action;
-    const targetUrl = (event.notification.data && event.notification.data.url)
-        ? event.notification.data.url
-        : self.location.origin;
+    const data = event.notification.data || {};
+    const tag = event.notification.tag || '';
+    const baseUrl = data.url || self.location.origin;
 
+    // Abandoned-cart reminders: "WhatsApp" action opens WhatsApp directly (no need
+    // to touch the site at all). Everything else opens/focuses the site and asks
+    // the page to open the cart sidebar.
+    if (tag.indexOf('cart-reminder') === 0) {
+        if (action === 'whatsapp' && data.whatsappUrl) {
+            event.waitUntil(clients.openWindow(data.whatsappUrl));
+            return;
+        }
+        event.waitUntil(
+            clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+                for (let i = 0; i < clientList.length; i++) {
+                    const client = clientList[i];
+                    if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+                        client.focus();
+                        client.postMessage({ type: 'OPEN_CART' });
+                        return;
+                    }
+                }
+                if (clients.openWindow) {
+                    return clients.openWindow(baseUrl);
+                }
+            })
+        );
+        return;
+    }
+
+    // Order confirm/cancel reminders (existing behaviour, unchanged)
     // Both 'confirm' and 'dismiss' (Cancel Order) now open the website —
     // dismiss tells the page to actually cancel the order instead of doing nothing.
     const messageType = action === 'dismiss' ? 'OPEN_CANCEL_MODAL' : 'OPEN_CONFIRM_MODAL';
     const openUrl = action === 'dismiss'
-        ? targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'action=cancel'
-        : targetUrl;
+        ? baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'action=cancel'
+        : baseUrl;
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
