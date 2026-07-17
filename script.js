@@ -4667,10 +4667,12 @@ function renderShadeQuizResults() {
     `;
 }
 
-// Floating "Shade Finder" trigger button (all pages) + homepage promo banner.
-// Both are injected purely in JS so no page's HTML needed to be touched.
+// Floating "Shade Finder" trigger button + homepage promo banner — both now
+// restricted to the home page only.
 function injectShadeQuizEntryPoints() {
-    if (!document.getElementById('shade-quiz-fab')) {
+    const isHome = location.pathname === '/' || location.pathname.endsWith('/index.html') || location.pathname === '/index.html' || document.getElementById('home');
+
+    if (isHome && !document.getElementById('shade-quiz-fab')) {
         const fab = document.createElement('button');
         fab.id = 'shade-quiz-fab';
         fab.className = 'shade-quiz-fab';
@@ -4680,7 +4682,6 @@ function injectShadeQuizEntryPoints() {
         document.body.appendChild(fab);
     }
 
-    const isHome = location.pathname === '/' || location.pathname.endsWith('/index.html') || location.pathname === '/index.html' || document.getElementById('home');
     const heroSection = document.getElementById('home') || document.querySelector('.hero-slider');
     if (isHome && heroSection && !document.getElementById('shade-quiz-banner')) {
         const banner = document.createElement('div');
@@ -7062,3 +7063,41 @@ function loadRelatedProducts(product) {
         ? related.map((p, i) => createProductCard(p, i)).join('')
         : `<p style="grid-column:1/-1;text-align:center;color:var(--text-light);padding:20px 0;">No related products right now — <a href="shop.html">browse all products</a>.</p>`;
 }
+
+// ==========================================
+// AUTO-SHOW PRODUCT ACTIONS (Eye + Add-to-Cart icons) ON MOBILE/TOUCH
+// On devices without hover (phones/tablets), reveal the icons automatically
+// whenever a product card scrolls into view, and hide them again once it
+// scrolls off screen — same visual result as desktop ":hover", just driven
+// by scroll position instead of the mouse.
+// ==========================================
+(function() {
+    const isTouchDevice = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!isTouchDevice) return; // Desktop keeps the existing hover behaviour untouched
+
+    const io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            entry.target.classList.toggle('in-view', entry.isIntersecting);
+        });
+    }, { threshold: 0.4 });
+
+    function observeAllCards() {
+        document.querySelectorAll('.product-card').forEach(function(card) {
+            if (!card.dataset.ioObserved) {
+                card.dataset.ioObserved = '1';
+                io.observe(card);
+            }
+        });
+    }
+
+    // Initial pass
+    observeAllCards();
+
+    // Product cards are re-rendered constantly via innerHTML (filters, sorting,
+    // new arrivals carousel, wishlist, search, related products, etc.), so keep
+    // watching the page for newly-added cards and start observing those too.
+    const mo = new MutationObserver(function() {
+        observeAllCards();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+})();
