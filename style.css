@@ -1747,7 +1747,7 @@ body.search-active .shop-toolbar {
   display: flex;
   justify-content: center;
   gap: 10px;
-  padding: 15px;
+  padding: 18px 15px 6px;
   transition: var(--transition);
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.3));
 }
@@ -1756,9 +1756,21 @@ body.search-active .shop-toolbar {
   bottom: 0;
 }
 
+/* Mobile/touch: icons auto-show while the card is scrolled into view
+   (class toggled by JS via IntersectionObserver), and auto-hide again
+   once it scrolls off screen — since there's no mouse hover on touch. */
+.product-card.in-view .product-actions {
+  bottom: 0;
+}
+
+.product-card.in-view .product-wishlist {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .action-btn {
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
   background: var(--white);
   border-radius: 50%;
   display: flex;
@@ -1768,7 +1780,7 @@ body.search-active .shop-toolbar {
   transition: var(--transition);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   border: none;
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .action-btn:hover {
@@ -15731,7 +15743,7 @@ body::before {
 /* Homepage promo banner */
 .shade-quiz-banner {
   padding: 28px 20px;
-  background: linear-gradient(120deg, var(--cream), var(--cream-dark));
+  background: var(--cream-light);
 }
 .shade-quiz-banner-inner {
   max-width: 1100px;
@@ -15745,6 +15757,11 @@ body::before {
   border-radius: 20px;
   padding: 26px 30px;
   box-shadow: var(--shadow-md-26, 0 10px 30px rgba(139, 90, 43, 0.12));
+  transition: var(--transition);
+}
+.shade-quiz-banner-inner:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(139, 90, 43, 0.18);
 }
 .shade-quiz-banner-eyebrow {
   display: inline-flex;
@@ -15755,7 +15772,10 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--blush-dark);
-  margin-bottom: 6px;
+  background: rgba(201, 143, 130, 0.12);
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 10px;
 }
 .shade-quiz-banner-text h3 {
   margin: 0 0 6px;
@@ -16015,4 +16035,62 @@ body::before {
 @media (max-width: 480px) {
   .shade-quiz-options { grid-template-columns: 1fr 1fr; }
   .shade-quiz-box { padding: 24px 18px 20px; }
+}
+
+/* Dark mode: box/banner background above uses var(--white) which stays white
+   in dark mode, while text uses var(--text-dark)/var(--text-light) which turn
+   white too — that's white text on a white card (invisible). Give dark mode
+   its own dark brown card + explicit light text instead. */
+[data-theme="dark"] .shade-quiz-banner {
+  background: linear-gradient(160deg, #1a1208 0%, #140e06 60%, #100c05 100%) !important;
+}
+[data-theme="dark"] .shade-quiz-banner-inner,
+[data-theme="dark"] .shade-quiz-box {
+  background: linear-gradient(135deg, #241a10, #1a120a) !important;
+}
+[data-theme="dark"] .shade-quiz-banner-text h3,
+[data-theme="dark"] .shade-quiz-close,
+[data-theme="dark"] #shade-quiz-content h3,
+[data-theme="dark"] .shade-quiz-option,
+[data-theme="dark"] .shade-quiz-result-info h4,
+[data-theme="dark"] .shade-quiz-retake {
+  color: #ffffff !important;
+}
+[data-theme="dark"] .shade-quiz-banner-text p,
+[data-theme="dark"] .shade-quiz-back {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+[data-theme="dark"] .shade-quiz-close {
+  background: #1a1a1a !important;
+}
+[data-theme="dark"] .shade-quiz-close:hover {
+  background: var(--brown) !important;
+}
+[data-theme="dark"] .shade-quiz-progress {
+  background: #1a1a1a !important;
+}
+[data-theme="dark"] .shade-quiz-option {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+}
+[data-theme="dark"] .shade-quiz-option:hover {
+  background: #241a10 !important;
+  border-color: var(--brown) !important;
+}
+[data-theme="dark"] .shade-quiz-result-card {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+}
+[data-theme="dark"] .shade-quiz-result-card img {
+  background: #241a10 !important;
+}
+[data-theme="dark"] .shade-quiz-result-price {
+  color: #d9a066 !important;
+}
+[data-theme="dark"] .shade-quiz-retake {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+}
+[data-theme="dark"] .shade-quiz-retake:hover {
+  border-color: var(--brown) !important;
 }
