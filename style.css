@@ -1883,6 +1883,10 @@ body.search-active .shop-toolbar {
   height: fit-content;
 }
 
+.sidebar-close-btn {
+  display: none;
+}
+
 .filter-widget {
   background: var(--white);
   padding: 25px;
@@ -3815,6 +3819,34 @@ body.search-active .shop-toolbar {
   }
   .shop-sidebar.mobile-active {
     display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    background: var(--white);
+    z-index: 1200;
+    padding: 25px 20px;
+    overflow-y: auto;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.25);
+    animation: slideInFilters 0.3s ease;
+  }
+  .shop-sidebar .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 0 15px auto;
+    background: var(--cream);
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    color: var(--brown-dark);
+    cursor: pointer;
   }
   .shop-main {
     order: 1;
@@ -3848,6 +3880,11 @@ body.search-active .shop-toolbar {
   .quick-view-details {
     padding: 25px;
   }
+}
+
+@keyframes slideInFilters {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 /* ==========================================
