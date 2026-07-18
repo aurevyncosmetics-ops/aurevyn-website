@@ -7101,3 +7101,46 @@ function loadRelatedProducts(product) {
     });
     mo.observe(document.body, { childList: true, subtree: true });
 })();
+
+// ==========================================
+// MAGNETIC TILT — featured Instagram follow-card
+// Tracks the cursor and tilts the card toward it in 3D, like it's
+// physically responding to your mouse. Desktop + fine-pointer only,
+// and off entirely if the visitor prefers reduced motion.
+// ==========================================
+(function() {
+    const card = document.querySelector('.follow-card--featured');
+    if (!card) return;
+
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!canHover || prefersReducedMotion) return;
+
+    const MAX_TILT = 6; // degrees — subtle, not a fairground ride
+
+    card.addEventListener('mousemove', function(e) {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;  // 0 -> 1 across the card
+        const y = (e.clientY - rect.top) / rect.height;  // 0 -> 1 down the card
+
+        const rotateY = (x - 0.5) * MAX_TILT * 2;
+        const rotateX = (0.5 - y) * MAX_TILT * 2;
+
+        card.style.transform =
+            'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateY(-6px)';
+
+        // Move the glow + monogram slightly opposite the tilt for a parallax feel
+        const glow = card.querySelector('.follow-card__glow');
+        const mono = card.querySelector('.follow-card__monogram');
+        if (glow) glow.style.transform = 'translate(' + (-rotateY * 2) + 'px, ' + (rotateX * 2) + 'px)';
+        if (mono) mono.style.transform = 'translate(' + (-rotateY * 1.2) + 'px, ' + (rotateX * 1.2) + 'px)';
+    });
+
+    card.addEventListener('mouseleave', function() {
+        card.style.transform = '';
+        const glow = card.querySelector('.follow-card__glow');
+        const mono = card.querySelector('.follow-card__monogram');
+        if (glow) glow.style.transform = '';
+        if (mono) mono.style.transform = '';
+    });
+})();
