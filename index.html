@@ -242,6 +242,8 @@
       <!-- Announcement Bar -->
       <div class="announcement-bar" id="announcement-bar">
         <div class="announcement-track">
+          <span class="announcement-item announcement-item-flag"><i class="fas fa-flag"></i> Independence Day Sale — 30% Off till 14th August!</span>
+          <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-truck"></i> Free Shipping on orders above PKR 5,000!</span>
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-percentage"></i> 6% Discount on JazzCash &amp; NayaPay payments!</span>
@@ -249,6 +251,8 @@
           <span class="announcement-item"><i class="fas fa-undo"></i> 7-Day Easy Returns — Hassle Free!</span>
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-shield-alt"></i> 100% Authentic Products Guaranteed</span>
+          <span class="announcement-sep">✦</span>
+          <span class="announcement-item announcement-item-flag"><i class="fas fa-flag"></i> Independence Day Sale — 30% Off till 14th August!</span>
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-truck"></i> Free Shipping on orders above PKR 5,000!</span>
           <span class="announcement-sep">✦</span>
@@ -470,7 +474,7 @@
         aria-label="Premium makeup and cosmetics collection – Aurevyn Pakistan"
         style="
           background:
-            linear-gradient(rgba(166, 123, 91, 0.8), rgba(93, 64, 55, 0.8)),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(27, 107, 69, 0.75) 100%),
             url(&quot;https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=1920&quot;)
               center/cover;
         "
@@ -485,7 +489,7 @@
         class="slide"
         style="
           background:
-            linear-gradient(rgba(166, 123, 91, 0.8), rgba(93, 64, 55, 0.8)),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(27, 107, 69, 0.75) 100%),
             url(&quot;https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1920&quot;)
               center/cover;
         "
@@ -500,7 +504,7 @@
         class="slide"
         style="
           background:
-            linear-gradient(rgba(166, 123, 91, 0.8), rgba(93, 64, 55, 0.8)),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(27, 107, 69, 0.75) 100%),
             url(&quot;https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1920&quot;)
               center/cover;
         "
@@ -562,27 +566,64 @@
       </div>
     </section>
 
-    <!-- Flash Sale Section -->
-    <section class="flash-sale-section" id="flash-sale">
+    <!-- Independence Day Sale Section -->
+    <section class="flash-sale-section independence-theme" id="flash-sale">
       <div class="flash-sale-bg-glow"></div>
+
+      <!-- Hidden SVG filter: gives the flag a real cloth "rippling in the wind" texture -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <filter id="flag-wind-ripple" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.015 0.06" numOctaves="2" seed="3" result="ripple">
+            <animate attributeName="baseFrequency" dur="2.6s" values="0.015 0.06;0.02 0.08;0.015 0.06" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="ripple" scale="6" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+
+      <!-- Decorative waving flag on a pole -->
+      <div class="independence-flag-wrap" aria-hidden="true">
+        <div class="flag-pole">
+          <span class="flag-pole-ball"></span>
+        </div>
+        <svg class="independence-flag" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="flagSheen" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+              <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0.16"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="75" height="200" fill="#F7F6F1"/>
+          <rect x="75" y="0" width="225" height="200" fill="#1B6B45"/>
+          <circle cx="205" cy="100" r="55" fill="#F7F6F1"/>
+          <circle cx="222" cy="85" r="44" fill="#1B6B45"/>
+          <polygon points="222.0,61.0 227.4,77.6 244.8,77.6 230.7,87.8 236.1,104.4 222.0,94.2 207.9,104.4 213.3,87.8 199.2,77.6 216.6,77.6" fill="#F7F6F1"/>
+          <rect x="0" y="0" width="300" height="200" fill="url(#flagSheen)"/>
+        </svg>
+      </div>
+      <!-- Floating star accents -->
+      <span class="independence-floating-star star-1"><i class="fas fa-star"></i></span>
+      <span class="independence-floating-star star-2"><i class="fas fa-star"></i></span>
+      <span class="independence-floating-star star-3"><i class="fas fa-moon"></i></span>
+
       <div class="container">
         <div class="flash-sale-inner">
           <!-- Left: Text -->
           <div class="flash-sale-left" data-aos="fade-right">
-            <div class="flash-badge">
-              <i class="fas fa-store"></i>
-              <span>GRAND OPENING</span>
+            <div class="flash-badge independence-badge">
+              <i class="fas fa-flag"></i>
+              <span>JASHN-E-AZADI SALE</span>
             </div>
-            <h2 class="flash-title">New Opening! <br><span>20% Extra Off</span></h2>
-            <p class="flash-desc">On all Sale products — celebrate our Grand Opening before the offer ends!</p>
-            <a href="#" class="btn-flash-shop" onclick="showSaleProducts(); return false;">
-              <i class="fas fa-fire"></i> Shop Now
+            <h2 class="flash-title">Happy 14th August! <br><span>Independence Day Sale — 30% Off</span></h2>
+            <p class="flash-desc">Celebrate Pakistan's Azadi with us — extra discount on all Sale products, only till 14th August!</p>
+            <a href="#" class="btn-flash-shop independence-btn" onclick="showSaleProducts(); return false;">
+              <i class="fas fa-flag"></i> Shop the Azadi Sale
             </a>
           </div>
 
           <!-- Right: Countdown -->
           <div class="flash-sale-right" data-aos="fade-left">
-            <p class="countdown-label"><i class="fas fa-clock"></i> Grand Opening Offer ends in:</p>
+            <p class="countdown-label"><i class="fas fa-clock"></i> Independence Day Sale ends in:</p>
             <div class="countdown-boxes">
               <div class="countdown-box">
                 <span class="countdown-num" id="flash-days">00</span>
@@ -734,7 +775,7 @@
       <div class="container">
         <div class="aurevyn-carousel-header" data-aos="fade-up">
           <span class="aurevyn-carousel-subtitle">Get Glam With Aurevyn</span>
-          <h2 class="aurevyn-carousel-title">Real Looks, Real Glow</h2>
+          <h2 class="aurevyn-carousel-title">Real Looks, Real <span class="aurevyn-glow-word">Glow</span></h2>
           <p class="aurevyn-carousel-desc">See how our products come to life on real skin</p>
         </div>
         <div class="aurevyn-carousel" id="aurevynCarousel" data-aos="fade-up" data-aos-delay="100">
