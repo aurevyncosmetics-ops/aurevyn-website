@@ -466,7 +466,7 @@ const productsData = [
         name: "NK Perfection Makeup Remover",
         category: "skincare",
         price: 899,
-        oldPrice: null,
+        oldPrice: 1000,
         rating: 4.5,
         reviews: 4500,
         stock: 20,
@@ -494,8 +494,8 @@ const productsData = [
         id: 7,
         name: "Blush Stick Collection",
         category: "face",
-        price: 450,
-        oldPrice: 550,
+        price: 449,
+        oldPrice: 500,
         rating: 4.8,
         reviews: 4200,
         stock: 20,
@@ -705,8 +705,8 @@ const productsData = [
         id: 22,
         name: "Colorful Beehive Lip Gloss",
         category: "lips",
-        price: 350,
-        oldPrice: null,
+        price: 250,
+        oldPrice: 300,
         rating: 4.5,
         reviews: 4500,
         stock: 20,
@@ -738,8 +738,8 @@ const productsData = [
         id: 25,
         name: "Holika Velvet Blanket Tint",
         category: "lips",
-        price: 450,
-        oldPrice: 520,
+        price: 400,
+        oldPrice: 500,
         rating: 4.8,
         reviews: 5200,
         stock: 20,
@@ -1136,6 +1136,19 @@ window.addEventListener('pageshow', function() {
     if (mobileInput) mobileInput.value = '';
 
     updateClearSearchButtons();
+
+    // bfcache can also restore the page with the mobile sidebar's
+    // display:none still applied to these floating widgets (dark/light
+    // toggle, Filters button, shade-finder wand) if the sidebar/filter
+    // menu was open when the user navigated away. Force them visible
+    // again and make sure the sidebar-open body class isn't stuck either.
+    document.body.classList.remove('nav-menu-open');
+    const dmFloat = document.getElementById('dark-mode-float');
+    if (dmFloat) dmFloat.style.display = '';
+    const filterBtn = document.querySelector('.filter-toggle-btn');
+    if (filterBtn) filterBtn.style.display = '';
+    const shadeFab = document.querySelector('.shade-quiz-fab');
+    if (shadeFab) shadeFab.style.display = '';
 });
 
 
@@ -1280,6 +1293,7 @@ function initApp() {
     updateCategoryCounts(); // Auto-count products per category
     checkPendingOrderFromLink(); // Auto-reopen Confirm/Cancel card if there's a pending order (no link needed)
     checkOpenCartFromLink(); // Auto-open cart sidebar if opened via an abandoned-cart reminder notification
+    checkGiftBoxFromLink(); // Auto-reopen Gift Box modal after a refresh
     injectShadeQuizEntryPoints(); // Floating "Shade Finder" button (+ homepage banner)
     restoreViewAndQuickViewState(); // Restore Sale/Category/Search page or open Quick View after a refresh
     initShopPageFromURL();   // shop.html: apply ?category= / ?view=sale / ?search= from URL
@@ -3645,6 +3659,24 @@ function toggleMobileMenu() {
 
         mm.style.zIndex = '1010';
         if (ov) ov.style.zIndex = '1005';
+
+        // Mark body so CSS can reliably hide floating widgets (filter button,
+        // dark/light toggle) while the sidebar menu is open, regardless of
+        // where they sit in the DOM.
+        document.body.classList.add('nav-menu-open');
+
+        // Hide the dark/light mode toggle icon while the sidebar menu is open
+        const dmFloat = document.getElementById('dark-mode-float');
+        if (dmFloat) dmFloat.style.display = 'none';
+
+        // Hide the shop page's "Filters" button while the sidebar menu is open
+        const filterBtn = document.querySelector('.filter-toggle-btn');
+        if (filterBtn) filterBtn.style.display = 'none';
+
+        // Hide the shade-finder-quiz floating button (magic wand icon) —
+        // it has a very high z-index and was showing through the menu.
+        const shadeFab = document.querySelector('.shade-quiz-fab');
+        if (shadeFab) shadeFab.style.display = 'none';
     } else {
         closeMobileMenu();
     }
@@ -3655,6 +3687,21 @@ function closeMobileMenu() {
     const ov = document.getElementById('overlay');
     if (mm) mm.classList.remove('active');
     if (ov) ov.classList.remove('active');
+
+    // Un-mark body now that the sidebar menu is closed
+    document.body.classList.remove('nav-menu-open');
+
+    // Show the dark/light mode toggle icon again now that the menu is closed
+    const dmFloat = document.getElementById('dark-mode-float');
+    if (dmFloat) dmFloat.style.display = '';
+
+    // Show the shop page's "Filters" button again now that the menu is closed
+    const filterBtn = document.querySelector('.filter-toggle-btn');
+    if (filterBtn) filterBtn.style.display = '';
+
+    // Show the shade-finder-quiz floating button again now that the menu is closed
+    const shadeFab = document.querySelector('.shade-quiz-fab');
+    if (shadeFab) shadeFab.style.display = '';
 
     // Undo the position:fixed scroll-lock and restore the exact scroll position.
     const restoreY = _mobileMenuOpenScrollY;
@@ -3676,7 +3723,22 @@ function closeMobileMenu() {
 function toggleMobileFilters() {
     const sidebar = document.getElementById('shop-sidebar');
     const ov = document.getElementById('overlay');
-    if (sidebar) { sidebar.classList.toggle('mobile-active'); if (ov) ov.classList.toggle('active'); document.body.style.overflow = sidebar.classList.contains('mobile-active') ? 'hidden' : ''; }
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-active');
+        if (ov) ov.classList.toggle('active');
+        const isOpen = sidebar.classList.contains('mobile-active');
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+
+        // Hide the floating dark/light mode icon, "Filters" button, and
+        // shade-finder-quiz button while the filter sidebar is open, show
+        // them again once it closes.
+        const dmFloat = document.getElementById('dark-mode-float');
+        if (dmFloat) dmFloat.style.display = isOpen ? 'none' : '';
+        const filterBtn = document.querySelector('.filter-toggle-btn');
+        if (filterBtn) filterBtn.style.display = isOpen ? 'none' : '';
+        const shadeFab = document.querySelector('.shade-quiz-fab');
+        if (shadeFab) shadeFab.style.display = isOpen ? 'none' : '';
+    }
 }
 
 function closeAll() {
@@ -3696,6 +3758,20 @@ function closeAll() {
     if (sb) sb.classList.remove('mobile-active');
     document.body.classList.remove('cart-open');
 
+    // The sidebar menu can also be closed by tapping the overlay/background
+    // (not just the X icon), which routes through closeAll() rather than
+    // closeMobileMenu(). Make sure that path also un-marks the body and
+    // restores the dark/light toggle, Filters button, and shade-finder wand
+    // — otherwise they stay hidden (via the nav-menu-open CSS rule) even
+    // after the sidebar is gone.
+    document.body.classList.remove('nav-menu-open');
+    const dmFloat = document.getElementById('dark-mode-float');
+    if (dmFloat) dmFloat.style.display = '';
+    const filterBtn = document.querySelector('.filter-toggle-btn');
+    if (filterBtn) filterBtn.style.display = '';
+    const shadeFab = document.querySelector('.shade-quiz-fab');
+    if (shadeFab) shadeFab.style.display = '';
+
     // Restore scroll position before clearing the position:fixed scroll-lock
     // (mobile menu, quick view modal, and the customer-service/return/policy/
     // gift-box modals all use this trick), so the page doesn't jump to the
@@ -3712,6 +3788,15 @@ function closeAll() {
     document.body.style.top = '';
     if (wasFixed && restoreY) window.scrollTo({ top: restoreY, behavior: 'instant' });
     clearQuickViewState();
+
+    // If the Gift Box was closed via Escape/overlay click (not the X button),
+    // still clear its URL flag so a refresh doesn't reopen it.
+    const giftParams = new URLSearchParams(window.location.search);
+    if (giftParams.has('giftbox')) {
+        giftParams.delete('giftbox');
+        const cleanUrl = window.location.pathname + (giftParams.toString() ? '?' + giftParams.toString() : '') + window.location.hash;
+        window.history.replaceState({}, '', cleanUrl);
+    }
 }
 
 function setupEventListeners() {
@@ -3888,11 +3973,35 @@ function showSizeGuide() {
 function openGiftBoxModal() {
     const modal = document.getElementById('gift-box-modal');
     if (modal) { modal.classList.add('active'); lockBodyScroll(); }
+
+    // Remember that the Gift Box is open in the URL, so a page refresh
+    // reopens it instead of dropping back to the normal page.
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('giftbox')) {
+        params.set('giftbox', '1');
+        const newUrl = window.location.pathname + '?' + params.toString() + window.location.hash;
+        window.history.replaceState({}, '', newUrl);
+    }
 }
 
 function closeGiftBoxModal() {
     const modal = document.getElementById('gift-box-modal');
     if (modal) { modal.classList.remove('active'); unlockBodyScroll(); }
+
+    // Clear the URL flag so a fresh visit / refresh no longer reopens it.
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('giftbox')) {
+        params.delete('giftbox');
+        const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+        window.history.replaceState({}, '', cleanUrl);
+    }
+}
+
+// Auto-reopen the Gift Box modal on load/refresh if the URL still has the flag
+function checkGiftBoxFromLink() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('giftbox')) return;
+    openGiftBoxModal();
 }
 
 // ==========================================
@@ -6598,15 +6707,15 @@ if (document.readyState === 'loading') {
 console.log('✅ Announcement Bar + Live Chat Widget loaded!');
 
 // ==========================================
-// GRAND OPENING SALE COUNTDOWN TIMER — Fixed: 31 July 2026, 11:59 PM PKT
+// INDEPENDENCE DAY SALE COUNTDOWN TIMER — Fixed: 14 August 2026, 11:59 PM PKT
 // ==========================================
 (function() {
   'use strict';
 
-  // ── Fixed end date: 31 July 2026, 11:59 PM PKT (UTC+5) ──
-  // 11:59 PM PKT = 18:59 UTC on 31 July 2026
+  // ── Fixed end date: 14 August 2026, 11:59 PM PKT (UTC+5) ──
+  // 11:59 PM PKT = 18:59 UTC on 14 August 2026
   function getSaleEndTime() {
-    const endDate = new Date('2026-07-31T18:59:00Z'); // 31 July 2026, 11:59 PM PKT
+    const endDate = new Date('2026-08-14T18:59:00Z'); // 14 August 2026, 11:59 PM PKT
     const now = Date.now();
     if (endDate.getTime() > now) return endDate.getTime();
     return null; // expired
@@ -6643,9 +6752,9 @@ console.log('✅ Announcement Bar + Live Chat Widget loaded!');
       return;
     }
 
-    // Total campaign duration: 1 June 2026 → 31 July 2026
-    const campaignStart = new Date('2026-06-01T19:00:00Z').getTime();
-    const totalMs = getSaleEndTime() ? (new Date('2026-07-31T18:59:00Z').getTime() - campaignStart) : 1;
+    // Total campaign duration: 1 August 2026 → 14 August 2026
+    const campaignStart = new Date('2026-07-31T19:00:00Z').getTime();
+    const totalMs = getSaleEndTime() ? (new Date('2026-08-14T18:59:00Z').getTime() - campaignStart) : 1;
     const now  = Date.now();
     const diff = Math.max(0, endTime - now);
 
@@ -6697,16 +6806,39 @@ console.log('✅ Announcement Bar + Live Chat Widget loaded!');
     // To show real orders, connect Google Sheets API and update soldEl here.
   }
 
-  function initEidSale() {
+  function initIndependenceDaySale() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initEidSale);
+    document.addEventListener('DOMContentLoaded', initIndependenceDaySale);
   } else {
-    initEidSale();
+    initIndependenceDaySale();
   }
+})();
+
+// ==========================================
+// INDEPENDENCE DAY FLAG — 3D mouse-tilt parallax
+// ==========================================
+(function() {
+  'use strict';
+  const section = document.getElementById('flash-sale');
+  const flagWrap = document.querySelector('.independence-flag-wrap');
+  if (!section || !flagWrap) return;
+
+  // Desktop: tilt the flag in 3D based on cursor position (adds depth)
+  section.addEventListener('mousemove', function(e) {
+    const rect = section.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;   // -0.5 .. 0.5
+    const y = (e.clientY - rect.top) / rect.height - 0.5;   // -0.5 .. 0.5
+    flagWrap.style.transform =
+      'perspective(900px) rotateY(' + (x * 18) + 'deg) rotateX(' + (-y * 12) + 'deg)';
+  });
+
+  section.addEventListener('mouseleave', function() {
+    flagWrap.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg)';
+  });
 })();
 // ===== AUREVYN AUTO-SLIDING IMAGE CAROUSEL =====
 (function() {
