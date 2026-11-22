@@ -226,6 +226,50 @@
 
 </head>
   <body class="light-mode">
+<!-- Intro splash (WebGL gold galaxy + 3D logo + welcome) -->
+<div id="m-splash" role="dialog" aria-label="Welcome to Aurevyn">
+  <div class="sp-door l"></div><div class="sp-door r"></div><div class="sp-beam"></div>
+  <canvas class="sp-gl"></canvas>
+  <div class="sp-sparks"><i style="--x:60%;--y:76%;--d:5.1s;--s:6px;--o:1.1s"></i><i style="--x:78%;--y:29%;--d:3.1s;--s:6px;--o:1.6s"></i><i style="--x:26%;--y:17%;--d:3.8s;--s:4px;--o:0.2s"></i><i style="--x:91%;--y:86%;--d:2.6s;--s:6px;--o:2.4s"></i><i style="--x:86%;--y:83%;--d:4.5s;--s:3px;--o:2.1s"></i><i style="--x:11%;--y:12%;--d:2.6s;--s:4px;--o:1.5s"></i><i style="--x:62%;--y:46%;--d:3.8s;--s:4px;--o:1.3s"></i><i style="--x:84%;--y:42%;--d:4.0s;--s:3px;--o:1.1s"></i><i style="--x:38%;--y:57%;--d:5.5s;--s:3px;--o:1.8s"></i><i style="--x:43%;--y:34%;--d:4.0s;--s:3px;--o:0.2s"></i><i style="--x:16%;--y:56%;--d:2.8s;--s:5px;--o:1.0s"></i><i style="--x:5%;--y:92%;--d:2.5s;--s:4px;--o:2.3s"></i><i style="--x:9%;--y:65%;--d:3.6s;--s:6px;--o:1.0s"></i><i style="--x:75%;--y:85%;--d:3.1s;--s:5px;--o:0.8s"></i><i style="--x:42%;--y:47%;--d:2.5s;--s:6px;--o:1.9s"></i><i style="--x:18%;--y:22%;--d:3.2s;--s:3px;--o:0.0s"></i><i style="--x:62%;--y:67%;--d:3.0s;--s:4px;--o:1.1s"></i><i style="--x:27%;--y:21%;--d:3.8s;--s:6px;--o:0.3s"></i></div>
+  <div class="sp-content">
+    <div class="sp-stage"><i class="sp-ring"></i><i class="sp-ring r2"></i>
+      <h1 class="sp-title" aria-label="Aurevyn"><span style="--i:0" data-c="A">A</span><span style="--i:1" data-c="U">U</span><span style="--i:2" data-c="R">R</span><span style="--i:3" data-c="E">E</span><span style="--i:4" data-c="V">V</span><span style="--i:5" data-c="Y">Y</span><span style="--i:6" data-c="N">N</span></h1></div>
+    <div class="sp-line"></div>
+    <p class="sp-eyebrow">Luxury Beauty</p>
+    <p class="sp-desc sp-en"><span class="w" style="--k:0">Welcome</span> <span class="w" style="--k:1">to</span> <span class="w" style="--k:2">Aurevyn</span> <span class="w" style="--k:3">&mdash;</span> <span class="w" style="--k:4">where</span> <span class="w" style="--k:5">elegance</span> <span class="w" style="--k:6">meets</span> <span class="w" style="--k:7">beauty.</span> <span class="w" style="--k:8">Discover</span> <span class="w" style="--k:9">premium</span> <span class="w" style="--k:10">makeup</span> <span class="w" style="--k:11">&amp;</span> <span class="w" style="--k:12">skincare,</span> <span class="w" style="--k:13">delivered</span> <span class="w" style="--k:14">to</span> <span class="w" style="--k:15">your</span> <span class="w" style="--k:16">door.</span></p>
+    <p class="sp-desc sp-ur" dir="rtl"><span class="w" style="--k:0">آوریوِن</span> <span class="w" style="--k:1">میں</span> <span class="w" style="--k:2">خوش</span> <span class="w" style="--k:3">آمدید</span> <span class="w" style="--k:4">&mdash;</span> <span class="w" style="--k:5">جہاں</span> <span class="w" style="--k:6">نفاست</span> <span class="w" style="--k:7">اور</span> <span class="w" style="--k:8">خوبصورتی</span> <span class="w" style="--k:9">ملتی</span> <span class="w" style="--k:10">ہے۔</span> <span class="w" style="--k:11">پریمیم</span> <span class="w" style="--k:12">میک</span> <span class="w" style="--k:13">اپ</span> <span class="w" style="--k:14">اور</span> <span class="w" style="--k:15">اسکن</span> <span class="w" style="--k:16">کیئر،</span> <span class="w" style="--k:17">آپ</span> <span class="w" style="--k:18">کے</span> <span class="w" style="--k:19">دروازے</span> <span class="w" style="--k:20">تک۔</span></p>
+  </div>
+  <div class="sp-count"><span id="sp-n">0</span><em>%</em></div>
+  <button class="sp-skip" type="button">Skip &rsaquo;</button>
+  <div class="sp-bar"><b></b></div>
+</div>
+<script>(function(){var d=document.getElementById('m-splash');if(!d)return;var seen=false,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+try{seen=sessionStorage.getItem('aurevynSplash')}catch(e){}
+if(seen||rm){d.remove();return}
+var de=document.documentElement,DUR=5400;de.classList.add('m-splash-on','m-splash-busy');
+try{if(localStorage.getItem('aurevynLanguage')==='ur')d.classList.add('ur')}catch(e){}
+var done=false,raf=0;function close(){if(done)return;done=true;try{sessionStorage.setItem('aurevynSplash','1')}catch(e){}d.classList.add('out');de.classList.remove('m-splash-busy');setTimeout(function(){cancelAnimationFrame(raf);d.remove();de.classList.remove('m-splash-on')},1800)}
+d.querySelector('.sp-skip').addEventListener('click',close);setTimeout(close,DUR);
+var t=d.querySelector('.sp-title'),mx=0,my=0;d.addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;t.style.setProperty('--ry',(mx*34)+'deg');t.style.setProperty('--rx',(-my*22)+'deg')});
+var n=document.getElementById('sp-n'),t0=performance.now();(function c(){var p=Math.min(1,(performance.now()-t0)/(DUR-300));n.textContent=Math.round(100*(1-Math.pow(1-p,2.2)));if(p<1&&!done)requestAnimationFrame(c);else n.textContent=100})();
+// WebGL gold galaxy (three.js loaded on demand, shared with the hero scene)
+window.__threeP=window.__threeP||new Promise(function(res,rej){var s=document.createElement('script');s.src='three.min.js?v=128';s.onload=function(){res(window.THREE)};s.onerror=rej;document.head.appendChild(s)});
+window.__threeP.then(function(T){if(done)return;var cv=d.querySelector('.sp-gl'),r=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,1.75));
+var sc=new T.Scene(),cam=new T.PerspectiveCamera(55,1,.1,100);cam.position.set(0,2.4,9);cam.lookAt(0,0,0);
+var N=2400,cur=new Float32Array(N*3),st=new Float32Array(N*3),tg=new Float32Array(N*3),i,a,rr,y,k,u,v;
+for(i=0;i<N;i++){a=Math.random()*6.2832;rr=2.5+Math.pow(Math.random(),.65)*6;y=(Math.random()-.5)*(.5+rr*.09);tg[i*3]=Math.cos(a)*rr;tg[i*3+1]=y;tg[i*3+2]=Math.sin(a)*rr;
+u=Math.random()*6.2832;v=Math.acos(2*Math.random()-1);k=16+Math.random()*22;st[i*3]=k*Math.sin(v)*Math.cos(u);st[i*3+1]=k*Math.cos(v);st[i*3+2]=k*Math.sin(v)*Math.sin(u)}
+var g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(cur,3));
+var c2=document.createElement('canvas');c2.width=c2.height=64;var x=c2.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.3,'rgba(255,225,150,.9)');gr.addColorStop(1,'rgba(255,225,150,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);
+var pts=new T.Points(g,new T.PointsMaterial({map:new T.CanvasTexture(c2),color:0xE6C979,size:.17,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}));
+var grp=new T.Group();grp.add(pts);grp.rotation.x=.38;sc.add(grp);
+function fit(){var w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();grp.scale.setScalar(Math.max(.5,Math.min(1,w/h/1.5)))}fit();addEventListener('resize',fit);
+var T0=performance.now();(function loop(){if(!d.isConnected)return;raf=requestAnimationFrame(loop);var s=(performance.now()-T0)/1000,e=Math.min(1,s/3.4);e=1-Math.pow(1-e,3);
+if(e<1||s<3.6){for(var j=0;j<N*3;j++)cur[j]=st[j]+(tg[j]-st[j])*e;g.attributes.position.needsUpdate=true}
+grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin(s*.5)*.3;cam.lookAt(0,0,0);r.render(sc,cam)})();
+}).catch(function(){});
+})();</script>
+
     <!-- Preloader -->
     <div class="preloader" id="preloader">
       <div class="loader">
@@ -243,7 +287,6 @@
       <!-- Announcement Bar -->
       <div class="announcement-bar" id="announcement-bar">
         <div class="announcement-track">
-          <span class="announcement-item announcement-item-flag"><i class="fas fa-flag"></i> Independence Day Sale — 30% Off till 14th August!</span>
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-truck"></i> Free Shipping on orders above PKR 5,000!</span>
           <span class="announcement-sep">✦</span>
@@ -253,7 +296,6 @@
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-shield-alt"></i> 100% Authentic Products Guaranteed</span>
           <span class="announcement-sep">✦</span>
-          <span class="announcement-item announcement-item-flag"><i class="fas fa-flag"></i> Independence Day Sale — 30% Off till 14th August!</span>
           <span class="announcement-sep">✦</span>
           <span class="announcement-item"><i class="fas fa-truck"></i> Free Shipping on orders above PKR 5,000!</span>
           <span class="announcement-sep">✦</span>
@@ -567,94 +609,6 @@
       </div>
     </section>
 
-    <!-- Independence Day Sale Section -->
-    <section class="flash-sale-section independence-theme" id="flash-sale">
-      <div class="flash-sale-bg-glow"></div>
-
-      <!-- Hidden SVG filter: gives the flag a real cloth "rippling in the wind" texture -->
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <filter id="flag-wind-ripple" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.015 0.06" numOctaves="2" seed="3" result="ripple">
-            <animate attributeName="baseFrequency" dur="2.6s" values="0.015 0.06;0.02 0.08;0.015 0.06" repeatCount="indefinite" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="ripple" scale="6" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-
-      <!-- Decorative waving flag on a pole -->
-      <div class="independence-flag-wrap" aria-hidden="true">
-        <div class="flag-pole">
-          <span class="flag-pole-ball"></span>
-        </div>
-        <svg class="independence-flag" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="flagSheen" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
-              <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
-              <stop offset="100%" stop-color="#000000" stop-opacity="0.16"/>
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="75" height="200" fill="#FFFDF8"/>
-          <rect x="75" y="0" width="225" height="200" fill="#1C1B1A"/>
-          <circle cx="205" cy="100" r="55" fill="#FFFDF8"/>
-          <circle cx="222" cy="85" r="44" fill="#1C1B1A"/>
-          <polygon points="222.0,61.0 227.4,77.6 244.8,77.6 230.7,87.8 236.1,104.4 222.0,94.2 207.9,104.4 213.3,87.8 199.2,77.6 216.6,77.6" fill="#FFFDF8"/>
-          <rect x="0" y="0" width="300" height="200" fill="url(#flagSheen)"/>
-        </svg>
-      </div>
-      <!-- Floating star accents -->
-      <span class="independence-floating-star star-1"><i class="fas fa-star"></i></span>
-      <span class="independence-floating-star star-2"><i class="fas fa-star"></i></span>
-      <span class="independence-floating-star star-3"><i class="fas fa-moon"></i></span>
-
-      <div class="container">
-        <div class="flash-sale-inner">
-          <!-- Left: Text -->
-          <div class="flash-sale-left" data-aos="fade-right">
-            <div class="flash-badge independence-badge">
-              <i class="fas fa-flag"></i>
-              <span>JASHN-E-AZADI SALE</span>
-            </div>
-            <h2 class="flash-title">Happy 14th August! <br><span>Independence Day Sale — 30% Off</span></h2>
-            <p class="flash-desc">Celebrate Pakistan's Azadi with us — extra discount on all Sale products, only till 14th August!</p>
-            <a href="#" class="btn-flash-shop independence-btn" onclick="showSaleProducts(); return false;">
-              <i class="fas fa-flag"></i> Shop the Azadi Sale
-            </a>
-          </div>
-
-          <!-- Right: Countdown -->
-          <div class="flash-sale-right" data-aos="fade-left">
-            <p class="countdown-label"><i class="fas fa-clock"></i> Independence Day Sale ends in:</p>
-            <div class="countdown-boxes">
-              <div class="countdown-box">
-                <span class="countdown-num" id="flash-days">00</span>
-                <span class="countdown-unit">Days</span>
-              </div>
-              <div class="countdown-sep">:</div>
-              <div class="countdown-box">
-                <span class="countdown-num" id="flash-hours">00</span>
-                <span class="countdown-unit">Hours</span>
-              </div>
-              <div class="countdown-sep">:</div>
-              <div class="countdown-box">
-                <span class="countdown-num" id="flash-minutes">00</span>
-                <span class="countdown-unit">Minutes</span>
-              </div>
-              <div class="countdown-sep">:</div>
-              <div class="countdown-box">
-                <span class="countdown-num" id="flash-seconds">00</span>
-                <span class="countdown-unit">Seconds</span>
-              </div>
-            </div>
-            <div class="flash-progress-wrap">
-              <div class="flash-progress-bar" id="flash-progress-bar"></div>
-            </div>
-            <p class="flash-sold-text"><span id="flash-sold-count">84</span> orders placed — <strong>Hurry up!</strong></p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Categories Section -->
     <section class="categories-section" id="categories">
       <div class="container">
@@ -670,7 +624,7 @@
             onclick="filterCategory('lips')"
           >
             <img
-              src="img/Ancher_colour_lipstick.png"
+              src="img/Ancher_colour_lipstick.webp"
               alt="Lip Products"
               loading="lazy"
               style="width:100%;height:100%;object-fit:cover;object-position:center top;"
@@ -687,7 +641,7 @@
             onclick="filterCategory('face')"
           >
             <img
-              src="img/Miss_rose_unique_double_wear_liquid_foundation.png"
+              src="img/Miss_rose_unique_double_wear_liquid_foundation.webp"
               alt="Face Makeup"
               loading="lazy"
               style="width:100%;height:100%;object-fit:cover;object-position:center top;"
@@ -704,7 +658,7 @@
             onclick="filterCategory('eyes')"
           >
             <img
-              src="img/Mocallure.png"
+              src="img/Mocallure.webp"
               alt="Eye Makeup"
               loading="lazy"
               style="width:100%;height:100%;object-fit:cover;object-position:center top;"
@@ -721,7 +675,7 @@
             onclick="filterCategory('skincare')"
           >
             <img
-              src="img/Makeup_remover.png"
+              src="img/Makeup_remover.webp"
               alt="Skincare"
               loading="lazy"
               style="width:100%;height:100%;object-fit:cover;object-position:center top;"
@@ -770,85 +724,7 @@
       </div>
     </section>
 
-    <!-- ===== AUREVYN AUTO-SLIDING IMAGE CAROUSEL ===== -->
-    <section class="aurevyn-carousel-section">
-      <div class="aurevyn-carousel-glow"></div>
-      <div class="container">
-        <div class="aurevyn-carousel-header" data-aos="fade-up">
-          <span class="aurevyn-carousel-subtitle">Get Glam With Aurevyn</span>
-          <h2 class="aurevyn-carousel-title">Real Looks, Real <span class="aurevyn-glow-word">Glow</span></h2>
-          <p class="aurevyn-carousel-desc">See how our products come to life on real skin</p>
-        </div>
-        <div class="aurevyn-carousel" id="aurevynCarousel" data-aos="fade-up" data-aos-delay="100">
-          <div class="aurevyn-carousel-track" id="aurevynCarouselTrack">
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup1.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Flawless Coverage</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup2.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Perfect Prep</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup3.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Luscious Lips</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup4.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Silky Smooth Skin</div>
-              </div>
-            </div>
-            <!-- duplicated for seamless infinite loop -->
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup1.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Flawless Coverage</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup2.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Perfect Prep</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup3.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Luscious Lips</div>
-              </div>
-            </div>
-            <div class="aurevyn-carousel-slide">
-              <div class="aurevyn-carousel-card">
-                <img src="img/girl_apply_makeup4.png" alt="Aurevyn makeup application" loading="lazy"><span class="aurevyn-card-shine"></span>
-                <div class="aurevyn-card-caption">Silky Smooth Skin</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="aurevyn-carousel-controls">
-          <button class="aurevyn-carousel-arrow aurevyn-arrow-prev" id="aurevynPrevBtn" aria-label="Previous">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <div class="aurevyn-carousel-dots" id="aurevynCarouselDots">
-            <span class="aurevyn-dot active" data-index="0"></span>
-            <span class="aurevyn-dot" data-index="1"></span>
-            <span class="aurevyn-dot" data-index="2"></span>
-            <span class="aurevyn-dot" data-index="3"></span>
-          </div>
-          <button class="aurevyn-carousel-arrow aurevyn-arrow-next" id="aurevynNextBtn" aria-label="Next">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-    <!-- ===== END CAROUSEL ===== -->
+    
 
     <!-- All Products with Filters -->
     <!-- Homepage Reviews Section -->
@@ -916,130 +792,6 @@
           <a href="shop.html" class="btn-primary">
             <span data-translate="view_all_products">View All Products</span> <i class="fas fa-arrow-right"></i>
           </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Us / Our Team -->
-    <section class="testimonials-section">
-      <div class="container">
-        <div class="section-header" data-aos="fade-up">
-          <span class="subtitle">About Us</span>
-          <h2>Meet The Team Behind <span class="heading-accent">Aurevyn</span></h2>
-          <p class="section-header-desc">The people driving Aurevyn's mission to bring premium, trustworthy beauty products to every doorstep.</p>
-        </div>
-        <div class="testimonials-slider" data-aos="fade-up">
-          <div class="testimonial-card">
-            <p>
-              "Aurevyn was built on one simple promise — every woman deserves
-              premium makeup without compromise. From sourcing to packaging,
-              I make sure each product that reaches you meets the standard
-              we'd want for our own family."
-            </p>
-            <div class="customer">
-              <div class="customer-avatar" aria-hidden="true">M</div>
-              <div>
-                <h5>H_Usman</h5>
-                <span>CEO, Aurevyn</span>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <p>
-              "My job is to make sure Aurevyn stays fair and transparent —
-              honest pricing, secure payments, and real value for every rupee
-              our customers spend. Your trust is the most important asset
-              this company has."
-            </p>
-            <div class="customer">
-              <div class="customer-avatar" aria-hidden="true">M</div>
-              <div>
-                <h5>R_Mehboob</h5>
-                <span>CFO, Aurevyn</span>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <p>
-              "I lead the technology behind Aurevyn — from a smooth shopping
-              experience to secure checkout. We're constantly improving the
-              website so browsing and ordering your favorite products feels
-              effortless."
-            </p>
-            <div class="customer">
-              <div class="customer-avatar" aria-hidden="true">S</div>
-              <div>
-                <h5>S_Elahi</h5>
-                <span>CTO, Aurevyn</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- Social Media Feed Section -->
-    <section class="social-feed-section">
-      <div class="container">
-        <div class="section-header" data-aos="fade-up">
-          <span class="subtitle" data-translate="follow_us">Follow Us</span>
-          <h2 data-translate="connect_with_us">Connect With Us</h2>
-          <span class="connect-heading-rule" data-aos="fade-up" data-aos-delay="150" aria-hidden="true"></span>
-          <p data-translate="social_desc">Stay updated with our latest products, offers, and beauty tips</p>
-        </div>
-
-        <div class="follow-bento">
-          <!-- Instagram — featured -->
-          <a
-            href="https://www.instagram.com/aurevyn_cosmetics?igsh=MXN4NzF1cDdpcjAwbg%3D%3D&utm_source=qr" target="_blank"
-            class="follow-card follow-card--featured instagram-follow" data-aos="fade-up"
-          >
-            <div class="follow-card__glow"></div>
-            <span class="follow-card__sparkle" aria-hidden="true"><i class="fas fa-star"></i></span>
-            <span class="follow-card__monogram" aria-hidden="true">A</span>
-            <div class="follow-icon"><i class="fab fa-instagram"></i></div>
-            <div class="follow-card__body">
-              <span class="follow-label">Instagram</span>
-              <h3>@aurevyn</h3>
-              <p>Daily glow tips, new drops &amp; reels</p>
-            </div>
-            <span class="follow-btn">Follow <i class="fas fa-arrow-right"></i></span>
-          </a>
-
-          <div class="follow-bento__stack">
-            <!-- Facebook -->
-            <a
-              href="https://www.facebook.com/profile.php?id=61589266527282" target="_blank"
-              class="follow-card follow-card--compact facebook-follow" data-aos="fade-up" data-aos-delay="100"
-            >
-              <div class="follow-icon"><i class="fab fa-facebook-f"></i></div>
-              <div class="follow-card__body">
-                <span class="follow-label">Facebook</span>
-                <h3>@aurevyn</h3>
-              </div>
-              <span class="follow-btn follow-btn--icon"><i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <!-- TikTok -->
-            <a
-              href="https://www.tiktok.com/@aurevyn.cosmetics?_r=1&_t=ZS-94v5CBx7PXO" target="_blank"
-              class="follow-card follow-card--compact tiktok-follow" data-aos="fade-up" data-aos-delay="200"
-            >
-              <div class="follow-icon"><i class="fab fa-tiktok"></i></div>
-              <div class="follow-card__body">
-                <span class="follow-label">TikTok</span>
-                <h3>@aurevyn</h3>
-              </div>
-              <span class="follow-btn follow-btn--icon"><i class="fas fa-arrow-right"></i></span>
-            </a>
-          </div>
-        </div>
-
-        <div class="follow-ticker" aria-hidden="true">
-          <div class="follow-ticker__track">
-            <span>#aurevynglow</span><span>·</span><span>clean beauty</span><span>·</span><span>new arrivals weekly</span><span>·</span><span>#aurevynglow</span><span>·</span><span>clean beauty</span><span>·</span><span>new arrivals weekly</span><span>·</span>
-          </div>
         </div>
       </div>
     </section>

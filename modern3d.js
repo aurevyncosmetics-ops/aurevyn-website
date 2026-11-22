@@ -2,8 +2,7 @@
 (()=>{
 const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)return;
 const hero=document.querySelector('.hero-slider');
-const s=document.createElement('script');s.src='three.min.js?v=128';
-s.onload=()=>{try{init()}catch(e){console.warn('3D skipped',e)}};document.head.appendChild(s);
+(window.__threeP||(window.__threeP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='three.min.js?v=128';s.onload=()=>res(window.THREE);s.onerror=rej;document.head.appendChild(s)}))).then(()=>{try{init()}catch(e){console.warn('3D skipped',e)}}).catch(()=>{});
 function init(){
  // ---- floating gold orbs in page sections (parallax on scroll) ----
  const secs=[...document.querySelectorAll('#categories,#new-arrivals,#best-sellers,.home-reviews-section')];
@@ -45,7 +44,7 @@ function init(){
   const hw=Math.tan(T.MathUtils.degToRad(20))*8*cam.aspect;L.userData.x=w>700?hw*.62:hw*.7;L.userData.y=w>700?-.35:1.2;L.scale.setScalar(w>700?.95:.58)};
  new ResizeObserver(fit).observe(hero);fit();
  const clk=new T.Clock();
- (function loop(){requestAnimationFrame(loop);if(!vis||document.hidden)return;const t=clk.getElapsedTime();
+ (function loop(){requestAnimationFrame(loop);if(!vis||document.hidden||document.documentElement.classList.contains('m-splash-busy'))return;const t=clk.getElapsedTime();
   L.rotation.y=t*.7+mx*1.2;L.rotation.x=my*.5;L.rotation.z=Math.sin(t*.6)*.08;
   L.position.set(L.userData.x,L.userData.y+Math.sin(t*1.2)*.25-.1,0);
   pts.rotation.y=t*.04+mx*.2;pts.rotation.x=my*.15;g1.position.x=-4+Math.sin(t)*2;

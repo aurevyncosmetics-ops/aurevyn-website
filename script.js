@@ -406,7 +406,7 @@ const productsData = [
         reviews: 4800,
         stock: 20,
         tags: [],
-        image: "img/Ancher_colour_lipstick.png",
+        image: "img/Ancher_colour_lipstick.webp",
         description: "A burst of color that loves your lips back. Infused with nourishing Shea Butter, Vitamin E and Jojoba Oil, it glides on smooth, hydrates as it wears, and delivers vibrant, true color that lasts all day without drying your lips.",
         shades: [
             { name: "Peach Nude", color: "#D6B974" }
@@ -422,10 +422,10 @@ const productsData = [
         reviews: 5100,
         stock: 20,
         tags: [],
-        image: "img/Creamy_matte_lipstick.png",
+        image: "img/Creamy_matte_lipstick.webp",
         description: "Velvety matte color with a creamy soul. Formulated with Vitamin E and Avocado Oil, it glides on effortlessly for a smooth, comfortable matte finish that stays bold for hours — no cracking, no fading, just rich color all day.",
         shades: [
-            { name: "Coral Pink", color: "#D6B974", image: "img/Coral_Pink_Creamy_Matte_Lipstick.JPG" }
+            { name: "Coral Pink", color: "#D6B974", image: "img/Coral_Pink_Creamy_Matte_Lipstick.webp" }
         ]
     },
     {
@@ -438,7 +438,7 @@ const productsData = [
         reviews: 4700,
         stock: 20,
         tags: [],
-        image: "img/Revolution.png",
+        image: "img/Revolution.webp",
         description: "Rich pigment meets silky satin shine. Enriched with Argan Oil and Vitamin E, this lipstick conditions your lips while delivering a luminous, smooth finish with color that's as comfortable as it is captivating.",
         shades: [
             { name: "Light Brown", color: "#CAA44F" }
@@ -454,11 +454,11 @@ const productsData = [
         reviews: 4600,
         stock: 20,
         tags: [],
-        image: "img/matte_lipstick.png",
+        image: "img/matte_lipstick.webp",
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
-            { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB_Matte_Lipstick.jpg" },
-            { name: "Dark Maroon", color: "#151515", image: "img/dark_purple_EB_Matte_Lipstick.jpg" }
+            { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB_Matte_Lipstick.webp" },
+            { name: "Dark Maroon", color: "#151515", image: "img/dark_purple_EB_Matte_Lipstick.webp" }
         ]
     },
     {
@@ -471,7 +471,7 @@ const productsData = [
         reviews: 4500,
         stock: 20,
         tags: [],
-        image: "img/Makeup_remover.png",
+        image: "img/Makeup_remover.webp",
         badge: null,
         description: "Effortlessly dissolve every trace of makeup — even stubborn waterproof formulas. Powered by Aloe Vera and Micellar Water, this gentle Face & Eyes remover lifts away makeup, dirt and oil in seconds, leaving skin feeling clean, soft and never stripped.",
         shades: []
@@ -486,7 +486,7 @@ const productsData = [
         reviews: 4800,
         stock: 20,
         tags: [],
-        image: "img/Setting_spray.png",
+        image: "img/Setting_spray.webp",
         description: "Lock in your look for up to 16 hours. This refreshing mist is infused with Aloe Vera, Rose Water and Vitamin E to hydrate skin while sealing your makeup against sweat, humidity and fading — for a flawless finish from morning to night.",
         shades: []
     },
@@ -500,27 +500,27 @@ const productsData = [
         reviews: 4200,
         stock: 20,
         tags: [],
-        image: "img/Huda_matte_me_brand_pink_blush_stick.png",
+        image: "img/Huda_matte_me_brand_pink_blush_stick.webp",
         description: "Three ways to flush with color. Crafted with Shea Butter, Jojoba Oil and Vitamin E, this collection of Matte, Jelly & Long-Lasting blush sticks blends like a dream onto cheeks and lips for a buildable, natural flush.",
         variants: [
             {
                 name: "Matte Pink",
                 label: "Huda Matte Me",
-                image: "img/Huda_matte_me_brand_pink_blush_stick.png",
+                image: "img/Huda_matte_me_brand_pink_blush_stick.webp",
                 color: "#E1CB94",
                 shades: []
             },
             {
                 name: "Jelly Tint",
                 label: "Hudamoji Jelly",
-                image: "img/Hudamoji_jelly_blush_tint_stick.png",
+                image: "img/Hudamoji_jelly_blush_tint_stick.webp",
                 color: "#CBA652",
                 shades: []
             },
             {
                 name: "Matte Long-Lasting",
                 label: "Hudamoji Matte",
-                image: "img/Hudamoji_matte_me_long-lasting_jelly_blush_stick.png",
+                image: "img/Hudamoji_matte_me_long-lasting_jelly_blush_stick.webp",
                 color: "#B6913E",
                 shades: []
             }
@@ -537,7 +537,7 @@ const productsData = [
         reviews: 5800,
         stock: 20,
         tags: [],
-        image: "img/Mocallure.png",
+        image: "img/Mocallure.webp",
         description: "48 shades, endless looks. Blended with finely milled Mica and infused with Vitamin E, this palette delivers richly pigmented mattes, shimmers & glitters that blend effortlessly and stay vibrant from day to night.",
         shades: []
     },
@@ -551,7 +551,7 @@ const productsData = [
         reviews: 4100,
         stock: 20,
         tags: [],
-        image: "img/Pamela_grant_perfect_face_compact_powder.png",
+        image: "img/Pamela_grant_perfect_face_compact_powder.webp",
         description: "Flawless, shine-free skin in one swipe. Made with Kaolin Clay and Talc for oil control, plus Vitamin E to keep skin nourished, this lightweight, buildable powder mattifies instantly while letting your natural skin shine through.",
         shades: [
             { name: "Natural Beige", color: "#E5D2A1" }
@@ -567,7 +567,7 @@ const productsData = [
         reviews: 6200,
         stock: 20,
         tags: [],
-        image: "img/Maybelline_fit_me_matte_poreless_pressed_powder.png",
+        image: "img/Maybelline_fit_me_matte_poreless_pressed_powder.webp",
         description: "Your shine, sorted. Formulated with oil-absorbing micro-powders and a poreless-finish complex, Maybelline Fit Me Matte powder blurs imperfections and controls shine all day, for skin that looks naturally smooth — never cakey, never dull.",
         shades: [
             { name: "Classic Ivory", color: "#F5ECD6" }
@@ -583,7 +583,7 @@ const productsData = [
         reviews: 3400,
         stock: 20,
         tags: [],
-        image: "img/Miss_rose_capsule_lipstick.png",
+        image: "img/Miss_rose_capsule_lipstick.webp",
         description: "A pop of color in every capsule. Infused with Vitamin E and Shea Butter, this trendy capsule lipstick glides on with a moisturizing, glossy finish — twist, click and color your lips in seconds.",
         shades: [
             { name: "Ruby Red", color: "#C0392B" }
@@ -599,7 +599,7 @@ const productsData = [
         reviews: 5500,
         stock: 20,
         tags: [],
-        image: "img/Miss_rose_unique_double_wear_liquid_foundation.png",
+        image: "img/Miss_rose_unique_double_wear_liquid_foundation.webp",
         description: "All-day coverage that never quits. Enriched with Hyaluronic Acid and Vitamin E, this lightweight liquid foundation blends seamlessly for a smooth, natural finish that stays fresh and flawless from morning till night.",
         shades: []
     },
@@ -613,7 +613,7 @@ const productsData = [
         reviews: 3800,
         stock: 20,
         tags: [],
-        image: "img/Satin_sheen_lip_stylo.png",
+        image: "img/Satin_sheen_lip_stylo.webp",
         description: "Glide on the glow. Made with Shea Butter and Vitamin E, this twist-up lip stylo delivers a satin-sheen finish with a comfortable, non-sticky feel — effortless color, anytime, anywhere.",
         shades: []
     },
@@ -627,7 +627,7 @@ const productsData = [
         reviews: 4400,
         stock: 20,
         tags: [],
-        image: "img/Ushas_snail_secretion_filtrate_setting_spray.png",
+        image: "img/Ushas_snail_secretion_filtrate_setting_spray.webp",
         description: "Set your makeup, nourish your skin. Powered by Snail Secretion Filtrate and Vitamin E, this setting spray locks your look in place for hours while leaving skin hydrated, soft and naturally radiant.",
         shades: []
     },
@@ -641,7 +641,7 @@ const productsData = [
         reviews: 4700,
         stock: 20,
         tags: [],
-        image: "img/Mascara.png",
+        image: "img/Mascara.webp",
         description: "Lashes that steal the show. Formulated with Castor Oil and Beeswax, this volumizing mascara lengthens, curls and lifts every lash for a clump-free, dramatic look that lasts all day.",
         shades: []
     },
@@ -655,7 +655,7 @@ const productsData = [
         reviews: 4700,
         stock: 20,
         tags: [],
-        image: "img/Highlight_stick.png",
+        image: "img/Highlight_stick.webp",
         description: "Catch the light, own the glow. Blended with Mica and Shea Butter, this creamy highlight stick melts into skin for a luminous, second-skin glow — swipe, blend and shine with the built-in brush.",
         shades: []
     },
@@ -669,7 +669,7 @@ const productsData = [
         reviews: 4900,
         stock: 20,
         tags: [],
-        image: "img/Hoyosun_eyeshadow_palette.png",
+        image: "img/Hoyosun_eyeshadow_palette.webp",
         description: "Four shades, one stunning look. Made with finely milled Mica and Vitamin E, this palette blends warm mattes with a dazzling gold glitter for eye looks that go from soft daytime to sultry night.",
         shades: []
     },
@@ -683,7 +683,7 @@ const productsData = [
         reviews: 4400,
         stock: 20,
         tags: [],
-        image: "img/B_Colour_liquid_concealer.png",
+        image: "img/B_Colour_liquid_concealer.webp",
         description: "Hide it, hydrate it. Infused with Hyaluronic Acid and Vitamin E, this lightweight liquid concealer covers dark circles and blemishes with full coverage that feels weightless and looks completely natural.",
         shades: []
     },
@@ -697,7 +697,7 @@ const productsData = [
         reviews: 4900,
         stock: 20,
         tags: [],
-        image: "img/Careline_gloss_boss_lip_treat.png",
+        image: "img/Careline_gloss_boss_lip_treat.webp",
         description: "Lips that glow from the inside out. Treated with Olive Fruit Oil, Castor Seed Oil, Vitamin E and Hyaluronic Acid, this nourishing lip treat plumps, hydrates and adds a glossy shine that lasts.",
         shades: []
     },
@@ -711,13 +711,13 @@ const productsData = [
         reviews: 4500,
         stock: 20,
         tags: [],
-        image: "img/Colorful_beehive_shaped_lip_gloss.png",
+        image: "img/Colorful_beehive_shaped_lip_gloss.webp",
         description: "Sweet color, sweeter shine. Infused with Shea Butter and Vitamin E, this honeycomb-shaped lip gloss glides on smooth and moisturizing, wrapping your lips in a luscious, glossy pout in vibrant shades.",
         shades: [
-            { name: "Honey Yellow", color: "#B6913E", image: "img/Yellow Beehive Lip Gloss.jpeg" },
-            { name: "Purple", color: "#9B59B6", image: "img/Purple  Beehive Lip Gloss.jpg" },
-            { name: "Red", color: "#C0392B", image: "img/Red  Beehive Lip Gloss.jpg" },
-            { name: "Emerald Green", color: "#765C21", image: "img/Green  Beehive Lip Gloss.jpg" }
+            { name: "Honey Yellow", color: "#B6913E", image: "img/Yellow Beehive Lip Gloss.webp" },
+            { name: "Purple", color: "#9B59B6", image: "img/Purple  Beehive Lip Gloss.webp" },
+            { name: "Red", color: "#C0392B", image: "img/Red  Beehive Lip Gloss.webp" },
+            { name: "Emerald Green", color: "#765C21", image: "img/Green  Beehive Lip Gloss.webp" }
         ]
     },
     {
@@ -730,7 +730,7 @@ const productsData = [
         reviews: 3800,
         stock: 20,
         tags: [],
-        image: "img/Eye_lashes.png",
+        image: "img/Eye_lashes.webp",
         description: "Bold lashes, instant drama. Crafted from soft Synthetic Silk Fibers on a flexible, lightweight band, these reusable false lashes blend naturally for a full, fluttery look that lasts all day in comfort.",
         shades: []
     },
@@ -744,7 +744,7 @@ const productsData = [
         reviews: 5200,
         stock: 20,
         tags: [],
-        image: "img/Holika_velvet_blanket_tint.png",
+        image: "img/Holika_velvet_blanket_tint.webp",
         description: "Lips wrapped in velvet color. Formulated with Jojoba Oil and Vitamin E, this Korean velvet tint blurs onto lips like a soft blanket, leaving a long-lasting, second-skin matte stain that never feels heavy.",
         shades: [
             { name: "Cherry Red", color: "#C0392B" }
@@ -760,7 +760,7 @@ const productsData = [
         reviews: 3200,
         stock: 20,
         tags: [],
-        image: "img/Eyebrow_Pencil_1.png",
+        image: "img/Eyebrow_Pencil_1.webp",
         description: "Brows on point, every time. Made with nourishing Vitamin E and natural waxes, this precision pencil glides smoothly to define, fill and shape — complete with a built-in spoolie for a natural, all-day finish.",
         shades: []
     },
@@ -774,7 +774,7 @@ const productsData = [
         reviews: 2900,
         stock: 20,
         tags: [],
-        image: "img/Jarusa_Orale_BB_Cream.png",
+        image: "img/Jarusa_Orale_BB_Cream.webp",
         description: "Skin perfection in one swipe. Infused with Hyaluronic Acid and Vitamin E, this breathable BB cream evens out tone, hydrates skin and blurs imperfections for a natural, healthy glow all day.",
         shades: []
     },
@@ -788,7 +788,7 @@ const productsData = [
         reviews: 2100,
         stock: 20,
         tags: [],
-        image: "img/Soften_Hand_Cream.png",
+        image: "img/Soften_Hand_Cream.webp",
         description: "Hands that feel as good as they look. Enriched with Shea Butter and Glycerin, this fast-absorbing cream softens skin by up to 20% with just one use, leaving hands smooth, hydrated and never greasy.",
         shades: []
     },
@@ -802,7 +802,7 @@ const productsData = [
         reviews: 3700,
         stock: 20,
         tags: [],
-        image: "img/MCoBeauty_Overnight_Lip_Mask_in_Berry.jpg",
+        image: "img/MCoBeauty_Overnight_Lip_Mask_in_Berry.webp",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and juicy Berry extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
     },
@@ -816,7 +816,7 @@ const productsData = [
         reviews: 3500,
         stock: 20,
         tags: [],
-        image: "img/MCoBeauty_Overnight_Lip_Mask_in_Vanilla.jpg",
+        image: "img/MCoBeauty_Overnight_Lip_Mask_in_Vanilla.webp",
         description: "Wake up to softer lips. Infused with Shea Butter, Vitamin E and sweet Vanilla extract, this overnight lip mask melts in while you sleep to deeply hydrate and repair, so you wake up to smooth, plump lips.",
         shades: []
     },
@@ -830,7 +830,7 @@ const productsData = [
         reviews: 2600,
         stock: 20,
         tags: [],
-        image: "img/Loca_Highlighter.png",
+        image: "img/Loca_Highlighter.webp",
         description: "Glow that looks lit from within. Formulated with soothing Aloe Vera Gel and Hyaluronic Acid, this gel highlighter melts into skin for a dewy, radiant glow that feels weightless and never glittery-fake.",
         shades: []
     },
@@ -844,7 +844,7 @@ const productsData = [
         reviews: 4100,
         stock: 20,
         tags: [],
-        image: "img/Hard Candy Glamoflauge Full Coverage Foundation.png",
+        image: "img/Hard Candy Glamoflauge Full Coverage Foundation.webp",
         description: "Flawless coverage, zero shine. Formulated oil-free with Vitamin E, this full coverage foundation blends seamlessly and wears beautifully for hours, camouflaging imperfections while keeping skin comfortable and breathable.",
         shades: []
     },
@@ -858,7 +858,7 @@ const productsData = [
         reviews: 1900,
         stock: 20,
         tags: [],
-        image: "img/RPK_New_High-Def_pigment_Liquid_Liner.png",
+        image: "img/RPK_New_High-Def_pigment_Liquid_Liner.webp",
         description: "Bold lines, zero smudging. This high-definition pigment liquid eyeliner glides on with an ultra-fine precision tip, delivering intense, jet-black color that stays sharp and smudge-free all day.",
         shades: []
     },
@@ -872,7 +872,7 @@ const productsData = [
         reviews: 3300,
         stock: 20,
         tags: [],
-        image: "img/Hard Candy Glamoflauge Full Coverage Concealer.png",
+        image: "img/Hard Candy Glamoflauge Full Coverage Concealer.webp",
         description: "Brighten, cover, perfect. Infused with Niacinamide, this full coverage concealer melts into skin to brighten dark circles and erase blemishes — buildable coverage that never looks cakey, all day long.",
         shades: []
     },
@@ -886,7 +886,7 @@ const productsData = [
         reviews: 2400,
         stock: 20,
         tags: [],
-        image: "img/LOCA_Lip_Balm_in_the-shade_05_The Serve.png",
+        image: "img/LOCA_Lip_Balm_in_the-shade_05_The Serve.webp",
         description: "Soft lips, served daily. Infused with nourishing Jojoba Oil, this lip balm melts on smooth to deeply moisturize dry lips, leaving them soft, smooth and comfortable from the first swipe.",
         shades: []
     },
@@ -900,7 +900,7 @@ const productsData = [
         reviews: 2200,
         stock: 20,
         tags: [],
-        image: "img/Hard_Candy_Sheer_Envy_Perfecting_Primer.png",
+        image: "img/Hard_Candy_Sheer_Envy_Perfecting_Primer.webp",
         description: "The perfect canvas starts here. Formulated to blur pores and smooth fine lines, this lightweight perfecting primer creates a silky, even base that helps your makeup glide on and stay flawless for hours.",
         shades: []
     },
@@ -914,7 +914,7 @@ const productsData = [
         reviews: 2000,
         stock: 20,
         tags: [],
-        image: "img/Wibo_Probrow_Pencil_a_dual_ended_makeup_tool_featuring_a_diagonally_cut_triangular_shaped_tip_for_precise_definition_and_a_built_in_spoolie_brush_for_grooming.png",
+        image: "img/Wibo_Probrow_Pencil_a_dual_ended_makeup_tool_featuring_a_diagonally_cut_triangular_shaped_tip_for_precise_definition_and_a_built_in_spoolie_brush_for_grooming.webp",
         description: "Brow perfection, both ends covered. This dual-ended pencil features a diagonally cut triangular tip for razor-sharp definition, plus a built-in spoolie to blend and groom brows into place.",
         shades: []
     },
@@ -928,7 +928,7 @@ const productsData = [
         reviews: 2300,
         stock: 20,
         tags: [],
-        image: "img/Ushas_branded_waterproof_lip_liner_pencil.jpg",
+        image: "img/Ushas_branded_waterproof_lip_liner_pencil.webp",
         description: "Lips lined, color defined. This waterproof lip liner pencil glides on with rich, long-wearing pigment in a deep berry shade, keeping your lip color sharp and smudge-free all day.",
         shades: []
     },
@@ -942,7 +942,7 @@ const productsData = [
         reviews: 1800,
         stock: 20,
         tags: [],
-        image: "img/Laurenza_Foundation_Concealer_Contour_and_Blush_Palette_an_all_in_one_cream_face_makeup.png",
+        image: "img/Laurenza_Foundation_Concealer_Contour_and_Blush_Palette_an_all_in_one_cream_face_makeup.webp",
         description: "Your whole face, one palette. This all-in-one cream formula combines foundation, concealer, contour and blush shades in one compact, letting you build a complete, blended look in minutes — no extra products needed.",
         shades: []
     },
@@ -956,7 +956,7 @@ const productsData = [
         reviews: 1900,
         stock: 20,
         tags: [],
-        image: "img/black_twist_up_eyebrow_pencil.png",
+        image: "img/black_twist_up_eyebrow_pencil.webp",
         description: "Define brows, your way. This twist-up pencil glides on smooth and precise, filling in sparse areas and shaping natural-looking brows with an easy, mess-free, retractable application.",
         shades: []
     },
@@ -970,7 +970,7 @@ const productsData = [
         reviews: 1700,
         stock: 20,
         tags: [],
-        image: "img/Brown_This_Way_Eyebrow_Sculpting_Kit.jpg",
+        image: "img/Brown_This_Way_Eyebrow_Sculpting_Kit.webp",
         description: "Sculpt brows like a pro. This two-tone wax and powder duo comes with a built-in brush to shape, fill and set brows for a natural, full-bodied look that lasts all day.",
         shades: []
     }
@@ -2952,6 +2952,43 @@ function updateCartUI() {
             shippingFeeEl.textContent = '320';
         }
     }
+
+    updateFreeShipBar(subtotal);
+}
+
+
+// ---- Free-shipping progress bar (shown at the top of the cart) ----
+function updateFreeShipBar(subtotal) {
+    const list = document.getElementById('cart-items-container');
+    if (!list || !list.parentNode) return;
+    let bar = document.getElementById('free-ship-bar');
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'free-ship-bar';
+        bar.className = 'free-ship-bar';
+        bar.innerHTML = '<div class="fsb-text"></div><div class="fsb-track"><div class="fsb-fill"><i class="fas fa-truck fsb-truck"></i></div></div>';
+        list.parentNode.insertBefore(bar, list);
+    }
+    if (cart.length === 0) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    let ur = false;
+    try { ur = currentLanguage === 'ur'; } catch (e) {}
+    const left = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+    const pct = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
+    const done = left === 0;
+    const wasDone = bar.classList.contains('done');
+    const amount = 'PKR ' + left.toLocaleString();
+    bar.querySelector('.fsb-text').innerHTML = done
+        ? (ur ? '\uD83C\uDF89 مبارک ہو! آپ کی ڈیلیوری <b>مفت</b> ہے' : '\uD83C\uDF89 Congratulations! You unlocked <b>FREE delivery</b>')
+        : (ur ? 'مفت ڈیلیوری کے لیے مزید <b>' + amount + '</b> کی خریداری کریں' : 'Add <b>' + amount + '</b> more to get <b>FREE delivery</b>');
+    bar.classList.toggle('done', done);
+    bar.setAttribute('dir', ur ? 'rtl' : 'ltr');
+    bar.querySelector('.fsb-fill').style.width = pct + '%';
+    if (done && !wasDone && bar.dataset.ready) {
+        bar.classList.add('pop');
+        setTimeout(function () { bar.classList.remove('pop'); }, 900);
+    }
+    bar.dataset.ready = '1';
 }
 
 function toggleCart() {
