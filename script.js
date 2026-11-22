@@ -42,10 +42,10 @@ if ('scrollRestoration' in history) {
     window.addEventListener('scroll', function() {
         if (window.scrollY > 10) {
             header.classList.add('scrolled');
-            header.style.setProperty('box-shadow', '0 4px 30px rgba(139, 90, 43, 0.2)', 'important');
+            header.style.setProperty('box-shadow', '0 4px 30px rgba(53, 45, 28, 0.2)', 'important');
         } else {
             header.classList.remove('scrolled');
-            header.style.setProperty('box-shadow', '0 2px 20px rgba(139, 90, 43, 0.1)', 'important');
+            header.style.setProperty('box-shadow', '0 2px 20px rgba(53, 45, 28, 0.1)', 'important');
         }
     }, { passive: true });
 
@@ -409,7 +409,7 @@ const productsData = [
         image: "img/Ancher_colour_lipstick.png",
         description: "A burst of color that loves your lips back. Infused with nourishing Shea Butter, Vitamin E and Jojoba Oil, it glides on smooth, hydrates as it wears, and delivers vibrant, true color that lasts all day without drying your lips.",
         shades: [
-            { name: "Peach Nude", color: "#D08E75" }
+            { name: "Peach Nude", color: "#D6B974" }
         ]
     },
     {
@@ -425,7 +425,7 @@ const productsData = [
         image: "img/Creamy_matte_lipstick.png",
         description: "Velvety matte color with a creamy soul. Formulated with Vitamin E and Avocado Oil, it glides on effortlessly for a smooth, comfortable matte finish that stays bold for hours — no cracking, no fading, just rich color all day.",
         shades: [
-            { name: "Coral Pink", color: "#E36266", image: "img/Coral_Pink_Creamy_Matte_Lipstick.jpg" }
+            { name: "Coral Pink", color: "#D6B974", image: "img/Coral_Pink_Creamy_Matte_Lipstick.JPG" }
         ]
     },
     {
@@ -441,7 +441,7 @@ const productsData = [
         image: "img/Revolution.png",
         description: "Rich pigment meets silky satin shine. Enriched with Argan Oil and Vitamin E, this lipstick conditions your lips while delivering a luminous, smooth finish with color that's as comfortable as it is captivating.",
         shades: [
-            { name: "Light Brown", color: "#C19A6B" }
+            { name: "Light Brown", color: "#CAA44F" }
         ]
     },
     {
@@ -458,7 +458,7 @@ const productsData = [
         description: "Deep, daring color that goes the distance. Made with Shea Butter and Vitamin E, this full-coverage matte lipstick locks in intense pigment for a bold, long-wearing finish that feels as good as it looks.",
         shades: [
             { name: "Dark Purple", color: "#4B1248", image: "img/dark_maroon_EB_Matte_Lipstick.jpg" },
-            { name: "Dark Maroon", color: "#5C1A1A", image: "img/dark_purple_EB_Matte_Lipstick.jpg" }
+            { name: "Dark Maroon", color: "#151515", image: "img/dark_purple_EB_Matte_Lipstick.jpg" }
         ]
     },
     {
@@ -507,21 +507,21 @@ const productsData = [
                 name: "Matte Pink",
                 label: "Huda Matte Me",
                 image: "img/Huda_matte_me_brand_pink_blush_stick.png",
-                color: "#E8749A",
+                color: "#E1CB94",
                 shades: []
             },
             {
                 name: "Jelly Tint",
                 label: "Hudamoji Jelly",
                 image: "img/Hudamoji_jelly_blush_tint_stick.png",
-                color: "#D45B6A",
+                color: "#CBA652",
                 shades: []
             },
             {
                 name: "Matte Long-Lasting",
                 label: "Hudamoji Matte",
                 image: "img/Hudamoji_matte_me_long-lasting_jelly_blush_stick.png",
-                color: "#C24B7A",
+                color: "#B6913E",
                 shades: []
             }
         ],
@@ -554,7 +554,7 @@ const productsData = [
         image: "img/Pamela_grant_perfect_face_compact_powder.png",
         description: "Flawless, shine-free skin in one swipe. Made with Kaolin Clay and Talc for oil control, plus Vitamin E to keep skin nourished, this lightweight, buildable powder mattifies instantly while letting your natural skin shine through.",
         shades: [
-            { name: "Natural Beige", color: "#DEB887" }
+            { name: "Natural Beige", color: "#E5D2A1" }
         ]
     },
     {
@@ -570,7 +570,7 @@ const productsData = [
         image: "img/Maybelline_fit_me_matte_poreless_pressed_powder.png",
         description: "Your shine, sorted. Formulated with oil-absorbing micro-powders and a poreless-finish complex, Maybelline Fit Me Matte powder blurs imperfections and controls shine all day, for skin that looks naturally smooth — never cakey, never dull.",
         shades: [
-            { name: "Classic Ivory", color: "#F5DEB3" }
+            { name: "Classic Ivory", color: "#F5ECD6" }
         ]
     },
     {
@@ -714,10 +714,10 @@ const productsData = [
         image: "img/Colorful_beehive_shaped_lip_gloss.png",
         description: "Sweet color, sweeter shine. Infused with Shea Butter and Vitamin E, this honeycomb-shaped lip gloss glides on smooth and moisturizing, wrapping your lips in a luscious, glossy pout in vibrant shades.",
         shades: [
-            { name: "Honey Yellow", color: "#F5C518", image: "img/Yellow Beehive Lip Gloss.jpeg" },
+            { name: "Honey Yellow", color: "#B6913E", image: "img/Yellow Beehive Lip Gloss.jpeg" },
             { name: "Purple", color: "#9B59B6", image: "img/Purple  Beehive Lip Gloss.jpg" },
             { name: "Red", color: "#C0392B", image: "img/Red  Beehive Lip Gloss.jpg" },
-            { name: "Emerald Green", color: "#27AE60", image: "img/Green  Beehive Lip Gloss.jpg" }
+            { name: "Emerald Green", color: "#765C21", image: "img/Green  Beehive Lip Gloss.jpg" }
         ]
     },
     {
@@ -774,7 +774,7 @@ const productsData = [
         reviews: 2900,
         stock: 20,
         tags: [],
-        image: "img/Jarusa_Órale_BB_Cream.png",
+        image: "img/Jarusa_Orale_BB_Cream.png",
         description: "Skin perfection in one swipe. Infused with Hyaluronic Acid and Vitamin E, this breathable BB cream evens out tone, hydrates skin and blurs imperfections for a natural, healthy glow all day.",
         shades: []
     },
@@ -1175,14 +1175,14 @@ function injectShadeStyles() {
             visibility: visible !important;
             opacity: 1 !important;
             font-size: 12px !important;
-            color: #6d4c41 !important;
+            color: #23211B !important;
             margin-bottom: 7px !important;
             font-weight: 500 !important;
             align-items: center !important;
             gap: 4px !important;
         }
         .shade-label .selected-shade-name {
-            color: #8b5a2b !important;
+            color: #352D1C !important;
             font-weight: 700 !important;
         }
         .shade-swatches {
@@ -1217,8 +1217,8 @@ function injectShadeStyles() {
             z-index: 10 !important;
         }
         .shade-swatch.active {
-            border: 2.5px solid #8b5a2b !important;
-            box-shadow: 0 0 0 3px rgba(139,90,43,0.28), 0 2px 8px rgba(0,0,0,0.25) !important;
+            border: 2.5px solid #352D1C !important;
+            box-shadow: 0 0 0 3px rgba(53, 45, 28, 0.28), 0 2px 8px rgba(0,0,0,0.25) !important;
             transform: scale(1.15) !important;
         }
         .shade-swatch.active::after {
@@ -1237,7 +1237,7 @@ function injectShadeStyles() {
             align-items: center !important;
             gap: 5px !important;
             font-size: 11px !important;
-            color: #6d4c41 !important;
+            color: #23211B !important;
             font-weight: 500 !important;
             margin: 2px 0 4px !important;
         }
@@ -1488,29 +1488,29 @@ function injectPaymentStyles() {
             display: flex;
             align-items: center;
             gap: 15px;
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border: 2px solid #ff9800;
+            background: linear-gradient(135deg, #FEFBF4, #F6EEDC);
+            border: 2px solid #AB8737;
             border-radius: 14px;
             padding: 18px 22px;
             margin-bottom: 22px;
             animation: pulse-orange 2s infinite;
         }
         @keyframes pulse-orange {
-            0%,100% { box-shadow: 0 0 0 0 rgba(255,152,0,0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(255,152,0,0); }
+            0%,100% { box-shadow: 0 0 0 0 rgba(171, 135, 55, 0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(171, 135, 55, 0); }
         }
         .discount-banner-icon {
             width: 50px; height: 50px;
-            background: linear-gradient(135deg, #ff9800, #f57c00);
+            background: linear-gradient(135deg, #AB8737, #A58234);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 22px; flex-shrink: 0;
         }
         .discount-banner-text strong {
-            color: #e65100; font-size: 16px; display: block; margin-bottom: 4px;
+            color: #98762B; font-size: 16px; display: block; margin-bottom: 4px;
         }
         .discount-banner-text p {
-            color: #bf360c; font-size: 13px; margin: 0;
+            color: #604C1F; font-size: 13px; margin: 0;
         }
 
         /* Payment Methods List */
@@ -1537,11 +1537,11 @@ function injectPaymentStyles() {
         }
         .payment-method-card.active-jazzcash {
             border-color: #e60012;
-            background: linear-gradient(135deg, #fff5f5, var(--white));
+            background: linear-gradient(135deg, #FFFEFA, var(--white));
         }
         .payment-method-card.active-easypaisa {
             border-color: #FF6B00;
-            background: linear-gradient(135deg, #fff3e0, var(--white));
+            background: linear-gradient(135deg, #FEFBF4, var(--white));
         }
         .payment-icon {
             width: 52px; height: 52px;
@@ -1549,9 +1549,9 @@ function injectPaymentStyles() {
             display: flex; align-items: center; justify-content: center;
             font-size: 24px; flex-shrink: 0;
         }
-        .cod-icon { background: linear-gradient(135deg, #c8e6c9, #a5d6a7); color: #2e7d32; }
-        .jazzcash-icon { background: #fff0f0; border: 2px solid #ffcdd2; }
-        .easypaisa-icon { background: #fff3e0; border: 2px solid #ffcc80; }
+        .cod-icon { background: linear-gradient(135deg, #F6EEDB, #EBDCB5); color: #1E1D1A; }
+        .jazzcash-icon { background: #FFFDF9; border: 2px solid #FAF6EC; }
+        .easypaisa-icon { background: #FEFBF4; border: 2px solid #ECDDB8; }
         .payment-method-card.active .cod-icon {
             background: linear-gradient(135deg, var(--brown), var(--brown-dark));
             color: white;
@@ -1560,8 +1560,8 @@ function injectPaymentStyles() {
         .payment-details h4 { font-size: 15px; color: var(--text-dark); margin-bottom: 3px; }
         .payment-details p { font-size: 12px; color: var(--text-light); }
         .payment-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 5px; }
-        .cod-badge { background: #e8f5e9; color: #2e7d32; }
-        .discount-badge { background: linear-gradient(135deg, #e65100, #bf360c); color: white; }
+        .cod-badge { background: #FEFBF4; color: #1E1D1A; }
+        .discount-badge { background: linear-gradient(135deg, #98762B, #604C1F); color: white; }
         .payment-check { color: var(--brown); font-size: 22px; opacity: 0; transform: scale(0); transition: all 0.3s ease; }
         .payment-method-card.active .payment-check,
         .payment-method-card.active-jazzcash .payment-check,
@@ -1578,15 +1578,15 @@ function injectPaymentStyles() {
             margin-top: 18px;
             animation: fadeIn 0.3s ease;
         }
-        .digital-payment-form.jazzcash-form { border-color: #ffcdd2; background: #fff5f5; }
-        .digital-payment-form.easypaisa-form { border-color: #ffcc80; background: #fff3e0; }
+        .digital-payment-form.jazzcash-form { border-color: #FAF6EC; background: #FFFEFA; }
+        .digital-payment-form.easypaisa-form { border-color: #ECDDB8; background: #FEFBF4; }
         .dpf-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .dpf-header img { width: 80px; height: auto; object-fit: contain; }
         .dpf-header-text h4 { font-size: 16px; margin-bottom: 4px; }
         .dpf-header-text p { font-size: 13px; color: var(--text-light); }
         .dpf-discount-pill {
             display: inline-flex; align-items: center; gap: 6px;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: linear-gradient(135deg, #765C21, #A78335);
             color: white; padding: 6px 14px; border-radius: 20px;
             font-size: 13px; font-weight: 700; margin-bottom: 18px;
         }
@@ -1630,13 +1630,13 @@ function injectPaymentStyles() {
             background: white; padding: 10px 14px; border-radius: 8px;
             margin-top: 12px; line-height: 1.5;
         }
-        .dpf-note i { color: #ff9800; margin-right: 5px; }
+        .dpf-note i { color: #AB8737; margin-right: 5px; }
 
         /* Order Summary savings line */
-        .savings-line { color: #27ae60 !important; font-weight: 700 !important; }
+        .savings-line { color: #765C21 !important; font-weight: 700 !important; }
 
         /* Sidebar discount line */
-        #sidebar-discount-line { color: #27ae60; }
+        #sidebar-discount-line { color: #765C21; }
 
         /* Mobile responsive for payment */
         @media (max-width: 480px) {
@@ -1720,7 +1720,7 @@ function selectPaymentMethod(method) {
                     </div>
                 </div>
                 <div class="dpf-note"><i class="fas fa-info-circle"></i> Please enter your Transaction ID after payment. Orders without a TID cannot be processed.</div>
-                <div class="dpf-note" style="background:#fff5f5;border-color:#ffcdd2;">
+                <div class="dpf-note" style="background:#FFFEFA;border-color:#FAF6EC;">
                     <i class="fab fa-whatsapp" style="color:#25D366;"></i> Please send a screenshot of your payment on WhatsApp for faster confirmation.
                 </div>
                 <button type="button" onclick="sendPaymentScreenshotWhatsApp('JazzCash')" style="width:100%;margin-top:10px;padding:12px;background:#25D366;color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -1763,7 +1763,7 @@ function selectPaymentMethod(method) {
                     <div class="dpf-step"><span class="dpf-step-num easypaisa-num">5</span> <span>Enter your Transaction ID below</span></div>
                 </div>
                 <div class="form-group">
-                    <label style="color:#e65100;font-weight:600;">Transaction ID (TID) * <span style="font-size:11px;color:#666;">(from NayaPay receipt)</span></label>
+                    <label style="color:#98762B;font-weight:600;">Transaction ID (TID) * <span style="font-size:11px;color:#666;">(from NayaPay receipt)</span></label>
                     <div class="txn-input-group">
                         <input type="text" id="txn-id" placeholder="e.g., NP12345678" required style="border-color:#FF6B00;">
                         <button type="button" style="padding:0 18px;background:#FF6B00;color:white;border:none;border-radius:12px;cursor:pointer;white-space:nowrap;font-size:13px;" onclick="verifyTxnId()">
@@ -1772,7 +1772,7 @@ function selectPaymentMethod(method) {
                     </div>
                 </div>
                 <div class="dpf-note"><i class="fas fa-info-circle"></i> Please enter your Transaction ID after payment. Orders without a TID cannot be processed.</div>
-                <div class="dpf-note" style="background:#fff5f5;border-color:#ffcdd2;">
+                <div class="dpf-note" style="background:#FFFEFA;border-color:#FAF6EC;">
                     <i class="fab fa-whatsapp" style="color:#25D366;"></i> Please send a screenshot of your payment on WhatsApp for faster confirmation.
                 </div>
                 <button type="button" onclick="sendPaymentScreenshotWhatsApp('NayaPay')" style="width:100%;margin-top:10px;padding:12px;background:#25D366;color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -2185,9 +2185,9 @@ function highlightPhoneConfirmError(isError) {
         el.style.boxShadow = '0 0 0 3px rgba(231,76,60,0.15)';
         if (msg) { msg.style.display = 'block'; msg.style.color = '#e74c3c'; msg.innerHTML = '<i class="fas fa-times-circle"></i> Numbers do not match'; }
     } else {
-        el.style.borderColor = '#27ae60';
-        el.style.boxShadow = '0 0 0 3px rgba(39,174,96,0.15)';
-        if (msg) { msg.style.display = 'block'; msg.style.color = '#27ae60'; msg.innerHTML = '<i class="fas fa-check-circle"></i> Phone number confirmed!'; }
+        el.style.borderColor = '#765C21';
+        el.style.boxShadow = '0 0 0 3px rgba(118, 92, 33, 0.15)';
+        if (msg) { msg.style.display = 'block'; msg.style.color = '#765C21'; msg.innerHTML = '<i class="fas fa-check-circle"></i> Phone number confirmed!'; }
     }
 }
 
@@ -2304,9 +2304,9 @@ function populateReviewData() {
         if (existingDiscount) existingDiscount.remove();
         if (isDigital) {
             reviewTotal.insertAdjacentHTML('beforebegin',
-                `<div class="summary-row review-discount-row" style="color:#27ae60;font-weight:700;">
+                `<div class="summary-row review-discount-row" style="color:#765C21;font-weight:700;">
                     <span><i class="fas fa-tag"></i> 6% Discount</span>
-                    <strong style="color:#27ae60;">-PKR ${discountAmt.toLocaleString()}</strong>
+                    <strong style="color:#765C21;">-PKR ${discountAmt.toLocaleString()}</strong>
                 </div>`
             );
         }
@@ -5766,10 +5766,10 @@ console.log('✅ SHADE VERSION v3.0 — Aurevyn JS loaded with Shade Selector!')
         if (!header) return;
 
         if (window.scrollY > 10) {
-            header.style.boxShadow = '0 4px 30px rgba(139, 90, 43, 0.2)';
+            header.style.boxShadow = '0 4px 30px rgba(53, 45, 28, 0.2)';
             header.classList.add('scrolled');
         } else {
-            header.style.boxShadow = '0 2px 20px rgba(139, 90, 43, 0.1)';
+            header.style.boxShadow = '0 2px 20px rgba(53, 45, 28, 0.1)';
             header.classList.remove('scrolled');
         }
     }
@@ -6554,7 +6554,7 @@ function enableDarkMode(animate = true) {
   // Update meta theme-color for mobile browsers
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) {
-    metaTheme.setAttribute('content', '#16213e');
+    metaTheme.setAttribute('content', '#111111');
   }
 }
 
@@ -6581,7 +6581,7 @@ function enableLightMode(animate = true) {
   // Update meta theme-color for mobile browsers
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) {
-    metaTheme.setAttribute('content', '#A67B5B');
+    metaTheme.setAttribute('content', '#C9A24B');
   }
 }
 
