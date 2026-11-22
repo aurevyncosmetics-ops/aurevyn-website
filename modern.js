@@ -99,3 +99,70 @@ new MutationObserver(upd).observe(hs,{subtree:true,attributes:true,attributeFilt
 /* keep the hero video paused while the intro splash is showing (saves phone CPU) */
 (()=>{const v=document.querySelector('.hero-video'),de=document.documentElement;if(!v||!de.classList.contains('m-splash-busy'))return;
 v.pause();const mo=new MutationObserver(()=>{if(!de.classList.contains('m-splash-busy')){mo.disconnect();v.play().catch(()=>{})}});mo.observe(de,{attributes:true,attributeFilter:['class']})})();
+
+/* ===== Search suggestions, recently viewed, mobile bottom nav, lazy images, product schema ===== */
+(()=>{
+const LS='aurevynRecent';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const prods=()=>{try{return products}catch(e){return[]}};
+const money=n=>'PKR '+Number(n).toLocaleString();
+const recent=()=>{try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return[]}};
+function remember(id){id=Number(id);if(!id)return;try{localStorage.setItem(LS,JSON.stringify([id].concat(recent().filter(x=>x!==id)).slice(0,8)))}catch(e){}}
+// remember products opened in quick view or on the product page
+const oqv=window.openQuickView;if(typeof oqv==='function')window.openQuickView=function(id){remember(id);return oqv.apply(this,arguments)};
+const pid=new URLSearchParams(location.search).get('id');if(pid&&/product\.html$/.test(location.pathname))remember(pid);
+
+// ---------- live search suggestions ----------
+const box=document.createElement('div');box.className='m-suggest';box.setAttribute('role','listbox');document.body.appendChild(box);
+let input=null,idx=-1,items=[];
+function place(){if(!input)return;const r=input.getBoundingClientRect(),w=Math.max(r.width,Math.min(420,innerWidth-16));
+ box.style.width=w+'px';box.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+'px';box.style.top=(r.bottom+8)+'px'}
+function row(p,q){const name=esc(p.name);let h=name;if(q){const i=p.name.toLowerCase().indexOf(q);if(i>=0)h=esc(p.name.slice(0,i))+'<mark>'+esc(p.name.slice(i,i+q.length))+'</mark>'+esc(p.name.slice(i+q.length))}
+ return '<a class="ms-row" role="option" href="product.html?id='+p.id+'"><img src="'+esc(p.image)+'" alt="" loading="lazy"><span class="ms-info"><b>'+h+'</b><em>'+esc(p.category||'')+'</em></span><span class="ms-price">'+money(p.price)+'</span></a>'}
+function render(){
+ const q=(input.value||'').trim().toLowerCase(),all=prods();let html='',list=[];
+ if(!q){const rec=recent().map(id=>all.find(p=>p.id===id)).filter(Boolean).slice(0,5);
+  if(rec.length){list=rec;html='<div class="ms-title">Recently viewed</div>'+rec.map(p=>row(p,'')).join('')}
+  else{list=all.slice().sort((a,b)=>(b.rating||0)-(a.rating||0)).slice(0,4);html='<div class="ms-title">Popular picks</div>'+list.map(p=>row(p,'')).join('')}}
+ else{list=all.filter(p=>(p.name+' '+(p.category||'')+' '+((p.tags||[]).join(' '))).toLowerCase().includes(q)).slice(0,6);
+  html=list.length?list.map(p=>row(p,q)).join('')+'<a class="ms-all" href="shop.html">View all results for “'+esc(input.value.trim())+'” &rsaquo;</a>':'<div class="ms-empty">No products found for “'+esc(input.value.trim())+'”. Try another word.</div>'}
+ box.innerHTML=html;items=[].slice.call(box.querySelectorAll('.ms-row'));idx=-1;place();box.classList.add('open')}
+function close(){box.classList.remove('open');idx=-1}
+['global-search-desktop','global-search-mobile'].forEach(id=>{const el=document.getElementById(id);if(!el)return;
+ el.setAttribute('autocomplete','off');
+ el.addEventListener('focus',()=>{input=el;render()});el.addEventListener('input',()=>{input=el;render()});
+ el.addEventListener('keydown',e=>{if(!box.classList.contains('open'))return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!items.length)return;idx=(idx+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;items.forEach((r,i)=>r.classList.toggle('on',i===idx));items[idx].scrollIntoView({block:'nearest'})}
+  else if(e.key==='Enter'&&idx>=0){e.preventDefault();items[idx].click()}
+  else if(e.key==='Escape')close()})});
+document.addEventListener('pointerdown',e=>{if(!box.contains(e.target)&&e.target!==input)close()});
+addEventListener('resize',place);addEventListener('scroll',()=>{if(box.classList.contains('open'))place()},{passive:true});
+
+// ---------- mobile bottom navigation ----------
+const page=(location.pathname.split('/').pop()||'index.html');
+const nav=document.createElement('nav');nav.className='m-bottomnav';nav.setAttribute('aria-label','Quick navigation');
+nav.innerHTML='<a href="index.html" data-k="home"'+(page==='index.html'||page===''?' class="on"':'')+'><i class="fas fa-home"></i><span>Home</span></a>'
++'<a href="shop.html" data-k="shop"'+(page==='shop.html'?' class="on"':'')+'><i class="fas fa-store"></i><span>Shop</span></a>'
++'<button type="button" data-k="search"><i class="fas fa-search"></i><span>Search</span></button>'
++'<button type="button" data-k="wish"><i class="fas fa-heart"></i><span>Wishlist</span><b class="bn-badge" data-for="wishlist-count"></b></button>'
++'<button type="button" data-k="cart"><i class="fas fa-shopping-bag"></i><span>Cart</span><b class="bn-badge" data-for="cart-count"></b></button>';
+document.body.appendChild(nav);document.body.classList.add('has-bottomnav');
+nav.addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
+ try{if(k==='cart')toggleCart();else if(k==='wish')toggleWishlist();else if(k==='search'){toggleMobileSearch();setTimeout(()=>{const i=document.getElementById('global-search-mobile');i&&i.focus()},250)}}catch(err){}});
+const sync=()=>nav.querySelectorAll('.bn-badge').forEach(b=>{const s=document.getElementById(b.dataset.for),n=s?parseInt(s.textContent,10)||0:0;b.textContent=n>99?'99+':n;b.style.display=n?'flex':'none'});
+['cart-count','wishlist-count'].forEach(id=>{const s=document.getElementById(id);s&&new MutationObserver(sync).observe(s,{childList:true,characterData:true,subtree:true})});sync();
+
+// ---------- lazy-load below-the-fold images ----------
+const lazy=img=>{if(img.hasAttribute('loading')||img.closest('.hero-slider,#m-splash,header,.main-header'))return;img.loading='lazy';img.decoding='async'};
+document.querySelectorAll('img').forEach(lazy);
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.tagName==='IMG')lazy(n);n.querySelectorAll&&n.querySelectorAll('img').forEach(lazy)}))).observe(document.body,{childList:true,subtree:true});
+
+// ---------- Product structured data (helps Google show price in search) ----------
+if(pid&&/product\.html$/.test(location.pathname)){
+ let tries=0;const t=setInterval(()=>{const p=prods().find(x=>String(x.id)===String(pid));
+  if(p){clearInterval(t);const s=document.createElement('script');s.type='application/ld+json';
+   s.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Product',name:p.name,image:new URL(p.image,location.href).href,description:p.description||p.name,category:p.category,brand:{'@type':'Brand',name:'Aurevyn'},
+    offers:{'@type':'Offer',priceCurrency:'PKR',price:String(p.price),url:location.href,availability:(p.stock>0?'https://schema.org/InStock':'https://schema.org/OutOfStock'),itemCondition:'https://schema.org/NewCondition'}});
+   document.head.appendChild(s)}
+  else if(++tries>40)clearInterval(t)},300)}
+})();
