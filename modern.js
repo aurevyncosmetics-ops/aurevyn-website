@@ -90,3 +90,12 @@ const scan=root=>{(root.matches&&root.matches(SEL)?[root]:[]).concat([...(root.q
 scan(document);
 new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)scan(n)}))).observe(document.body,{childList:true,subtree:true});
 })();
+
+/* hero: hide the 3D lipstick scene while the lookbook video slide is showing */
+(()=>{const hs=document.querySelector('.hero-slider');if(!hs)return;
+const upd=()=>{const a=hs.querySelector('.slide.active');hs.dataset.video=a&&a.classList.contains('slide-video')?'1':'0'};
+new MutationObserver(upd).observe(hs,{subtree:true,attributes:true,attributeFilter:['class']});upd()})();
+
+/* keep the hero video paused while the intro splash is showing (saves phone CPU) */
+(()=>{const v=document.querySelector('.hero-video'),de=document.documentElement;if(!v||!de.classList.contains('m-splash-busy'))return;
+v.pause();const mo=new MutationObserver(()=>{if(!de.classList.contains('m-splash-busy')){mo.disconnect();v.play().catch(()=>{})}});mo.observe(de,{attributes:true,attributeFilter:['class']})})();

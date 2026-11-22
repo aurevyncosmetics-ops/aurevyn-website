@@ -75,7 +75,7 @@ if ('scrollRestoration' in history) {
 let cart = JSON.parse(localStorage.getItem('aurevynCart')) || [];
 let wishlist = JSON.parse(localStorage.getItem('aurevynWishlist')) || [];
 let products = [];
-let currentSlide = 0;
+let heroSlideIndex = 0;
 let slideInterval;
 let currentCheckoutStep = 1;
 let selectedPaymentMethod = 'cod';
@@ -3099,20 +3099,30 @@ function startSlider() {
     const dots = document.querySelectorAll('.dot');
     function showSlide(index) {
         slides.forEach((s, i) => { s.classList.toggle('active', i === index); if (dots[i]) dots[i].classList.toggle('active', i === index); });
-        currentSlide = index;
+        heroSlideIndex = index;
     }
     window.changeSlide = function (dir) {
-        let n = currentSlide + dir;
+        let n = heroSlideIndex + dir;
         if (n >= slides.length) n = 0;
         if (n < 0) n = slides.length - 1;
         showSlide(n);
     };
     window.currentSlide = function (index) { showSlide(index - 1); };
-    slideInterval = setInterval(() => changeSlide(1), 5000);
+    // The lookbook video slide stays for ~15s (one full 14s loop); other slides stay 5s.
+    function heroTick() {
+        const a = document.querySelector('.slide.active');
+        if (a && a.classList.contains('slide-video')) {
+            a._ticks = (a._ticks || 0) + 1;
+            if (a._ticks < 3) return;
+            a._ticks = 0;
+        }
+        changeSlide(1);
+    }
+    slideInterval = setInterval(heroTick, 5000);
     const slider = document.querySelector('.hero-slider');
     if (slider) {
         slider.addEventListener('mouseenter', () => clearInterval(slideInterval));
-        slider.addEventListener('mouseleave', () => { slideInterval = setInterval(() => changeSlide(1), 5000); });
+        slider.addEventListener('mouseleave', () => { slideInterval = setInterval(heroTick, 5000); });
     }
 }
 

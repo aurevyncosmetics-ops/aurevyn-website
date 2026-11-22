@@ -4,6 +4,11 @@ const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)return;
 const hero=document.querySelector('.hero-slider');
 (window.__threeP||(window.__threeP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='three.min.js?v=128';s.onload=()=>res(window.THREE);s.onerror=rej;document.head.appendChild(s)}))).then(()=>{try{init()}catch(e){console.warn('3D skipped',e)}}).catch(()=>{});
 function init(){
+ const de=document.documentElement;
+ if(de.classList.contains('m-splash-busy')){const mo=new MutationObserver(()=>{if(!de.classList.contains('m-splash-busy')){mo.disconnect();init2()}});mo.observe(de,{attributes:true,attributeFilter:['class']});return}
+ init2();
+}
+function init2(){
  // ---- floating gold orbs in page sections (parallax on scroll) ----
  const secs=[...document.querySelectorAll('#categories,#new-arrivals,#best-sellers,.home-reviews-section')];
  const orbs=[];

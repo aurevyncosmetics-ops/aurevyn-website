@@ -164,3 +164,33 @@ html.m-splash-on{overflow:hidden}
 .product-image img,.category-card img,.cart-item-image{transition:transform .7s var(--m-ease),opacity .5s ease}
 @keyframes mSkel{to{background-position:-220% 0}}
 [data-theme="dark"] .m-skel{background:linear-gradient(100deg,#2a2a2a 30%,#3a3a3a 50%,#2a2a2a 70%)!important;background-size:220% 100%!important}
+/* ===== Hero lookbook video ===== */
+.slide-video{justify-content:flex-start;background:#0A0A0A}
+.slide-video .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 20%;z-index:0}
+.slide-video::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(8,8,8,.82) 0%,rgba(8,8,8,.45) 38%,rgba(8,8,8,0) 68%),linear-gradient(0deg,rgba(8,8,8,.45),transparent 30%)}
+.slide-video .slide-content{position:relative;z-index:2;text-align:left;max-width:620px;padding-left:clamp(24px,7vw,120px)}
+.slide-video .slide-content h2{font-size:clamp(2.3rem,5vw,4.4rem)!important}
+.lb-eyebrow{margin:0 0 14px!important;font:600 12px/1 'Outfit',sans-serif!important;letter-spacing:.5em;text-transform:uppercase;color:#E6D3A3!important;opacity:1!important;animation:none!important}
+.lb-eyebrow::before{content:"";display:inline-block;width:42px;height:1px;margin-right:14px;vertical-align:middle;background:#C9A24B}
+.hero-slider .m-scene,.hero-slider .m-gl{transition:opacity .8s ease}
+.hero-slider[data-video="1"] .m-scene,.hero-slider[data-video="1"] .m-gl{opacity:0}
+@media (max-width:700px){.slide-video{align-items:flex-end;padding-bottom:70px}.slide-video .hero-video{object-position:78% 12%}.slide-video::after{background:linear-gradient(0deg,rgba(8,8,8,.85) 0%,rgba(8,8,8,.35) 45%,transparent 75%)}.slide-video .slide-content{text-align:center;padding:0 18px;max-width:none;width:100%}.lb-eyebrow::before{display:none}}
+
+/* ===== splash: readable text everywhere + lighter, smoother on phones ===== */
+.sp-content::before{content:"";position:absolute;left:50%;top:50%;width:min(130vw,900px);height:min(95vh,620px);transform:translate(-50%,-50%);z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(8,7,4,.8),rgba(8,7,4,.45) 60%,transparent)}
+.sp-desc{color:#FFF4D9;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 18px rgba(0,0,0,.85)}
+.sp-eyebrow{text-shadow:0 1px 4px #000}
+#m-splash.sp-mob{perspective:none}
+#m-splash.sp-mob .sp-door{background:#0b0a07;transition:transform 1s cubic-bezier(.7,0,.2,1) .2s}
+#m-splash.sp-mob.out .sp-door.l{transform:translate3d(-101%,0,0)}
+#m-splash.sp-mob.out .sp-door.r{transform:translate3d(101%,0,0)}
+.sp-mob .sp-sparks,.sp-mob .sp-beam{display:none}
+.sp-mob .sp-ring{box-shadow:none;border-color:rgba(201,162,75,.4)}
+.sp-mob .sp-title{animation:none;transition:none}
+.sp-mob .sp-title span::after{display:none}
+.sp-mob .sp-title span{text-shadow:none}
+.sp-mob .sp-desc{font-weight:400;font-size:15.5px;line-height:1.75}
+.sp-mob .sp-desc .w{animation-name:spWordM}
+@keyframes spWordM{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sp-mob .sp-stage{padding:20px}
+.sp-mob .sp-skip{background:rgba(0,0,0,.55)}

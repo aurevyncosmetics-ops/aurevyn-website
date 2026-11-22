@@ -246,7 +246,7 @@
 <script>(function(){var d=document.getElementById('m-splash');if(!d)return;var seen=false,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{seen=sessionStorage.getItem('aurevynSplash')}catch(e){}
 if(seen||rm){d.remove();return}
-var de=document.documentElement,DUR=5400;de.classList.add('m-splash-on','m-splash-busy');
+var mob=innerWidth<700||matchMedia('(pointer:coarse)').matches;if(mob)d.classList.add('sp-mob');var de=document.documentElement,DUR=5400;de.classList.add('m-splash-on','m-splash-busy');
 try{if(localStorage.getItem('aurevynLanguage')==='ur')d.classList.add('ur')}catch(e){}
 var done=false,raf=0;function close(){if(done)return;done=true;try{sessionStorage.setItem('aurevynSplash','1')}catch(e){}d.classList.add('out');de.classList.remove('m-splash-busy');setTimeout(function(){cancelAnimationFrame(raf);d.remove();de.classList.remove('m-splash-on')},1800)}
 d.querySelector('.sp-skip').addEventListener('click',close);setTimeout(close,DUR);
@@ -254,16 +254,16 @@ var t=d.querySelector('.sp-title'),mx=0,my=0;d.addEventListener('pointermove',fu
 var n=document.getElementById('sp-n'),t0=performance.now();(function c(){var p=Math.min(1,(performance.now()-t0)/(DUR-300));n.textContent=Math.round(100*(1-Math.pow(1-p,2.2)));if(p<1&&!done)requestAnimationFrame(c);else n.textContent=100})();
 // WebGL gold galaxy (three.js loaded on demand, shared with the hero scene)
 window.__threeP=window.__threeP||new Promise(function(res,rej){var s=document.createElement('script');s.src='three.min.js?v=128';s.onload=function(){res(window.THREE)};s.onerror=rej;document.head.appendChild(s)});
-window.__threeP.then(function(T){if(done)return;var cv=d.querySelector('.sp-gl'),r=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,1.75));
+window.__threeP.then(function(T){if(done)return;var cv=d.querySelector('.sp-gl'),r=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,mob?1:1.75));
 var sc=new T.Scene(),cam=new T.PerspectiveCamera(55,1,.1,100);cam.position.set(0,2.4,9);cam.lookAt(0,0,0);
-var N=2400,cur=new Float32Array(N*3),st=new Float32Array(N*3),tg=new Float32Array(N*3),i,a,rr,y,k,u,v;
-for(i=0;i<N;i++){a=Math.random()*6.2832;rr=2.5+Math.pow(Math.random(),.65)*6;y=(Math.random()-.5)*(.5+rr*.09);tg[i*3]=Math.cos(a)*rr;tg[i*3+1]=y;tg[i*3+2]=Math.sin(a)*rr;
+var N=mob?650:2400,cur=new Float32Array(N*3),st=new Float32Array(N*3),tg=new Float32Array(N*3),i,a,rr,y,k,u,v;
+for(i=0;i<N;i++){a=Math.random()*6.2832;rr=(mob?4.4:2.5)+Math.pow(Math.random(),.65)*(mob?6.5:6);y=(Math.random()-.5)*(.5+rr*.09);tg[i*3]=Math.cos(a)*rr;tg[i*3+1]=y;tg[i*3+2]=Math.sin(a)*rr;
 u=Math.random()*6.2832;v=Math.acos(2*Math.random()-1);k=16+Math.random()*22;st[i*3]=k*Math.sin(v)*Math.cos(u);st[i*3+1]=k*Math.cos(v);st[i*3+2]=k*Math.sin(v)*Math.sin(u)}
 var g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(cur,3));
 var c2=document.createElement('canvas');c2.width=c2.height=64;var x=c2.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.3,'rgba(255,225,150,.9)');gr.addColorStop(1,'rgba(255,225,150,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);
-var pts=new T.Points(g,new T.PointsMaterial({map:new T.CanvasTexture(c2),color:0xE6C979,size:.17,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}));
+var pts=new T.Points(g,new T.PointsMaterial({map:new T.CanvasTexture(c2),color:0xE6C979,size:mob?.26:.17,transparent:true,opacity:mob?.75:.95,blending:T.AdditiveBlending,depthWrite:false}));
 var grp=new T.Group();grp.add(pts);grp.rotation.x=.38;sc.add(grp);
-function fit(){var w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();grp.scale.setScalar(Math.max(.5,Math.min(1,w/h/1.5)))}fit();addEventListener('resize',fit);
+function fit(){var w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();grp.scale.setScalar(mob?.6:Math.max(.5,Math.min(1,w/h/1.5)))}fit();addEventListener('resize',fit);
 var T0=performance.now();(function loop(){if(!d.isConnected)return;raf=requestAnimationFrame(loop);var s=(performance.now()-T0)/1000,e=Math.min(1,s/3.4);e=1-Math.pow(1-e,3);
 if(e<1||s<3.6){for(var j=0;j<N*3;j++)cur[j]=st[j]+(tg[j]-st[j])*e;g.attributes.position.needsUpdate=true}
 grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin(s*.5)*.3;cam.lookAt(0,0,0);r.render(sc,cam)})();
@@ -512,17 +512,16 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
     <!-- Hero Slider -->
     <section class="hero-slider" id="home" aria-label="Aurevyn – Premium Makeup & Cosmetics Store Pakistan">
       <div
-        class="slide active"
+        class="slide slide-video active"
         role="img"
-        aria-label="Premium makeup and cosmetics collection – Aurevyn Pakistan"
-        style="
-          background:
-            linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(23, 23, 23, 0.75) 100%),
-            url(&quot;https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=1920&quot;)
-              center/cover;
-        "
+        aria-label="Aurevyn 2026 lookbook – models wearing premium makeup"
       >
+        <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="img/lookbook-poster.webp" aria-hidden="true">
+          <source src="img/lookbook.mp4" type="video/mp4" />
+          <source src="img/lookbook.webm" type="video/webm" />
+        </video>
         <div class="slide-content" data-aos="fade-up">
+          <p class="lb-eyebrow">The 2026 Lookbook</p>
           <h2 data-translate="hero_title_1">Discover Your Beauty</h2>
           <p data-translate="hero_desc_1">Premium makeup products for the modern woman</p>
           <a href="shop.html" class="btn-primary"><span data-translate="shop_now">Shop Now</span></a>
@@ -533,7 +532,7 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
         style="
           background:
             linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(23, 23, 23, 0.75) 100%),
-            url(&quot;https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1920&quot;)
+            url(&quot;img/hero-bg-2.webp&quot;)
               center/cover;
         "
       >
@@ -548,7 +547,7 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
         style="
           background:
             linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(23, 23, 23, 0.75) 100%),
-            url(&quot;https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1920&quot;)
+            url(&quot;img/hero-bg-3.webp&quot;)
               center/cover;
         "
       >
