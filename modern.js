@@ -125,7 +125,7 @@ function render(){
   if(rec.length){list=rec;html='<div class="ms-title">Recently viewed</div>'+rec.map(p=>row(p,'')).join('')}
   else{list=all.slice().sort((a,b)=>(b.rating||0)-(a.rating||0)).slice(0,4);html='<div class="ms-title">Popular picks</div>'+list.map(p=>row(p,'')).join('')}}
  else{list=all.filter(p=>(p.name+' '+(p.category||'')+' '+((p.tags||[]).join(' '))).toLowerCase().includes(q)).slice(0,6);
-  html=list.length?list.map(p=>row(p,q)).join('')+'<a class="ms-all" href="shop.html">View all results for “'+esc(input.value.trim())+'” &rsaquo;</a>':'<div class="ms-empty">No products found for “'+esc(input.value.trim())+'”. Try another word.</div>'}
+  html=list.length?list.map(p=>row(p,q)).join('')+'<a class="ms-all" href="shop.html?search='+encodeURIComponent(input.value.trim())+'">View all results for “'+esc(input.value.trim())+'” &rsaquo;</a>':'<div class="ms-empty">No products found for “'+esc(input.value.trim())+'”. Try another word.</div>'}
  box.innerHTML=html;items=[].slice.call(box.querySelectorAll('.ms-row'));idx=-1;place();box.classList.add('open')}
 function close(){box.classList.remove('open');idx=-1}
 ['global-search-desktop','global-search-mobile'].forEach(id=>{const el=document.getElementById(id);if(!el)return;
@@ -135,6 +135,7 @@ function close(){box.classList.remove('open');idx=-1}
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!items.length)return;idx=(idx+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;items.forEach((r,i)=>r.classList.toggle('on',i===idx));items[idx].scrollIntoView({block:'nearest'})}
   else if(e.key==='Enter'&&idx>=0){e.preventDefault();items[idx].click()}
   else if(e.key==='Escape')close()})});
+box.addEventListener('click',e=>{const a=e.target.closest('.ms-all');if(!a||!input)return;e.preventDefault();const q=input.value.trim();close();try{submitGlobalSearch(q)}catch(err){location.href=a.href}});
 document.addEventListener('pointerdown',e=>{if(!box.contains(e.target)&&e.target!==input)close()});
 addEventListener('resize',place);addEventListener('scroll',()=>{if(box.classList.contains('open'))place()},{passive:true});
 
@@ -147,7 +148,7 @@ nav.innerHTML='<a href="index.html" data-k="home"'+(page==='index.html'||page===
 +'<button type="button" data-k="wish"><i class="fas fa-heart"></i><span>Wishlist</span><b class="bn-badge" data-for="wishlist-count"></b></button>'
 +'<button type="button" data-k="cart"><i class="fas fa-shopping-bag"></i><span>Cart</span><b class="bn-badge" data-for="cart-count"></b></button>';
 document.body.appendChild(nav);document.body.classList.add('has-bottomnav');
-nav.addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
+nav.addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;e.stopPropagation();const k=b.dataset.k;
  try{if(k==='cart')toggleCart();else if(k==='wish')toggleWishlist();else if(k==='search'){toggleMobileSearch();setTimeout(()=>{const i=document.getElementById('global-search-mobile');i&&i.focus()},250)}}catch(err){}});
 const sync=()=>nav.querySelectorAll('.bn-badge').forEach(b=>{const s=document.getElementById(b.dataset.for),n=s?parseInt(s.textContent,10)||0:0;b.textContent=n>99?'99+':n;b.style.display=n?'flex':'none'});
 ['cart-count','wishlist-count'].forEach(id=>{const s=document.getElementById(id);s&&new MutationObserver(sync).observe(s,{childList:true,characterData:true,subtree:true})});sync();

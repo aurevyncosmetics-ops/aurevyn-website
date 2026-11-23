@@ -3680,7 +3680,7 @@ function showWelcomeToast() {
     } catch (e) {}
 }
 
-document.addEventListener('DOMContentLoaded', showWelcomeToast);
+// Welcome toast removed (the intro screen already welcomes visitors)
 
 
 let _mobileMenuOpenScrollY = 0;
