@@ -5,7 +5,7 @@
 // Example: aurevyn.makeup/sw-notifications.js
 // ==========================================
 
-const CACHE_NAME = 'aurevyn-sw-v8'; // bump this number whenever you change which files get cached, so old caches get cleared
+const CACHE_NAME = 'aurevyn-sw-v9'; // bump this number whenever you change which files get cached, so old caches get cleared
 
 // Files that are safe to cache the moment the service worker installs.
 // Keep this list small — only files whose URL never changes (no ?v= query strings).
@@ -242,11 +242,18 @@ function networkFirst(request) {
         }
 
         function fallback() {
-            return caches.match(request).then(function(cached) {
+            const isNav = request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html');
+            // For page loads, ignore ?query strings so e.g. shop.html?view=sale can still fall back to shop.html
+            return caches.match(request, isNav ? { ignoreSearch: true } : undefined).then(function(cached) {
                 if (cached) return cached;
-                if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+                // /index.html is stored under '/' — same page, so that is allowed.
+                if (isNav && /\/index\.html$/.test(new URL(request.url).pathname)) {
                     return caches.match('/');
                 }
+                // IMPORTANT: never hand back the HOME page for a DIFFERENT page.
+                // (Old code did this, so refreshing shop/product/faq on a slow or
+                // failed connection showed the home page.) No copy => let the browser
+                // keep waiting for / retry the real page.
                 return undefined;
             });
         }
