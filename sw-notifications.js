@@ -5,7 +5,7 @@
 // Example: aurevyn.makeup/sw-notifications.js
 // ==========================================
 
-const CACHE_NAME = 'aurevyn-sw-v7'; // bump this number whenever you change which files get cached, so old caches get cleared
+const CACHE_NAME = 'aurevyn-sw-v8'; // bump this number whenever you change which files get cached, so old caches get cleared
 
 // Files that are safe to cache the moment the service worker installs.
 // Keep this list small — only files whose URL never changes (no ?v= query strings).
@@ -218,12 +218,79 @@ self.addEventListener('activate', function(event) {
     );
 });
 
-// Fetch - serve from cache when possible, keep cache updated, work offline
+// Fetch strategy (UPDATE-FRIENDLY):
+//  - Your own site files (HTML, JS, CSS, images, JSON...) are NETWORK-FIRST.
+//    The browser always asks the server "has this changed?" (cache: 'no-cache'),
+//    so customers see a new deploy on their VERY FIRST visit — no "old version
+//    first, new version on the second visit" problem. The cache is only a
+//    fallback for offline / very slow networks.
+//  - Third-party files (CDN scripts, Google Fonts) stay cache-first — they
+//    never change and this keeps the site fast.
+//  - Big media (video/audio) is left to the browser (range requests).
+const NETWORK_TIMEOUT_MS = 6000; // slow network -> fall back to cached copy if we have one
+
+function networkFirst(request) {
+    return new Promise(function(resolve) {
+        let settled = false;
+        let timer = null;
+
+        function finish(response) {
+            if (settled) return;
+            settled = true;
+            if (timer) clearTimeout(timer);
+            resolve(response);
+        }
+
+        function fallback() {
+            return caches.match(request).then(function(cached) {
+                if (cached) return cached;
+                if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+                    return caches.match('/');
+                }
+                return undefined;
+            });
+        }
+
+        // If the network is very slow and we already have a copy, show it
+        timer = setTimeout(function() {
+            fallback().then(function(cached) { if (cached) finish(cached); });
+        }, NETWORK_TIMEOUT_MS);
+
+        fetch(request, { cache: 'no-cache' })
+            .then(function(response) {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then(function(cache) { cache.put(request, copy); }).catch(function() {});
+                }
+                finish(response);
+            })
+            .catch(function() {
+                fallback().then(function(cached) {
+                    if (cached) finish(cached);
+                    else finish(Response.error());
+                });
+            });
+    });
+}
+
+function cacheFirst(request) {
+    return caches.match(request).then(function(cached) {
+        const networkFetch = fetch(request).then(function(response) {
+            // Cache successful responses AND opaque cross-origin ones (CDN fonts/scripts)
+            if (response && (response.ok || response.type === 'opaque') && response.status !== 206) {
+                const copy = response.clone();
+                caches.open(CACHE_NAME).then(function(cache) { cache.put(request, copy); }).catch(function() {});
+            }
+            return response;
+        }).catch(function() { return cached; });
+        return cached || networkFetch;
+    });
+}
+
 self.addEventListener('fetch', function(event) {
     const request = event.request;
 
     // Only handle simple GET requests over http/https.
-    // POST requests (e.g. Firebase writes) and other schemes pass through untouched.
     if (request.method !== 'GET') return;
     if (!request.url.startsWith('http')) return;
 
@@ -234,52 +301,14 @@ self.addEventListener('fetch', function(event) {
         return;
     }
 
-    const acceptHeader = request.headers.get('accept') || '';
-
-    // HTML pages: try network first (so customers always see latest site when online),
-    // fall back to cache, then to the cached homepage if totally offline
-    if (request.mode === 'navigate' || acceptHeader.includes('text/html')) {
-        event.respondWith(
-            fetch(request)
-                .then(function(response) {
-                    const responseCopy = response.clone();
-                    caches.open(CACHE_NAME).then(function(cache) {
-                        cache.put(request, responseCopy);
-                    });
-                    return response;
-                })
-                .catch(function() {
-                    return caches.match(request).then(function(cached) {
-                        return cached || caches.match('/');
-                    });
-                })
-        );
+    // Video / audio / range requests: let the browser handle them directly
+    if (request.headers.has('range') || /\.(mp4|webm|mp3|ogg|wav)(\?|$)/i.test(url.pathname)) {
         return;
     }
 
-    // Everything else - CSS, JS, images (img/ folder), fonts, CDN scripts:
-    // serve from cache instantly if we have it, and refresh the cache in the background.
-    // If we don't have it cached yet, wait for the network and cache it for next time.
-    event.respondWith(
-        caches.match(request).then(function(cached) {
-            const networkFetch = fetch(request)
-                .then(function(response) {
-                    // Cache successful same-origin responses AND opaque cross-origin
-                    // responses (CDN fonts/scripts loaded without CORS still come back "opaque")
-                    if (response && (response.ok || response.type === 'opaque')) {
-                        const responseCopy = response.clone();
-                        caches.open(CACHE_NAME).then(function(cache) {
-                            cache.put(request, responseCopy);
-                        });
-                    }
-                    return response;
-                })
-                .catch(function() {
-                    // offline and not cached - nothing we can do for this request
-                    return cached;
-                });
-
-            return cached || networkFetch;
-        })
-    );
+    if (url.origin === self.location.origin) {
+        event.respondWith(networkFirst(request));
+    } else {
+        event.respondWith(cacheFirst(request));
+    }
 });

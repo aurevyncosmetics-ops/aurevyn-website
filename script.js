@@ -4386,7 +4386,10 @@ window.showOrderReminderPopup = showOrderReminderPopup;
 async function registerPushServiceWorker() {
     if (!('serviceWorker' in navigator)) return null;
     try {
-        const reg = await navigator.serviceWorker.register('/sw-notifications.js');
+        // updateViaCache:'none' + update(): browser hamesha server se check karta hai ke
+        // service worker file badli hai ya nahi — taake naya deploy foran pakda jaye.
+        const reg = await navigator.serviceWorker.register('/sw-notifications.js', { updateViaCache: 'none' });
+        try { reg.update(); } catch (e) {}
         return reg;
     } catch(e) {
         console.warn('SW registration failed:', e);
