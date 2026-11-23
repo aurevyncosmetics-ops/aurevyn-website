@@ -83,7 +83,7 @@ let whatsappWindow = null;
 let whatsappCheckInterval = null;
 
 const SHIPPING_FEE_ALL = 320;
-const FREE_SHIPPING_THRESHOLD = 5000;
+const FREE_SHIPPING_THRESHOLD = 2000;
 
 // ==========================================
 // FORMSPREE ENDPOINTS
@@ -4904,14 +4904,14 @@ const translations = {
     hero_title_2: "New Collection 2026",
     hero_desc_2: "Get 20% off on all new arrivals",
     hero_title_3: "Free Delivery",
-    hero_desc_3: "On all orders above 5000",
+    hero_desc_3: "On all orders above 2000",
     shop_now: "Shop Now",
     explore_now: "Explore Now",
     start_shopping: "Start Shopping",
 
     // Features
     free_shipping: "Free Shipping",
-    free_shipping_desc: "On orders above 5000",
+    free_shipping_desc: "On orders above 2000",
     easy_returns: "Easy Returns",
     easy_returns_desc: "7 days return policy",
     secure_payment: "Secure Payment",
@@ -5201,14 +5201,14 @@ const translations = {
     hero_title_2: "نیا مجموعہ 2026",
     hero_desc_2: "تمام نئی آمد پر 20% رعایت",
     hero_title_3: "مفت ترسیل",
-    hero_desc_3: "5000 سے زیادہ کے تمام آرڈرز پر",
+    hero_desc_3: "2000 سے زیادہ کے تمام آرڈرز پر",
     shop_now: "ابھی خریدیں",
     explore_now: "ابھی دریافت کریں",
     start_shopping: "خریداری شروع کریں",
 
     // Features
     free_shipping: "مفت ترسیل",
-    free_shipping_desc: "5000 سے زیادہ کے آرڈرز پر",
+    free_shipping_desc: "2000 سے زیادہ کے آرڈرز پر",
     easy_returns: "آسان واپسی",
     easy_returns_desc: "7 دن کی واپسی کی پالیسی",
     secure_payment: "محفوظ ادائیگی",
@@ -7342,4 +7342,252 @@ function loadRelatedProducts(product) {
         if (glow) glow.style.transform = '';
         if (mono) mono.style.transform = '';
     });
+})();
+
+// ==========================================
+// BACK BUTTON — ONE STEP AT A TIME
+// Every popup / panel / view the customer opens (cart, checkout and its
+// steps, quick view, menus, search, filters, Sale / Category / Wishlist /
+// Search views, lightbox, reviews, shade quiz, policy modals ...) gets its
+// own browser-history entry. Pressing the phone's Back button (or the
+// browser Back button) closes ONLY the top-most layer, so the customer
+// peels the site back one step at a time instead of being thrown out of
+// the website in one go. Closing a layer with its own X / button quietly
+// removes its history entry again, so history never fills with junk.
+// ==========================================
+(function () {
+    'use strict';
+    if (!window.history || typeof history.pushState !== 'function' || typeof MutationObserver === 'undefined') return;
+
+    var TOK = 'aurTok';
+    var rawReplace = history.replaceState.bind(history);
+    var rawPush = history.pushState.bind(history);
+
+    // Other code calls history.replaceState({}, '', url) to tidy the URL
+    // (quick-view params, notification params ...). Keep our marker alive
+    // when that happens so the entry is still recognised.
+    history.replaceState = function (state, title, url) {
+        var cur = history.state;
+        if (cur && cur[TOK] && !(state && state[TOK])) state = cur;
+        return rawReplace(state, title, url);
+    };
+
+    // After a refresh nothing is open any more, so an old marker is dead.
+    try {
+        var s0 = history.state;
+        if (s0 && s0[TOK]) rawReplace(null, '');
+    } catch (e) {}
+
+    function $(id) { return document.getElementById(id); }
+    function hasCls(id, cls) { var el = $(id); return !!(el && el.classList.contains(cls)); }
+    function call(name) { var f = window[name]; if (typeof f === 'function') f(); }
+    function activeCheckoutStep() {
+        var list = document.querySelectorAll('.checkout-step-content');
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].classList.contains('active')) return i + 1;
+        }
+        return 1;
+    }
+
+    var viewOn = false; // Sale / Category / Wishlist / Search view is showing
+
+    function closeView() {
+        viewOn = false;
+        var vs = null;
+        try { vs = (typeof getViewState === 'function') ? getViewState() : null; } catch (e) {}
+        if (vs && vs.type === 'search' && typeof globalSearch === 'function') {
+            ['global-search-desktop', 'global-search-mobile'].forEach(function (id) {
+                var el = $(id);
+                if (el) el.value = '';
+            });
+            globalSearch('');
+        } else if (typeof showAllProducts === 'function') {
+            showAllProducts();
+        } else if (typeof clearViewState === 'function') {
+            clearViewState();
+        }
+    }
+
+    function modal(key, id, closer) {
+        return {
+            key: key,
+            open: function () { return hasCls(id, 'active'); },
+            close: function () { call(closer); }
+        };
+    }
+
+    // Order here does not matter — the order they were opened in does.
+    var LAYERS = [
+        modal('lightbox', 'img-lightbox-overlay', 'closeImageLightbox'),
+        modal('reviews', 'reviews-modal', 'closeReviewsModal'),
+        modal('shadequiz', 'shade-quiz-modal', 'closeShadeQuiz'),
+        modal('ordersuccess', 'order-success-modal', 'closeOrderSuccess'),
+        modal('giftbox', 'gift-box-modal', 'closeGiftBoxModal'),
+        modal('policy', 'policy-modal', 'closeReturnPolicy'),
+        modal('return', 'return-modal', 'closeReturnModal'),
+        modal('service', 'customer-service-modal', 'closeCustomerService'),
+        modal('quickview', 'quick-view-modal', 'closeQuickView'),
+        modal('cart', 'cart-sidebar', 'toggleCart'),
+        modal('menu', 'mobile-menu', 'closeMobileMenu'),
+        modal('search', 'mobile-search-box', 'toggleMobileSearch'),
+        {
+            key: 'filters',
+            open: function () { return hasCls('shop-sidebar', 'mobile-active'); },
+            close: function () { call('toggleMobileFilters'); }
+        },
+        {
+            key: 'chat',
+            open: function () { return hasCls('chat-popup', 'open'); },
+            close: function () { call('toggleChatWidget'); }
+        },
+        modal('checkout', 'checkout-modal', 'closeCheckout'),
+        {   // checkout step 2 (payment) — Back returns to step 1
+            key: 'cstep2',
+            open: function () { return hasCls('checkout-modal', 'active') && activeCheckoutStep() >= 2; },
+            close: function () { if (typeof goToStep === 'function') goToStep(1); }
+        },
+        {   // checkout step 3 (review) — Back returns to step 2
+            key: 'cstep3',
+            open: function () { return hasCls('checkout-modal', 'active') && activeCheckoutStep() >= 3; },
+            close: function () { if (typeof goToStep === 'function') goToStep(2); }
+        },
+        {
+            key: 'view',
+            open: function () { return viewOn; },
+            close: closeView
+        }
+    ];
+
+    var WATCH = {};
+    ['img-lightbox-overlay', 'reviews-modal', 'shade-quiz-modal', 'order-success-modal',
+     'gift-box-modal', 'policy-modal', 'return-modal', 'customer-service-modal',
+     'quick-view-modal', 'cart-sidebar', 'mobile-menu', 'mobile-search-box',
+     'shop-sidebar', 'chat-popup', 'checkout-modal'].forEach(function (id) { WATCH[id] = true; });
+
+    var stack = [];      // layers currently open, oldest first: {key, tok}
+    var tokN = 0;
+    var ignorePop = 0;
+
+    function newTok() { return Date.now().toString(36) + '.' + (++tokN); }
+    function mk(tok, key) { var o = {}; o[TOK] = tok; o.aurKey = key; return o; }
+    function curTok() { var s = history.state; return (s && s[TOK]) ? s[TOK] : null; }
+    function layerFor(key) {
+        for (var i = 0; i < LAYERS.length; i++) if (LAYERS[i].key === key) return LAYERS[i];
+        return null;
+    }
+    function isOpen(L) { try { return !!L.open(); } catch (e) { return false; } }
+
+    // Remove history entries of layers that were closed with their own X/button.
+    function queuePop(list) {
+        setTimeout(function () {
+            var ct = curTok(), idx = -1, i;
+            for (i = 0; i < list.length; i++) {
+                if (list[i].tok === ct) { idx = i; break; }
+            }
+            // Customer already moved on (link, anchor, Back) — leave history alone.
+            if (idx < 0) return;
+            var g = ++tokN;
+            ignorePop = g;
+            setTimeout(function () { if (ignorePop === g) ignorePop = 0; }, 600);
+            history.go(-(list.length - idx));
+        }, 60);
+    }
+
+    function sync() {
+        var open = [], i;
+        for (i = 0; i < LAYERS.length; i++) if (isOpen(LAYERS[i])) open.push(LAYERS[i].key);
+
+        var removed = [];
+        for (i = stack.length - 1; i >= 0; i--) {
+            if (open.indexOf(stack[i].key) === -1) removed.push(stack.splice(i, 1)[0]);
+        }
+        var added = open.filter(function (k) {
+            return !stack.some(function (e) { return e.key === k; });
+        });
+        if (!removed.length && !added.length) return;
+
+        // One layer swapped for another (cart -> checkout, menu -> sale view):
+        // reuse the same history entry instead of stacking a new one.
+        if (removed.length && added.length && curTok() === removed[0].tok) {
+            var k0 = added.shift(), t0 = newTok();
+            rawReplace(mk(t0, k0), '');
+            stack.push({ key: k0, tok: t0 });
+            removed.shift();
+            removed = []; // anything older stays as a dead entry that Back skips
+        }
+
+        added.forEach(function (k) {
+            var t = newTok();
+            rawPush(mk(t, k), '');
+            stack.push({ key: k, tok: t });
+        });
+
+        if (removed.length) queuePop(removed);
+    }
+
+    function closeLayers(list) {
+        for (var i = list.length - 1; i >= 0; i--) {
+            var L = layerFor(list[i].key);
+            if (!L || !isOpen(L)) continue;
+            try { L.close(); } catch (e) {}
+            if (isOpen(L) && L.key !== 'view' && L.key.indexOf('cstep') !== 0) {
+                try { call('closeAll'); } catch (e2) {}
+            }
+        }
+        sync();
+    }
+
+    window.addEventListener('popstate', function (e) {
+        if (ignorePop) { ignorePop = 0; return; }
+        var tok = e.state && e.state[TOK];
+        var idx = -1, i;
+        if (tok) {
+            for (i = 0; i < stack.length; i++) if (stack[i].tok === tok) { idx = i; break; }
+        }
+        if (idx >= 0) {
+            // Landed on a lower layer that is still open: close what is above it.
+            closeLayers(stack.splice(idx + 1));
+            return;
+        }
+        // Left the top layer(s): close them.
+        if (stack.length) closeLayers(stack.splice(0));
+        // Landed on a dead marker entry (its layer was already closed) — skip it.
+        if (tok) history.back();
+    });
+
+    // Sale / Category / Wishlist / Search views.
+    var _save = window.saveViewState, _clear = window.clearViewState;
+    if (typeof _save === 'function') {
+        window.saveViewState = function () {
+            var r = _save.apply(this, arguments);
+            viewOn = true;
+            sync();
+            return r;
+        };
+    }
+    if (typeof _clear === 'function') {
+        window.clearViewState = function () {
+            var r = _clear.apply(this, arguments);
+            viewOn = false;
+            sync();
+            return r;
+        };
+    }
+
+    function start() {
+        new MutationObserver(function (muts) {
+            for (var i = 0; i < muts.length; i++) {
+                var t = muts[i].target;
+                if (!t) continue;
+                if ((t.id && WATCH[t.id]) || (t.classList && t.classList.contains('checkout-step-content'))) {
+                    sync();
+                    return;
+                }
+            }
+        }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });
+        sync();
+    }
+
+    if (document.body) start();
+    else document.addEventListener('DOMContentLoaded', start);
 })();
