@@ -538,6 +538,98 @@ function addFbtToCart() {
 }
 
 // ==========================================================
+// BACK-IN-STOCK ALERT  (WhatsApp par batao)
+// Static site hai, is liye button customer ko WhatsApp par aap ke number
+// ka pre-filled message khol deta hai: "jab stock aaye to mujhe batao".
+// ==========================================================
+const NOTIFY_WHATSAPP_NUMBER = '923258666803';
+
+function notifyBackInStock(productId) {
+    const product = products.find(function (p) { return p.id === productId; });
+    if (!product) return;
+    let link = '';
+    try { link = new URL('product.html?id=' + product.id, window.location.href).href; } catch (e) {}
+    const msg = 'Hi Aurevyn! 👋\nPlease notify me on WhatsApp when *' + product.name + '* is back in stock.' +
+        (link ? '\n' + link : '');
+    window.open('https://wa.me/' + NOTIFY_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+    showToast('success', 'Opening WhatsApp', 'Send the message and we will let you know when it is back!', 2500);
+}
+
+function notifyButtonHTML(product) {
+    return '<button type="button" class="notify-btn" onclick="notifyBackInStock(' + product.id + ')">' +
+        '<i class="fab fa-whatsapp"></i> Notify me on WhatsApp</button>' +
+        '<p class="notify-note">Back in stock soon? We will message you on WhatsApp.</p>';
+}
+
+// ==========================================================
+// STICKY ADD-TO-CART BAR  (product page, phone par neeche chipka)
+// ==========================================================
+let _stickyObserver = null;
+let _stickyMutation = null;
+
+function initStickyAtc(product) {
+    const old = document.getElementById('sticky-atc');
+    if (old) old.remove();
+    if (_stickyObserver) { _stickyObserver.disconnect(); _stickyObserver = null; }
+    if (_stickyMutation) { _stickyMutation.disconnect(); _stickyMutation = null; }
+    document.body.classList.remove('sticky-atc-on');
+
+    const body = document.getElementById('product-detail-body');
+    if (!body || !product) return;
+    const out = isProductOutOfStock(product);
+
+    const bar = document.createElement('div');
+    bar.id = 'sticky-atc';
+    bar.className = 'sticky-atc';
+    bar.innerHTML =
+        '<img class="sticky-atc-img" id="sticky-atc-img" src="' + product.image + '" alt="">' +
+        '<div class="sticky-atc-info">' +
+        '<div class="sticky-atc-name">' + promoEsc(product.name) + '</div>' +
+        '<div class="sticky-atc-sub"><b>' + promoMoney(product.price) + '</b><span id="sticky-atc-shade"></span></div>' +
+        '</div>' +
+        (out
+            ? '<button type="button" class="sticky-atc-btn is-notify" onclick="notifyBackInStock(' + product.id + ')"><i class="fab fa-whatsapp"></i> Notify me</button>'
+            : '<button type="button" class="sticky-atc-btn" id="sticky-atc-btn" onclick="stickyAddToCart(' + product.id + ')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>');
+    document.body.appendChild(bar);
+    document.body.classList.add('has-sticky-atc-page');
+
+    function syncDetails() {
+        const shade = body.getAttribute('data-qv-shade');
+        const shadeEl = document.getElementById('sticky-atc-shade');
+        if (shadeEl) shadeEl.textContent = shade ? ' · ' + shade : '';
+        const main = document.getElementById('pd-main-img-' + product.id);
+        const img = document.getElementById('sticky-atc-img');
+        if (main && img && main.src && img.src !== main.src) img.src = main.src;
+    }
+    syncDetails();
+    _stickyMutation = new MutationObserver(syncDetails);
+    _stickyMutation.observe(body, { attributes: true, attributeFilter: ['data-qv-shade', 'data-qv-variant'] });
+
+    // Bar sirf tab dikhao jab asli Add to Cart button screen se bahar ho
+    const target = body.querySelector('.quick-view-details > .btn-primary');
+    if (!target || !('IntersectionObserver' in window)) return;
+    _stickyObserver = new IntersectionObserver(function (entries) {
+        const visible = entries[0].isIntersecting;
+        bar.classList.toggle('is-visible', !visible);
+        document.body.classList.toggle('sticky-atc-on', !visible);
+        if (!visible) syncDetails();
+    }, { threshold: 0 });
+    _stickyObserver.observe(target);
+}
+
+function stickyAddToCart(productId) {
+    addToCartFromProductPage(productId);
+    const btn = document.getElementById('sticky-atc-btn');
+    if (btn && !btn.dataset.busy) {
+        btn.dataset.busy = '1';
+        const html = btn.innerHTML;
+        btn.classList.add('added');
+        btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+        setTimeout(function () { btn.classList.remove('added'); btn.innerHTML = html; delete btn.dataset.busy; }, 1100);
+    }
+}
+
+// ==========================================================
 // STYLES (JS se inject — modern.css ko chhoone ki zaroorat nahi)
 // ==========================================================
 (function injectPromoStyles() {
@@ -605,6 +697,33 @@ function addFbtToCart() {
 .dark-mode .promo-nudge{color:#F6EEDB}
 .dark-mode .fbt-img{background:#2a2825;border-color:rgba(255,255,255,.08)}
 .dark-mode .fbt-head h2{color:#F6EEDB}
+
+.notify-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:13px 16px;border:0;border-radius:12px;background:#25D366;color:#fff;font:700 15px inherit;cursor:pointer;box-shadow:0 8px 18px -10px rgba(37,211,102,.8)}
+.notify-btn i{font-size:19px}
+.notify-btn:active{transform:scale(.98)}
+.notify-note{margin:8px 0 0;font-size:12px;color:#765C21;text-align:center}
+
+.sticky-atc{display:none}
+@media (max-width:768px){
+  .sticky-atc{display:flex;align-items:center;gap:10px;position:fixed;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:990;padding:9px 10px;border-radius:18px;background:rgba(255,253,248,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(201,162,75,.55);box-shadow:0 14px 32px -12px rgba(17,17,17,.5);transform:translateY(calc(100% + 110px));transition:transform .3s cubic-bezier(.16,1,.3,1);pointer-events:none}
+  .sticky-atc.is-visible{transform:translateY(0);pointer-events:auto}
+  .sticky-atc-img{width:46px;height:46px;border-radius:10px;object-fit:cover;background:#F6EEDB;flex-shrink:0}
+  .sticky-atc-info{flex:1;min-width:0}
+  .sticky-atc-name{font-size:13px;font-weight:600;color:#151515;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sticky-atc-sub{font-size:13px;color:#4d5e54;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sticky-atc-sub b{color:#151515}
+  .sticky-atc-btn{flex-shrink:0;display:flex;align-items:center;gap:7px;border:0;border-radius:12px;padding:12px 16px;background:#1C1B1A;color:#F6EEDB;font:700 14px inherit;cursor:pointer}
+  .sticky-atc-btn.added{background:#765C21}
+  .sticky-atc-btn.is-notify{background:#25D366;color:#fff}
+  body.has-sticky-atc-page{padding-bottom:160px}
+  body.sticky-atc-on .live-chat-widget,body.sticky-atc-on .go-to-top,body.sticky-atc-on .shade-quiz-fab,body.sticky-atc-on .whatsapp-float{margin-bottom:152px!important;transition:margin-bottom .3s ease}
+  body.cart-open .sticky-atc,body.nav-menu-open .sticky-atc{display:none}
+}
+.dark-mode .sticky-atc{background:rgba(28,27,26,.97);border-color:rgba(201,162,75,.5)}
+.dark-mode .sticky-atc-name,.dark-mode .sticky-atc-sub b{color:#F6EEDB}
+.dark-mode .sticky-atc-sub{color:#cfc5ad}
+.dark-mode .sticky-atc-btn:not(.is-notify){background:#C9A24B;color:#1C1B1A}
+.dark-mode .notify-note{color:#E6D3A3}
 `;
     const style = document.createElement('style');
     style.id = 'promo-styles';

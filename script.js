@@ -3209,7 +3209,7 @@ function openQuickView(productId) {
 
         const qvOutOfStock = isProductOutOfStock(product);
         const qvAddToCartBtn = qvOutOfStock
-            ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>`
+            ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>${typeof notifyButtonHTML === 'function' ? notifyButtonHTML(product) : ''}`
             : `<button class="btn-primary" onclick="addToCartFromQuickView(${product.id});closeQuickView();" style="width:100%;"><i class="fas fa-shopping-bag"></i> Add to Cart</button>`;
 
         qvb.innerHTML = `
@@ -7123,7 +7123,7 @@ function initProductDetailPage() {
 
     const pdOutOfStock = isProductOutOfStock(product);
     const pdAddToCartBtn = pdOutOfStock
-        ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>`
+        ? `<button class="btn-primary out-of-stock-btn" disabled style="width:100%;"><i class="fas fa-ban"></i> Out of Stock</button>${typeof notifyButtonHTML === 'function' ? notifyButtonHTML(product) : ''}`
         : `<button class="btn-primary" onclick="addToCartFromProductPage(${product.id})" style="width:100%;"><i class="fas fa-shopping-bag"></i> Add to Cart</button>`;
 
     container.innerHTML = `
@@ -7164,6 +7164,7 @@ function initProductDetailPage() {
     });
 
     if (typeof renderFBT === 'function') renderFBT(product);
+    if (typeof initStickyAtc === 'function') initStickyAtc(product);
     loadRelatedProducts(product);
 }
 

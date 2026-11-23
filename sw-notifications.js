@@ -5,7 +5,7 @@
 // Example: aurevyn.makeup/sw-notifications.js
 // ==========================================
 
-const CACHE_NAME = 'aurevyn-sw-v5'; // bump this number whenever you change which files get cached, so old caches get cleared
+const CACHE_NAME = 'aurevyn-sw-v7'; // bump this number whenever you change which files get cached, so old caches get cleared
 
 // Files that are safe to cache the moment the service worker installs.
 // Keep this list small — only files whose URL never changes (no ?v= query strings).
