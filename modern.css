@@ -219,3 +219,66 @@ html.m-splash-on{overflow:hidden}
  body.has-bottomnav{padding-bottom:84px}
  .go-to-top,.shade-quiz-fab,.whatsapp-float,.live-chat-widget{margin-bottom:76px}
 }
+
+/* ===================================================================
+   NAVBAR: 3D "Aurevyn" logo  +  phone par header se search/wishlist/cart hide
+   (phone par yeh teeno neeche wale bottom-nav mein pehle se maujood hain)
+   =================================================================== */
+.logo a{display:inline-block;perspective:700px}
+.logo h1{
+  display:inline-block;
+  transform-style:preserve-3d;
+  transform-origin:50% 60%;
+  transform:rotateX(10deg) rotateY(-14deg);
+  animation:aurLogoSway 7s ease-in-out infinite;
+  will-change:transform;
+  text-shadow:
+    1px 1px 0 #43413d, 2px 2px 0 #393734, 3px 3px 0 #2f2d2b,
+    4px 4px 0 #262523, 5px 5px 0 #1d1c1a,
+    6px 9px 10px rgba(0,0,0,.35);
+}
+.logo h1 span{
+  text-shadow:
+    1px 1px 0 #c6a95f, 2px 2px 0 #b39349, 3px 3px 0 #9f8040,
+    4px 4px 0 #8b6e35, 5px 5px 0 #775c2b,
+    6px 9px 10px rgba(90,64,16,.4);
+}
+.logo a:hover h1{animation-play-state:paused;transform:rotateX(6deg) rotateY(-4deg)}
+@keyframes aurLogoSway{
+  0%,100%{transform:rotateX(10deg) rotateY(-16deg)}
+  50%{transform:rotateX(6deg) rotateY(12deg)}
+}
+/* dark mode */
+[data-theme="dark"] .logo h1,.dark-mode .logo h1{
+  text-shadow:
+    1px 1px 0 #b8ae94, 2px 2px 0 #968d78, 3px 3px 0 #756d5c,
+    4px 4px 0 #544e42, 5px 5px 0 #3a362e,
+    6px 9px 12px rgba(0,0,0,.6);
+}
+[data-theme="dark"] .logo h1 span,.dark-mode .logo h1 span{
+  text-shadow:
+    1px 1px 0 #a98532, 2px 2px 0 #8a6c28, 3px 3px 0 #6c541f,
+    4px 4px 0 #4f3d16, 5px 5px 0 #3a2d10,
+    6px 9px 12px rgba(0,0,0,.6);
+}
+@media (max-width:768px){
+  .logo h1{
+    text-shadow:1px 1px 0 #43413d, 2px 2px 0 #34322f, 3px 3px 0 #262523, 4px 6px 7px rgba(0,0,0,.35);
+  }
+  .logo h1 span{
+    text-shadow:1px 1px 0 #c6a95f, 2px 2px 0 #b09048, 3px 3px 0 #8f7238, 4px 6px 7px rgba(90,64,16,.4);
+  }
+  [data-theme="dark"] .logo h1,.dark-mode .logo h1{
+    text-shadow:1px 1px 0 #b8ae94, 2px 2px 0 #8a8170, 3px 3px 0 #5c5545, 4px 6px 8px rgba(0,0,0,.6);
+  }
+  [data-theme="dark"] .logo h1 span,.dark-mode .logo h1 span{
+    text-shadow:1px 1px 0 #a98532, 2px 2px 0 #7d6125, 3px 3px 0 #54411a, 4px 6px 8px rgba(0,0,0,.6);
+  }
+  /* search / wishlist / cart sirf bottom-nav mein (DOM mein rehte hain taake counts sync hon) */
+  .header-actions .search-icon-mobile,
+  .header-actions .action-icon{display:none!important}
+  .header-actions{min-width:0!important;margin-left:auto!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .logo h1{animation:none;transform:rotateX(8deg) rotateY(-10deg)}
+}
