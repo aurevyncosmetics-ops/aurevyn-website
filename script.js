@@ -1790,12 +1790,16 @@ function calculateTotalsWithDiscount() {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const city = checkoutData.shipping?.city || document.getElementById('checkout-city')?.value || '';
     const shippingFee = getShippingFee(city);
-    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : shippingFee;
-    const baseTotal = subtotal + shipping;
+    // Coupons + bundles + multi-buy (promos.js). Agar file load na ho to 0 discount.
+    const promo = (typeof computePromos === 'function')
+        ? computePromos()
+        : { totalDiscount: 0, bundleDiscount: 0, qtyDiscount: 0, couponDiscount: 0, freeShipping: false, coupon: null, bundleLines: [], qtyApplied: {} };
+    const shipping = (subtotal >= FREE_SHIPPING_THRESHOLD || promo.freeShipping) ? 0 : shippingFee;
+    const baseTotal = Math.max(0, subtotal - promo.totalDiscount) + shipping;
     const isDigital = (selectedPaymentMethod === 'jazzcash' || selectedPaymentMethod === 'easypaisa');
     const discountAmt = isDigital ? Math.round(baseTotal * DIGITAL_DISCOUNT_PERCENT / 100) : 0;
     const finalTotal = baseTotal - discountAmt;
-    return { subtotal, shipping, baseTotal, discountAmt, finalTotal, isDigital };
+    return { subtotal, shipping, baseTotal, discountAmt, finalTotal, isDigital, promo };
 }
 
 // ==========================================
@@ -1825,6 +1829,7 @@ function updateSidebarTotals() {
     }
 
     if (totalEl) totalEl.textContent = 'PKR ' + finalTotal.toLocaleString();
+    if (typeof renderCheckoutPromoLines === 'function') renderCheckoutPromoLines();
 }
 
 // ==========================================
@@ -1905,7 +1910,8 @@ function placeOrder() {
     }
 
     const orderId = 'AV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-    const { subtotal, shipping, discountAmt, finalTotal, isDigital } = calculateTotalsWithDiscount();
+    const { subtotal, shipping, discountAmt, finalTotal, isDigital, promo } = calculateTotalsWithDiscount();
+    const promoSummaryLines = (typeof promoLines === 'function') ? promoLines(promo) : [];
 
     const methodLabels = {
         'cod': 'Cash on Delivery',
@@ -1938,6 +1944,9 @@ function placeOrder() {
 
     message += `\n*💰 Order Summary:*\n`;
     message += `Subtotal: PKR ${subtotal.toLocaleString()}\n`;
+    promoSummaryLines.forEach(function(l) {
+        message += `${l.label}: ${l.text ? l.text : '-PKR ' + l.amount.toLocaleString()}\n`;
+    });
     message += `Shipping: ${shipping === 0 ? 'FREE' : shipping}\n`;
     if (isDigital) message += `6% Digital Discount: -PKR ${discountAmt.toLocaleString()}\n`;
     message += `*TOTAL: PKR ${finalTotal.toLocaleString()}*\n\n`;
@@ -1975,6 +1984,9 @@ function placeOrder() {
             subtotal:  'PKR ' + subtotal.toLocaleString(),
             shipping:  shipping === 0 ? 'FREE' : 'PKR ' + shipping,
             discount:  isDigital ? 'PKR ' + discountAmt.toLocaleString() : 'N/A',
+            coupon:    (promo.coupon && promo.coupon.valid) ? promo.coupon.code : 'N/A',
+            couponDiscount: 'PKR ' + (promo.couponDiscount || 0).toLocaleString(),
+            bundleSavings:  'PKR ' + ((promo.bundleDiscount || 0) + (promo.qtyDiscount || 0)).toLocaleString(),
             total:     'PKR ' + finalTotal.toLocaleString(),
             payment:   methodLabels[selectedPaymentMethod],
             txnId:     checkoutData.payment.txnId || 'N/A',
@@ -2008,6 +2020,7 @@ function placeOrder() {
         order_id: orderId
     });
 
+    if (typeof clearCouponAfterOrder === 'function') clearCouponAfterOrder();
     cart = [];
     saveCart();
     updateCartUI();
@@ -2311,6 +2324,7 @@ function populateReviewData() {
             );
         }
     }
+    if (typeof renderReviewPromoRows === 'function') renderReviewPromoRows();
 }
 
 // ==========================================
@@ -2946,14 +2960,15 @@ function updateCartUI() {
     if (shippingFeeEl) {
         if (cart.length === 0) {
             shippingFeeEl.textContent = '-';
-        } else if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+        } else if (subtotal >= FREE_SHIPPING_THRESHOLD || (typeof promoGivesFreeShipping === 'function' && promoGivesFreeShipping())) {
             shippingFeeEl.innerHTML = '<span class="free-text">FREE</span>';
         } else {
             shippingFeeEl.textContent = '320';
         }
     }
 
-    updateFreeShipBar(subtotal);
+    updateFreeShipBar((typeof promoGivesFreeShipping === 'function' && promoGivesFreeShipping()) ? Math.max(subtotal, FREE_SHIPPING_THRESHOLD) : subtotal);
+    if (typeof renderCartPromos === 'function') renderCartPromos();
 }
 
 
@@ -7148,6 +7163,7 @@ function initProductDetailPage() {
         currency: 'PKR'
     });
 
+    if (typeof renderFBT === 'function') renderFBT(product);
     loadRelatedProducts(product);
 }
 
