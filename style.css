@@ -16695,3 +16695,17 @@ body::before {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Hide the mobile "Filters" button whenever any popup/panel is open (cart, checkout, quick view ...) */
+body:has(.cart-sidebar.active) .filter-toggle-btn,
+body:has(.checkout-modal.active) .filter-toggle-btn,
+body:has(.quick-view-modal.active) .filter-toggle-btn,
+body:has(.customer-service-modal.active) .filter-toggle-btn,
+body:has(.return-modal.active) .filter-toggle-btn,
+body:has(.policy-modal.active) .filter-toggle-btn,
+body:has(.gift-box-modal.active) .filter-toggle-btn,
+body:has(.reviews-modal.active) .filter-toggle-btn,
+body:has(.order-success-modal.active) .filter-toggle-btn,
+body:has(.mobile-menu.active) .filter-toggle-btn {
+  display: none !important;
+}
