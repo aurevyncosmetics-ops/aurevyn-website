@@ -16709,3 +16709,17 @@ body:has(.order-success-modal.active) .filter-toggle-btn,
 body:has(.mobile-menu.active) .filter-toggle-btn {
   display: none !important;
 }
+
+/* Hide the Shade Quiz floating button whenever a popup/panel is open (cart, checkout, quick view ...) */
+body:has(.cart-sidebar.active) .shade-quiz-fab,
+body:has(.checkout-modal.active) .shade-quiz-fab,
+body:has(.quick-view-modal.active) .shade-quiz-fab,
+body:has(.customer-service-modal.active) .shade-quiz-fab,
+body:has(.return-modal.active) .shade-quiz-fab,
+body:has(.policy-modal.active) .shade-quiz-fab,
+body:has(.reviews-modal.active) .shade-quiz-fab,
+body:has(.order-success-modal.active) .shade-quiz-fab,
+body:has(.shade-quiz-modal.active) .shade-quiz-fab,
+body:has(.mobile-menu.active) .shade-quiz-fab {
+  display: none !important;
+}
