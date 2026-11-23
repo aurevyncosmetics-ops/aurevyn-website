@@ -221,64 +221,75 @@ html.m-splash-on{overflow:hidden}
 }
 
 /* ===================================================================
-   NAVBAR: 3D "Aurevyn" logo  +  phone par header se search/wishlist/cart hide
-   (phone par yeh teeno neeche wale bottom-nav mein pehle se maujood hain)
+   NAVBAR: refined 3D gold-foil logo + language pill + phone header clean-up
    =================================================================== */
-.logo a{display:inline-block;perspective:700px}
+.logo a{display:inline-block}
 .logo h1{
-  display:inline-block;
-  transform-style:preserve-3d;
-  transform-origin:50% 60%;
-  transform:rotateX(10deg) rotateY(-14deg);
-  animation:aurLogoSway 7s ease-in-out infinite;
-  will-change:transform;
-  text-shadow:
-    1px 1px 0 #43413d, 2px 2px 0 #393734, 3px 3px 0 #2f2d2b,
-    4px 4px 0 #262523, 5px 5px 0 #1d1c1a,
-    6px 9px 10px rgba(0,0,0,.35);
+  display:inline-block;margin:0;line-height:1.05;
+  font-family:'Playfair Display','Georgia',serif;font-weight:700;letter-spacing:.025em;
+  background:linear-gradient(180deg,#46423b 0%,#16130f 52%,#4b453b 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent!important;-webkit-text-fill-color:transparent;
+  /* thin gold "thickness" + soft floor shadow = subtle 3D, not heavy */
+  filter:drop-shadow(1px 1px 0 #d6bb7f) drop-shadow(2px 2px 0 #a8873f) drop-shadow(2px 5px 4px rgba(70,48,10,.32));
 }
 .logo h1 span{
-  text-shadow:
-    1px 1px 0 #c6a95f, 2px 2px 0 #b39349, 3px 3px 0 #9f8040,
-    4px 4px 0 #8b6e35, 5px 5px 0 #775c2b,
-    6px 9px 10px rgba(90,64,16,.4);
+  font-weight:700;
+  background:linear-gradient(115deg,#a37f2f 0%,#e9cf86 28%,#fff3c4 40%,#d9b65a 55%,#a37f2f 100%);
+  background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent!important;-webkit-text-fill-color:transparent;
+  animation:aurFoil 6s ease-in-out infinite;
 }
-.logo a:hover h1{animation-play-state:paused;transform:rotateX(6deg) rotateY(-4deg)}
-@keyframes aurLogoSway{
-  0%,100%{transform:rotateX(10deg) rotateY(-16deg)}
-  50%{transform:rotateX(6deg) rotateY(12deg)}
-}
-/* dark mode */
+@keyframes aurFoil{0%,55%{background-position:100% 0}100%{background-position:-60% 0}}
 [data-theme="dark"] .logo h1,.dark-mode .logo h1{
-  text-shadow:
-    1px 1px 0 #b8ae94, 2px 2px 0 #968d78, 3px 3px 0 #756d5c,
-    4px 4px 0 #544e42, 5px 5px 0 #3a362e,
-    6px 9px 12px rgba(0,0,0,.6);
+  background:linear-gradient(180deg,#ffffff 0%,#f1e6c9 55%,#cdbf9c 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(1px 1px 0 #7d6a3a) drop-shadow(2px 2px 0 #4a3d1c) drop-shadow(2px 5px 5px rgba(0,0,0,.6));
 }
-[data-theme="dark"] .logo h1 span,.dark-mode .logo h1 span{
-  text-shadow:
-    1px 1px 0 #a98532, 2px 2px 0 #8a6c28, 3px 3px 0 #6c541f,
-    4px 4px 0 #4f3d16, 5px 5px 0 #3a2d10,
-    6px 9px 12px rgba(0,0,0,.6);
+
+/* ---- language switcher: sliding EN | اردو pill ---- */
+.lang-switcher{
+  position:relative;display:inline-flex!important;align-items:center;direction:ltr;
+  height:38px;min-width:96px;margin:0 8px 0 0!important;padding:3px;gap:0!important;
+  font-size:0;border-radius:999px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(180deg,#fffdf8,#f3e8cf);
+  border:1px solid rgba(201,162,75,.6);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 6px 14px -8px rgba(90,64,16,.55);
+  transition:box-shadow .25s,transform .25s;
 }
+.lang-switcher:hover{box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 8px 18px -8px rgba(90,64,16,.75);transform:translateY(-1px)}
+.lang-switcher:active{transform:scale(.97)}
+.lang-switcher i{
+  position:absolute!important;display:block!important;top:3px!important;bottom:3px!important;left:3px!important;height:auto!important;width:calc(50% - 3px)!important;margin:0!important;
+  border-radius:999px;font-size:0!important;z-index:0;
+  background:linear-gradient(135deg,#f0d78f,#c9a24b 62%,#a9862f);
+  box-shadow:0 4px 10px -4px rgba(90,64,16,.7),inset 0 1px 1px rgba(255,255,255,.55);
+  transition:transform .38s cubic-bezier(.2,.8,.2,1);
+}
+.lang-switcher i::before{content:none!important}
+.lang-switcher::before,.lang-switcher::after{
+  position:relative;z-index:1;flex:1;text-align:center;line-height:30px;transition:color .25s;
+}
+.lang-switcher::before{content:"EN";font:700 12px/30px 'Outfit',sans-serif;letter-spacing:.1em;color:#1C1B1A}
+.lang-switcher::after{content:"اردو";font:600 14px/30px 'Noto Nastaliq Urdu','Jameel Noor Nastaleeq','Segoe UI',Tahoma,serif;color:#8a774a}
+html[lang="ur"] .lang-switcher i{transform:translateX(100%)}
+html[lang="ur"] .lang-switcher::before{color:#8a774a}
+html[lang="ur"] .lang-switcher::after{color:#1C1B1A}
+.lang-switcher #lang-label{display:none}
+[data-theme="dark"] .lang-switcher,.dark-mode .lang-switcher{background:linear-gradient(180deg,#2a2825,#1c1b1a);border-color:rgba(201,162,75,.55)}
+[data-theme="dark"] .lang-switcher::after,.dark-mode .lang-switcher::after{color:#cdbf9c}
+[data-theme="dark"] html[lang="ur"] .lang-switcher::before,html[lang="ur"] .dark-mode .lang-switcher::before{color:#cdbf9c}
+
 @media (max-width:768px){
-  .logo h1{
-    text-shadow:1px 1px 0 #43413d, 2px 2px 0 #34322f, 3px 3px 0 #262523, 4px 6px 7px rgba(0,0,0,.35);
-  }
-  .logo h1 span{
-    text-shadow:1px 1px 0 #c6a95f, 2px 2px 0 #b09048, 3px 3px 0 #8f7238, 4px 6px 7px rgba(90,64,16,.4);
-  }
-  [data-theme="dark"] .logo h1,.dark-mode .logo h1{
-    text-shadow:1px 1px 0 #b8ae94, 2px 2px 0 #8a8170, 3px 3px 0 #5c5545, 4px 6px 8px rgba(0,0,0,.6);
-  }
-  [data-theme="dark"] .logo h1 span,.dark-mode .logo h1 span{
-    text-shadow:1px 1px 0 #a98532, 2px 2px 0 #7d6125, 3px 3px 0 #54411a, 4px 6px 8px rgba(0,0,0,.6);
-  }
+  .logo h1{filter:drop-shadow(1px 1px 0 #d6bb7f) drop-shadow(2px 3px 3px rgba(70,48,10,.3))}
+  [data-theme="dark"] .logo h1,.dark-mode .logo h1{filter:drop-shadow(1px 1px 0 #7d6a3a) drop-shadow(2px 3px 4px rgba(0,0,0,.6))}
+  .lang-switcher{height:36px;min-width:88px}
   /* search / wishlist / cart sirf bottom-nav mein (DOM mein rehte hain taake counts sync hon) */
   .header-actions .search-icon-mobile,
   .header-actions .action-icon{display:none!important}
   .header-actions{min-width:0!important;margin-left:auto!important}
 }
 @media (prefers-reduced-motion:reduce){
-  .logo h1{animation:none;transform:rotateX(8deg) rotateY(-10deg)}
+  .logo h1 span{animation:none}
 }

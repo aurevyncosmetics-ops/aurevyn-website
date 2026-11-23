@@ -99,7 +99,8 @@
     <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" /></noscript>
 
     <link rel="stylesheet" href="style.css?v=7" />
-    <link rel="stylesheet" href="modern.css?v=2" />
+    <link rel="stylesheet" href="modern.css?v=3" />
+    <link rel="stylesheet" href="home-luxe.css?v=1" />
     
 
     <!-- SHADE SELECTOR STYLES - Must be last to override all -->
@@ -225,7 +226,7 @@
     </style>
 
 </head>
-  <body class="light-mode">
+  <body class="light-mode home-luxe">
 <!-- Intro splash (WebGL gold galaxy + 3D logo + welcome) -->
 <div id="m-splash" role="dialog" aria-label="Welcome to Aurevyn">
   <div class="sp-door l"></div><div class="sp-door r"></div><div class="sp-beam"></div>
@@ -608,6 +609,24 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
       </div>
     </section>
 
+    <!-- Welcome offer strip -->
+    <section class="lx-offer" aria-label="Welcome offer">
+      <div class="container">
+        <div class="lx-offer-inner" data-aos="fade-up">
+          <div class="lx-offer-seal"><i class="fas fa-gift"></i></div>
+          <div class="lx-offer-text">
+            <span class="lx-kicker">Welcome Gift</span>
+            <h3>Take 10% off your first order</h3>
+            <p>Apply the code in your cart. Pair two products from a bundle and save even more.</p>
+          </div>
+          <button type="button" class="lx-code" onclick="lxCopyCode('WELCOME10', this)" aria-label="Copy code WELCOME10">
+            <span class="lx-code-text">WELCOME10</span>
+            <span class="lx-code-hint"><i class="far fa-copy"></i> Tap to copy</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Categories Section -->
     <section class="categories-section" id="categories">
       <div class="container">
@@ -724,6 +743,30 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
     </section>
 
     
+
+    <!-- Bundle & Save banner -->
+    <section class="lx-bundle" aria-label="Bundle and save">
+      <div class="container">
+        <div class="lx-bundle-inner" data-aos="fade-up">
+          <div class="lx-bundle-copy">
+            <span class="lx-kicker">Bundle &amp; Save</span>
+            <h2>Complete the look,<br />keep the savings</h2>
+            <p>Pick matching products and the discount is applied automatically in your cart.</p>
+            <ul class="lx-chips">
+              <li><i class="fas fa-kiss-wink-heart"></i> Lip Duo <b>10% off</b></li>
+              <li><i class="fas fa-eye"></i> Eye Drama Set <b>12% off</b></li>
+              <li><i class="fas fa-magic"></i> Complete Base <b>12% off</b></li>
+            </ul>
+            <a href="shop.html" class="lx-btn">Shop &amp; Save <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="lx-bundle-visual" aria-hidden="true">
+            <span class="lx-orb o1"><img src="img/Ancher_colour_lipstick.webp" alt="" loading="lazy" /></span>
+            <span class="lx-orb o2"><img src="img/Mocallure.webp" alt="" loading="lazy" /></span>
+            <span class="lx-orb o3"><img src="img/Miss_rose_unique_double_wear_liquid_foundation.webp" alt="" loading="lazy" /></span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- All Products with Filters -->
     <!-- Homepage Reviews Section -->
@@ -1968,5 +2011,30 @@ grp.rotation.y=s*.16+mx*.5;grp.rotation.x=.38-my*.25;cam.position.y=2.4+Math.sin
 
 <script src="modern.js?v=1" defer></script>
 <script src="modern3d.js?v=1" defer></script>
+<script>
+function lxCopyCode(code, btn) {
+  function done() {
+    if (!btn) return;
+    var hint = btn.querySelector('.lx-code-hint');
+    if (hint) {
+      var old = hint.innerHTML;
+      hint.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.classList.add('copied');
+      setTimeout(function () { hint.innerHTML = old; btn.classList.remove('copied'); }, 1600);
+    }
+  }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, done);
+      return;
+    }
+  } catch (e) {}
+  var t = document.createElement('textarea');
+  t.value = code; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(t); done();
+}
+</script>
 </body>
 </html>
