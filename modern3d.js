@@ -46,12 +46,12 @@ function init2(){
  hero.addEventListener('pointermove',e=>{const b=hero.getBoundingClientRect();mx=(e.clientX-b.left)/b.width-.5;my=(e.clientY-b.top)/b.height-.5});
  new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(hero);
  const fit=()=>{w=hero.clientWidth;h=hero.clientHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
-  const hw=Math.tan(T.MathUtils.degToRad(20))*8*cam.aspect;L.userData.x=w>700?hw*.62:hw*.7;L.userData.y=w>700?-.35:1.2;L.scale.setScalar(w>700?.95:.58)};
+  const hw=Math.tan(T.MathUtils.degToRad(20))*8*cam.aspect;L.userData.x=w>700?hw*.62:hw*.82;L.userData.y=w>700?-.35:1.78;L.scale.setScalar(w>700?.95:.36)};
  new ResizeObserver(fit).observe(hero);fit();
  const clk=new T.Clock();
  (function loop(){requestAnimationFrame(loop);if(!vis||document.hidden||document.documentElement.classList.contains('m-splash-busy'))return;const t=clk.getElapsedTime();
   L.rotation.y=t*.7+mx*1.2;L.rotation.x=my*.5;L.rotation.z=Math.sin(t*.6)*.08;
-  L.position.set(L.userData.x,L.userData.y+Math.sin(t*1.2)*.25-.1,0);
+  L.position.set(L.userData.x,L.userData.y+Math.sin(t*1.2)*(w>700?.25:.08)-(w>700?.1:.04),0);
   pts.rotation.y=t*.04+mx*.2;pts.rotation.x=my*.15;g1.position.x=-4+Math.sin(t)*2;
   r.render(scene,cam)})();
 }
