@@ -403,3 +403,12 @@ body.home-luxe #best-sellers-grid .product-card .product-image img{
 @media(max-width:992px){
   body.home-luxe #best-sellers-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px}
 }
+
+/* ---------- HERO / HEADER SLIDER: smaller on mobile ---------- */
+/* Was 78vh (almost the whole phone screen). Now roughly 58-64% of the screen. */
+@media (max-width:768px){
+  body.home-luxe .hero-slider{min-height:min(64vh,520px)!important}
+}
+@media (max-width:600px){
+  body.home-luxe .hero-slider{min-height:min(58vh,460px)!important;border-radius:0 0 28px 28px}
+}
