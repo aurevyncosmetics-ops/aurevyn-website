@@ -27,8 +27,8 @@ function init2(){
  const d=new T.DirectionalLight(0xffffff,1.3);d.position.set(3,4,6);scene.add(d);
  const g1=new T.PointLight(0xffd27a,2.2,30);g1.position.set(-4,1,4);scene.add(g1);
  const g2=new T.PointLight(0xffffff,1.2,30);g2.position.set(4,-3,3);scene.add(g2);
- const M=(c,m,ro)=>new T.MeshStandardMaterial({color:c,metalness:m,roughness:ro});
- const gold=M(0xC9A24B,.85,.25),black=M(0x0c0c0c,.7,.28),red=M(0x8a1226,.3,.35);
+ const M=(c,m,ro,o)=>{const mt=new T.MeshStandardMaterial({color:c,metalness:m,roughness:ro});if(o){mt.transparent=true;mt.opacity=o}return mt};
+ const gold=M(0xE9DAB0,.55,.32),black=M(0xDDD3C9,.3,.42),red=M(0xE8A3B0,.2,.42);
  const L=new T.Group();
  const add=(geo,mat,y)=>{const m=new T.Mesh(geo,mat);m.position.y=y;L.add(m);return m};
  add(new T.CylinderGeometry(.62,.62,1.7,56),black,-1.15);
@@ -37,6 +37,19 @@ function init2(){
  add(new T.CylinderGeometry(.47,.47,.7,48),red,1.28);
  const tip=add(new T.SphereGeometry(.47,48,24,0,Math.PI*2,0,Math.PI/2),red,1.63);tip.scale.y=1.35;tip.rotation.z=.18;
  L.scale.setScalar(1.05);scene.add(L);
+ // ---- two extra small makeup items, very light & soft: powder compact + nail polish ----
+ const sm=(c,m,ro)=>M(c,m,ro,.82);
+ const mk=(grp,geo,mat,y)=>{const m=new T.Mesh(geo,mat);m.position.y=y;grp.add(m);return m};
+ const compact=new T.Group(),cSpin=new T.Group(),cTilt=new T.Group();
+ mk(cSpin,new T.CylinderGeometry(.62,.62,.2,48),sm(0xEFE4C4,.45,.4),0);
+ mk(cSpin,new T.CylinderGeometry(.5,.5,.06,48),sm(0xF6DADA,.05,.7),.12);
+ mk(cSpin,new T.CylinderGeometry(.64,.64,.05,48),sm(0xF7F2E6,.6,.25),-.12);
+ cTilt.rotation.x=-1.05;cTilt.add(cSpin);compact.add(cTilt);scene.add(compact);
+ const polish=new T.Group(),pSpin=new T.Group();
+ mk(pSpin,new T.CylinderGeometry(.42,.42,.7,40),sm(0xF8DDE3,.1,.35),0);
+ mk(pSpin,new T.CylinderGeometry(.2,.2,.14,32),sm(0xEFE4C4,.45,.4),.42);
+ mk(pSpin,new T.CylinderGeometry(.17,.17,.62,32),sm(0xF1E7C9,.5,.35),.8);
+ polish.add(pSpin);scene.add(polish);
  // sparkles
  const N=140,pos=new Float32Array(N*3);for(let i=0;i<N*3;i++)pos[i]=(Math.random()-.5)*14;
  const pg=new T.BufferGeometry();pg.setAttribute('position',new T.BufferAttribute(pos,3));
@@ -46,12 +59,16 @@ function init2(){
  hero.addEventListener('pointermove',e=>{const b=hero.getBoundingClientRect();mx=(e.clientX-b.left)/b.width-.5;my=(e.clientY-b.top)/b.height-.5});
  new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(hero);
  const fit=()=>{w=hero.clientWidth;h=hero.clientHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
-  const hw=Math.tan(T.MathUtils.degToRad(20))*8*cam.aspect;L.userData.x=w>700?hw*.62:hw*.7;L.userData.y=w>700?-.35:1.2;L.scale.setScalar(w>700?.95:.58)};
+  const hw=Math.tan(T.MathUtils.degToRad(20))*8*cam.aspect;L.userData.x=w>700?hw*.62:hw*.7;L.userData.y=w>700?-.35:1.2;L.scale.setScalar(w>700?.62:.4);
+  const big=w>700;compact.userData={x:L.userData.x-(big?1.9:.85),y:L.userData.y+(big?1.55:.75)};polish.userData={x:L.userData.x+(big?1.25:.2),y:L.userData.y+(big?1.7:.95)};
+  compact.scale.setScalar(big?.5:.3);polish.scale.setScalar(big?.52:.32)};
  new ResizeObserver(fit).observe(hero);fit();
  const clk=new T.Clock();
  (function loop(){requestAnimationFrame(loop);if(!vis||document.hidden||document.documentElement.classList.contains('m-splash-busy'))return;const t=clk.getElapsedTime();
   L.rotation.y=t*.7+mx*1.2;L.rotation.x=my*.5;L.rotation.z=Math.sin(t*.6)*.08;
   L.position.set(L.userData.x,L.userData.y+Math.sin(t*1.2)*.25-.1,0);
+  compact.position.set(compact.userData.x,compact.userData.y+Math.sin(t*1.0+1.3)*.18,0);cSpin.rotation.y=t*.55;cTilt.rotation.z=Math.sin(t*.5)*.12;
+  polish.position.set(polish.userData.x,polish.userData.y+Math.sin(t*1.1+2.6)*.18,0);pSpin.rotation.y=-t*.6;polish.rotation.z=Math.sin(t*.7+1)*.14;
   pts.rotation.y=t*.04+mx*.2;pts.rotation.x=my*.15;g1.position.x=-4+Math.sin(t)*2;
   r.render(scene,cam)})();
 }
