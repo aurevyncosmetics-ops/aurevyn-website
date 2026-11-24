@@ -293,3 +293,9 @@ html[lang="ur"] .lang-switcher::after{color:#1C1B1A}
 @media (prefers-reduced-motion:reduce){
   .logo h1 span{animation:none}
 }
+
+/* Language toggle: keep the EN | اردو pill look on hover / after a tap.
+   The old style.css hover rule painted the WHOLE toggle gold/brown, so the gold
+   pill vanished and the inactive label turned muddy (worst in Urdu mode). */
+.lang-switcher:hover{background:linear-gradient(180deg,#fffdf8,#f3e8cf);border-color:rgba(201,162,75,.6);color:inherit}
+[data-theme="dark"] .lang-switcher:hover,.dark-mode .lang-switcher:hover{background:linear-gradient(180deg,#2a2825,#1c1b1a);border-color:rgba(201,162,75,.55)}
