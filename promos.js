@@ -51,6 +51,35 @@ const BUNDLES = [
     { id: 'full-base', name: 'Complete Base',   groups: [[14, 32], [20, 34], [6, 16]],   percent: 12 }
 ];
 
+// ----------------------------------------------------------
+// CONFIG 4: FIRST ORDER DISCOUNT  (automatic, no code needed)
+//   Naye customer ke pehle order par percent% off, cart mein khud lag jata hai.
+//   Bundle / multi-buy ke baad ke amount par lagta hai.
+//   Agar customer ne paise kam karne wala coupon (percent/flat) laga rakha ho
+//   to coupon chalta hai aur first-order discount nahi lagta (stack nahi hote).
+//   FREESHIP coupon ke saath dono chalte hain.
+//   NOTE: customer ko browser (localStorage) se pehchana jata hai — koi server
+//   nahi hai, isliye browser data clear karne wala dobara le sakta hai.
+//   Band karne ke liye enabled: false karein.
+// ----------------------------------------------------------
+const FIRST_ORDER = { enabled: true, percent: 5 };
+const FIRST_ORDER_KEY = 'aurevynFirstOrderUsed';
+
+function promoPendingOrderId() {
+    try { const p = JSON.parse(localStorage.getItem('aurevynPendingOrder') || 'null'); return (p && p.orderId) || ''; } catch (e) { return ''; }
+}
+
+// Pehla order? (Agar pehla order 'cancelled' ho gaya to discount wapas mil jata hai)
+function isFirstOrderEligible() {
+    if (!FIRST_ORDER.enabled) return false;
+    try {
+        const used = localStorage.getItem(FIRST_ORDER_KEY);
+        if (!used) return true;
+        const p = JSON.parse(localStorage.getItem('aurevynPendingOrder') || 'null');
+        return !!(p && p.orderId === used && p.cancelled === true);
+    } catch (e) { return true; }
+}
+
 const COUPON_STORAGE_KEY = 'aurevynCoupon';
 
 // ==========================================================
@@ -165,6 +194,12 @@ function computePromos() {
     const couponDiscount = coupon && coupon.valid ? Math.min(coupon.discount, afterOffers) : 0;
     const freeShipping = !!(coupon && coupon.valid && coupon.freeShipping);
 
+    // 4) First order discount (automatic) — sirf tab jab koi paisay wala coupon na laga ho
+    let firstOrderDiscount = 0;
+    if (isFirstOrderEligible() && afterOffers > 0 && couponDiscount === 0) {
+        firstOrderDiscount = Math.round(afterOffers * FIRST_ORDER.percent / 100);
+    }
+
     return {
         subtotal: subtotal,
         bundleDiscount: bundleDiscount,
@@ -173,8 +208,9 @@ function computePromos() {
         qtyApplied: qtyApplied,
         coupon: coupon,
         couponDiscount: couponDiscount,
+        firstOrderDiscount: firstOrderDiscount,
         freeShipping: freeShipping,
-        totalDiscount: bundleDiscount + qtyDiscount + couponDiscount
+        totalDiscount: bundleDiscount + qtyDiscount + couponDiscount + firstOrderDiscount
     };
 }
 
@@ -191,6 +227,7 @@ function promoLines(p) {
         const pct = pcts.length ? Math.max.apply(null, pcts) : 0;
         lines.push({ label: 'Multi-buy savings (' + pct + '% off)', amount: p.qtyDiscount });
     }
+    if (p.firstOrderDiscount > 0) lines.push({ label: 'First order discount (' + FIRST_ORDER.percent + '% off)', amount: p.firstOrderDiscount });
     if (p.coupon && p.coupon.valid) {
         if (p.couponDiscount > 0) lines.push({ label: 'Coupon ' + p.coupon.code, amount: p.couponDiscount });
         if (p.freeShipping) lines.push({ label: 'Coupon ' + p.coupon.code + ' — free delivery', amount: 0, text: 'FREE' });
@@ -729,4 +766,22 @@ function stickyAddToCart(productId) {
     style.id = 'promo-styles';
     style.textContent = css;
     document.head.appendChild(style);
+})();
+
+// ==========================================================
+// FIRST ORDER — order place hote hi us customer ke liye 'used' mark karo
+// ==========================================================
+(function () {
+    const originalPlaceOrder = window.placeOrder;
+    if (typeof originalPlaceOrder !== 'function') return;
+    window.placeOrder = function () {
+        const before = promoPendingOrderId();
+        const wasEligible = isFirstOrderEligible();
+        const result = originalPlaceOrder.apply(this, arguments);
+        const after = promoPendingOrderId();
+        if (wasEligible && after && after !== before) {
+            try { localStorage.setItem(FIRST_ORDER_KEY, after); } catch (e) {}
+        }
+        return result;
+    };
 })();

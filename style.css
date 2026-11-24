@@ -16723,3 +16723,27 @@ body:has(.shade-quiz-modal.active) .shade-quiz-fab,
 body:has(.mobile-menu.active) .shade-quiz-fab {
   display: none !important;
 }
+
+/* Quiz button: sits on the SAME horizontal line as the WhatsApp button (opposite side).
+   WhatsApp bubble centre = 60px up (desktop / 481-768px) or 47px up (<=480px);
+   the quiz button is 48px tall, so bottom = centre - 24px. */
+.shade-quiz-fab {
+  height: 48px;
+  bottom: 36px;
+  left: 24px;
+  padding: 0 20px 0 16px;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .shade-quiz-fab {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    bottom: 36px;
+    left: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .shade-quiz-fab { bottom: 23px; }
+}
