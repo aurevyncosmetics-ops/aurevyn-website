@@ -1,6 +1,6 @@
 // ==========================================================
 // AUREVYN — PROMOS
-//   1) Coupon codes (WELCOME10, Eid sale, etc.) — cart mein lagte hain
+//   1) Coupon codes (Eid sale, etc.) — cart mein lagte hain
 //   2) Bundles + "Frequently Bought Together" + multi-buy (2 lo to 10% off)
 //
 // Yeh file script.js ke BAAD load hoti hai. Sab offers neeche ke
@@ -21,7 +21,6 @@
 //   starts / expires : 'YYYY-MM-DD' (optional)
 // ----------------------------------------------------------
 const COUPONS = {
-    WELCOME10: { type: 'percent',  value: 10, minSubtotal: 0,    label: 'Welcome offer, 10% off' },
     // Eid sale: dates apni asal Eid sale ke mutabiq badal lein
     EID15:     { type: 'percent',  value: 15, minSubtotal: 1500, maxDiscount: 1000, expires: '2027-03-20', label: 'Eid Sale, 15% off' },
     FLAT100:   { type: 'flat',     value: 100, minSubtotal: 1000, label: 'PKR 100 off' },
